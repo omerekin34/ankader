@@ -124,18 +124,24 @@ export default function DuyurularBoard({
 
       <div className="mt-8 flex flex-wrap gap-2 border-t border-secondary/10 pt-6">
         <a
+          href="/uye?yol=uye"
+          className="inline-flex rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+        >
+          Üye ol
+        </a>
+        <a
+          href="/uye?yol=bagis"
+          className="inline-flex rounded-full border border-secondary/10 px-4 py-2.5 text-sm font-semibold hover:border-primary/40"
+        >
+          Bağış yap
+        </a>
+        <a
           href={whatsappHref}
           target="_blank"
           rel="noreferrer"
           className="inline-flex rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95"
         >
           WhatsApp’tan katıl
-        </a>
-        <a
-          href="/uye"
-          className="inline-flex rounded-full border border-secondary/10 px-4 py-2.5 text-sm font-semibold hover:border-primary/40"
-        >
-          Üye ol / Bağış yap
         </a>
       </div>
     </div>

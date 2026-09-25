@@ -42,13 +42,21 @@ export default async function FaaliyetlerPage({
             <p className="mt-3 max-w-2xl text-base leading-relaxed text-accent">
               Mentörlük, kariyer buluşmaları, vefa programları ve okul ziyaretleri. Gönüllü veya üye olarak sahaya inebilirsin.
             </p>
-            <a
-              href="/uye"
-              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary/90"
-            >
-              Katıl
-              <ArrowRight className="size-4" aria-hidden />
-            </a>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href="/uye?yol=uye"
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary/90"
+              >
+                Üye ol
+                <ArrowRight className="size-4" aria-hidden />
+              </a>
+              <a
+                href="/uye?yol=bagis"
+                className="inline-flex items-center rounded-2xl border border-secondary/10 px-5 py-3 text-sm font-semibold hover:border-primary/40"
+              >
+                Bağış yap
+              </a>
+            </div>
           </div>
         </section>
       </main>

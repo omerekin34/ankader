@@ -35,10 +35,10 @@ export default async function UyelerPage() {
                 <p className="mt-2 text-sm text-accent">{members.length} kişi</p>
               </div>
               <a
-                href="/uye"
+                href="/uye?yol=uye"
                 className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
               >
-                Üye ol / Bağış yap
+                Üye ol
               </a>
             </div>
             <MembersDirectory members={members} />

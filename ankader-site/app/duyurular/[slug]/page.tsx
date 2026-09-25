@@ -72,10 +72,16 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
             </div>
             <div className="mt-10 flex flex-wrap gap-3 border-t border-secondary/10 pt-8">
               <a
-                href="/uye"
+                href="/uye?yol=uye"
                 className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
               >
-                Üye ol / Bağış yap
+                Üye ol
+              </a>
+              <a
+                href="/uye?yol=bagis"
+                className="inline-flex rounded-full border border-secondary/10 px-5 py-2.5 text-sm font-semibold hover:border-primary/40"
+              >
+                Bağış yap
               </a>
               <a
                 href="/faaliyetler"

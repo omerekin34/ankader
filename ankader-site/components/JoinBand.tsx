@@ -17,16 +17,16 @@ export default function JoinBand({
         <h2 className="mt-4 max-w-3xl text-3xl leading-tight sm:text-5xl">{title}</h2>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <a
-            href="/uye"
+            href="/uye?yol=uye"
             className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-primary/90"
           >
-            Üye ol / Bağış yap
+            Üye ol
           </a>
           <a
-            href="/faaliyetler"
+            href="/uye?yol=bagis"
             className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:border-primary"
           >
-            Faaliyetleri gör
+            Bağış yap
           </a>
         </div>
       </div>

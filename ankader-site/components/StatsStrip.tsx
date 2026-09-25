@@ -15,7 +15,9 @@ export default function StatsStrip({ items }: { items: SiteData["stats"] }) {
             <article
               key={item.label}
               data-reveal
-              className="reveal bg-background px-5 py-8"
+              className={`reveal bg-background px-5 py-8 ${
+                index === items.length - 1 ? "col-span-2 sm:col-span-2 lg:col-span-1" : ""
+              }`}
               style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}
             >
               <Icon className="size-4 text-primary" aria-hidden />

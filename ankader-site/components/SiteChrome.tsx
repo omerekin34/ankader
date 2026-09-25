@@ -77,6 +77,13 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
     setKurumsalOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   const socials = [
     { label: "Instagram", href: contact.instagram, path: SOCIAL.instagram },
     { label: "Twitter", href: contact.twitter, path: SOCIAL.twitter },
@@ -92,6 +99,7 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
   const glassNav = overlay ? "bg-secondary/72" : "bg-secondary/92";
 
   return (
+    <>
     <header className="fixed inset-x-0 top-0 z-50 text-white backdrop-blur-md">
       <div className={`border-b border-white/5 transition-colors duration-300 ${glassTop}`}>
         <div className="mx-auto flex max-w-7xl items-center gap-5 px-5 py-2 sm:px-8">
@@ -140,7 +148,8 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
           <BrandLockup />
         </a>
 
-        <nav className="ml-auto hidden items-center gap-7 lg:flex" aria-label="Ana menü">
+        <div className="ml-auto flex items-center gap-6">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Ana menü">
           <div className="has-drop relative">
             <button
               type="button"
@@ -185,10 +194,16 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
 
         <div className="flex items-center gap-2">
           <a
-            href="/uye"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_24px_-10px_rgba(20,195,208,0.95)] transition hover:bg-primary/90 sm:px-5 sm:text-sm"
+            href="/uye?yol=uye"
+            className="hidden items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_24px_-10px_rgba(20,195,208,0.95)] transition hover:bg-primary/90 sm:inline-flex sm:text-sm"
           >
-            Üye Ol / Bağış Yap
+            Üye ol
+          </a>
+          <a
+            href="/uye?yol=bagis"
+            className="hidden items-center justify-center whitespace-nowrap rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-primary sm:inline-flex sm:text-sm"
+          >
+            Bağış yap
           </a>
           <button
             type="button"
@@ -200,64 +215,100 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
+        </div>
       </div>
       </div>
+    </header>
 
-      {open && (
-        <nav className="border-t border-white/10 bg-secondary px-4 py-3 lg:hidden" aria-label="Mobil menü">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm"
-            aria-expanded={kurumsalOpen}
-            onClick={() => setKurumsalOpen((value) => !value)}
-          >
-            Kurumsal
-            <ChevronDown
-              className={`size-4 transition-transform duration-300 ${kurumsalOpen ? "rotate-180 text-primary" : ""}`}
-            />
-          </button>
-          <div
-            className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
-              kurumsalOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-            }`}
-          >
-            <div className="min-h-0">
-              {kurumsalLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={`block rounded-xl py-2.5 pr-3 pl-6 text-sm ${
-                    pathname === link.href ? "text-primary" : "text-white/75"
-                  }`}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+      <div
+        className={`fixed inset-0 z-[60] lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+          aria-label="Menüyü kapat"
+          onClick={() => setOpen(false)}
+        />
+        <aside
+          className={`absolute inset-y-0 right-0 flex w-[min(22rem,88vw)] flex-col bg-secondary shadow-[-24px_0_48px_-24px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            open ? "translate-x-0" : "translate-x-full"
+          }`}
+          aria-label="Mobil menü"
+        >
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+            <p className="text-[11px] font-semibold tracking-[0.2em] text-primary uppercase">Menü</p>
+            <button
+              type="button"
+              className="inline-flex size-10 items-center justify-center rounded-xl"
+              aria-label="Menüyü kapat"
               onClick={() => setOpen(false)}
-              className={`block rounded-xl px-3 py-3 text-sm ${
-                pathname === link.href ? "text-primary" : ""
+            >
+              <X className="size-5" />
+            </button>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-3 py-3">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm"
+              aria-expanded={kurumsalOpen}
+              onClick={() => setKurumsalOpen((value) => !value)}
+            >
+              Kurumsal
+              <ChevronDown
+                className={`size-4 transition-transform duration-300 ${kurumsalOpen ? "rotate-180 text-primary" : ""}`}
+              />
+            </button>
+            <div
+              className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
+                kurumsalOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
-              {link.label}
+              <div className="min-h-0">
+                {kurumsalLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={`block rounded-xl py-2.5 pr-3 pl-6 text-sm ${
+                      pathname === link.href ? "text-primary" : "text-white/75"
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className={`block rounded-xl px-3 py-3 text-sm ${pathname === link.href ? "text-primary" : ""}`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          <div className="grid gap-2 border-t border-white/10 p-4">
+            <a
+              href="/uye?yol=uye"
+              onClick={() => setOpen(false)}
+              className="block rounded-full bg-primary px-3 py-3 text-center text-sm font-semibold text-white"
+            >
+              Üye ol
             </a>
-          ))}
-          <a
-            href="/uye"
-            onClick={() => setOpen(false)}
-            className="mt-2 block rounded-full bg-primary px-3 py-3 text-center text-sm font-semibold text-white"
-          >
-            Üye Ol / Bağış Yap
-          </a>
-        </nav>
-      )}
-    </header>
+            <a
+              href="/uye?yol=bagis"
+              onClick={() => setOpen(false)}
+              className="block rounded-full border border-white/20 px-3 py-3 text-center text-sm font-semibold"
+            >
+              Bağış yap
+            </a>
+          </div>
+        </aside>
+      </div>
+    </>
   );
 }
 
@@ -294,12 +345,20 @@ export function Footer({ contact = fallbackContact }: { contact?: SiteData["cont
           <p className="mt-4 text-sm leading-relaxed text-white/70">
             Geleceği birlikte, küllerimizden doğarak inşa ediyoruz.
           </p>
-          <a
-            href="/uye"
-            className="mt-6 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-          >
-            Üye ol / Bağış yap
-          </a>
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+            <a
+              href="/uye?yol=uye"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+            >
+              Üye ol
+            </a>
+            <a
+              href="/uye?yol=bagis"
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-sm font-semibold hover:border-primary"
+            >
+              Bağış yap
+            </a>
+          </div>
         </div>
 
         <div>
