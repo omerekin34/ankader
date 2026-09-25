@@ -1,0 +1,181 @@
+{
+  "hero": {
+    "eyebrow": "ANKADER · Küllerinden Doğuyor",
+    "title": "Geleceği Birlikte,",
+    "highlight": "Küllerimizden Doğarak",
+    "titleEnd": "İnşa Ediyoruz.",
+    "subtitle": "Öğrenci derneğiyiz. Eğitim, mentorluk ve saha dayanışmasıyla zorlu süreçlerden geçen gençlerin yanında duruyoruz.",
+    "primaryCta": "Faaliyetleri gör",
+    "secondaryCta": "Üye ol"
+  },
+  "stats": [
+    {
+      "value": "100+",
+      "label": "Üye Sayısı",
+      "note": "Dayanışmayı büyüten aktif üyeler"
+    },
+    {
+      "value": "48+",
+      "label": "Gönüllü Sayısı",
+      "note": "Etkinliklerde omuz omuza duranlar"
+    },
+    {
+      "value": "12",
+      "label": "Tamamlanan Proje",
+      "note": "Sahada karşılığı olan işler"
+    },
+    {
+      "value": "250+",
+      "label": "Desteklenen Gençler",
+      "note": "Eğitim ve mentorluk"
+    },
+    {
+      "value": "6",
+      "label": "Faaliyet Yılı",
+      "note": "Birlikte geçen zaman"
+    }
+  ],
+  "corporate": {
+    "title": "Neden bir aradayız?",
+    "text": "ANKADER; farklı dönemlerden mezunların, öğretmenlerin ve okul mensuplarının ortak hafızasını korurken bugünün öğrencilerine de yol arkadaşlığı etmeyi amaçlar.",
+    "mission": "Mezunlar ve mensuplar arasındaki bağı korumak; öğrencilerin akademik, mesleki ve kişisel gelişimine rehberlik etmek; okulumuzun kültürüne ve geleceğine somut katkı sunmak.",
+    "vision": "Köklerine bağlı, çağın ihtiyaçlarını anlayan ve topluma fayda üretmeyi sorumluluk bilen mezunları aynı çatı altında buluşturan güvenilir bir yapı olmak."
+  },
+  "activities": [
+    {
+      "title": "Eğitim Destekleri",
+      "text": "Burs, çalışma grupları ve bire bir mentorluk. Ders, sınav ve üniversite sürecinde yalnız bırakmıyoruz."
+    },
+    {
+      "title": "Ar-Ge Çalıştayları",
+      "text": "Fikri masaya yatırıyor, prototipe çeviriyoruz. Atölyeler, uzman buluşmaları ve birlikte üretim."
+    },
+    {
+      "title": "Sosyal Yardımlaşma",
+      "text": "Mahallede, kampüste, sahada. İhtiyaç görünür olunca ekip kurulur, iş infaz edilir, sonuç paylaşılır."
+    }
+  ],
+  "board": [
+    {
+      "initials": "EB",
+      "name": "Emre Boylu",
+      "role": "Yönetim Kurulu Başkanı"
+    },
+    {
+      "initials": "HK",
+      "name": "Hüseyin Kartal",
+      "role": "Genel Sekreter"
+    },
+    {
+      "initials": "S",
+      "name": "Selimhan",
+      "role": "Sayman"
+    },
+    {
+      "initials": "A",
+      "name": "Acar",
+      "role": "Yönetim Kurulu Üyesi"
+    }
+  ],
+  "members": [
+    {
+      "name": "Zeynep Aksoy",
+      "stage": "Lise",
+      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
+      "year": "11. sınıf"
+    },
+    {
+      "name": "Ali Korkmaz",
+      "stage": "Üniversite",
+      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
+      "university": "Marmara Üniversitesi",
+      "department": "İlahiyat",
+      "year": "3. sınıf"
+    },
+    {
+      "name": "Hüseyin Demir",
+      "stage": "Mezun",
+      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
+      "university": "Yıldız Teknik Üniversitesi",
+      "department": "Bilgisayar Mühendisliği",
+      "year": "2021"
+    }
+  ],
+  "posts": [
+    {
+      "day": "12",
+      "month": "Mar",
+      "tag": "Kayıt",
+      "slug": "bahar-donemi-gonullu-bulusmasi",
+      "title": "Bahar dönemi gönüllü buluşması kayıtları açıldı",
+      "text": "Yeni dönem ekiplerine katılmak için son tarih 30 Mart.",
+      "body": "Bahar döneminde eğitim, mentorluk ve mahalle işlerinde açık koltuklar var. Kayıt formunu dolduran herkes yönetim tarafından okunuyor; uygun eşleşme yapılınca haber gidiyor.\n\nBuluşma, ofiste kısa bir tanışma ve dönem takviminin üzerinden geçişle başlayacak. Yeni gelenler için ayrı bir oryantasyon da var — yalnız kalmazsın.\n\nSon kayıt: 30 Mart. Kontenjan sınırlı; erken yazılanlar ekiplere önce yerleşiyor."
+    },
+    {
+      "day": "28",
+      "month": "Şub",
+      "tag": "Etkinlik",
+      "slug": "genclik-calistayi-dayanisma-ve-liderlik",
+      "title": "Gençlik çalıştayı: Dayanışma ve liderlik",
+      "text": "İki günlük atölyenin programı ve konuşmacıları yayında.",
+      "body": "İki günlük çalıştayda lise ve üniversite öğrencileri aynı masada: dayanışma, sahada söz tutmak ve küçük ekipleri yürütmek.\n\nProgram ve konuşmacı listesi yönetim panelinden güncellenir. Katılım için duyuruyu takip et; kontenjan dolduğunda kayıt kapanır.\n\nÇalıştay notları sonrasında Hafızamızdan arşivine düşer."
+    },
+    {
+      "day": "04",
+      "month": "Şub",
+      "tag": "Saha",
+      "slug": "mahalle-destek-projesi-ilk-rapor",
+      "title": "Mahalle destek projesinin ilk raporu",
+      "text": "Saha çalışmasının ilk etap sonuçlarını paylaştık.",
+      "body": "İlk etapta ziyaret edilen haneler, iletilen ihtiyaçlar ve gönüllü saatleri tek sayfada toplandı. Rapor, yönetim kurulunda okundu; ikinci etap takvimi buna göre kuruluyor.\n\nSahaya inmek isteyenler üye veya gönüllü formundan yazabilir. Mahalle işi tek başına yürünmez — ekiple gidilir."
+    },
+    {
+      "day": "18",
+      "month": "Oca",
+      "tag": "Genel",
+      "slug": "yeni-uye-oryantasyon-programi",
+      "title": "Yeni üye oryantasyon programı başlıyor",
+      "text": "Derneğe yeni katılanlar için kısa bir karşılama süreci.",
+      "body": "Yeni kaydı onaylanan üyeler için kısa bir karşılama: tüzük özeti, iletişim kanalları, dönem takvimi ve ofis tanışması.\n\nOryantasyon bir sınav değil. Masaya oturduğun ilk gün kimin ne yaptığı net olsun diye var."
+    }
+  ],
+  "about": {
+    "heroTitle": "Hakkımızda",
+    "heroText": "Okul yıllarında kurulan dostluğu, mezuniyetten sonra sorumluluk ve dayanışmayla sürdüren bir mezunlar topluluğuyuz.",
+    "storyTitle": "Bağımız mezuniyetle bitmedi",
+    "storyText": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi koridorlarında kurulan dostluklar, mezuniyet sonrasında da devam etti. Birbirimize destek olmak, okulumuzla ilişkimizi korumak ve edindiğimiz tecrübeyi öğrencilerle paylaşmak için kurumsal bir çatı altında buluştuk. ANKADER; farklı dönemlerden mezunların, öğretmenlerin ve okul mensuplarının ortak hafızasını korurken bugünün öğrencilerine de yol arkadaşlığı etmeyi amaçlar. Anka kuşu bizim için geçmişi silmek değil, köklerden güç alarak yeniden ayağa kalkmak demektir."
+  },
+  "donate": {
+    "pageEyebrow": "Katkı",
+    "pageTitle": "Üye ol veya bağış yap",
+    "pageText": "Öğrenci derneğiyiz. Üye olarak veya bağışınla sahadaki desteğin sürmesini sağlarsın.",
+    "joinTitle": "Üye ol",
+    "joinText": "Öğrenci bilgilerini doldur, başvurunu gönder. Kayıtlar yönetim panelinde toplanır.",
+    "donateTitle": "Bağış yap",
+    "donateText": "Kart veya online ödeme yok. Tutarı seçin, IBAN’a havale/EFT yapın, dekontu e-posta ile iletin.",
+    "iban": "TR00 0000 0000 0000 0000 0000 00",
+    "bank": "Banka adı yönetim panelinden girilir",
+    "accountName": "ANKADER",
+    "note": "Bağış dekontunu info@ankader.org adresine iletebilirsiniz.",
+    "amounts": [
+      "250 ₺",
+      "500 ₺",
+      "1.000 ₺",
+      "İsteğe bağlı"
+    ]
+  },
+  "contact": {
+    "address": "Şeyhli Mahallesi, Üstün Caddesi, Merdane Sokak No:1, 34920 Pendik / İstanbul",
+    "email": "info@ankader.org",
+    "phone": "+90 531 945 02 36",
+    "hours": "Açık · Kapanış saati 17:00",
+    "registry": "06.123.456",
+    "instagram": "https://www.instagram.com/ankaderresmi/",
+    "twitter": "https://x.com",
+    "linkedin": "https://linkedin.com",
+    "whatsappCommunity": "",
+    "mapLat": "40.911291",
+    "mapLng": "29.2895983",
+    "mapsUrl": "https://www.google.com/maps/place/ANKADER/@40.911291,29.2895983,19z/data=!4m6!3m5!1s0x14cadbfd979fff2b:0x7df2ba103e23b123!8m2!3d40.911291!4d29.2895983!16s%2Fg%2F11zf3zwz13"
+  }
+}

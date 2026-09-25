@@ -1,0 +1,318 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #14c3d0;
+  --color-secondary: #0f2c41;
+  --color-background: #f9f8f3;
+  --color-accent: #738694;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+  --font-script: var(--font-script), cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(1100px 520px at 88% -8%, rgba(20, 195, 208, 0.14), transparent 55%),
+    radial-gradient(800px 480px at -8% 12%, rgba(15, 44, 65, 0.07), transparent 50%),
+    #f9f8f3;
+  color: #0f2c41;
+  font-family: var(--font-sans);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-background: #0b1620;
+  --color-accent: #93a8b5;
+}
+
+html.dark body {
+  background:
+    radial-gradient(1100px 520px at 88% -8%, rgba(20, 195, 208, 0.12), transparent 55%),
+    radial-gradient(800px 480px at -8% 12%, rgba(20, 195, 208, 0.05), transparent 50%),
+    #0b1620;
+  color: #e8eef3;
+}
+
+html.dark .text-secondary {
+  color: #e8eef3;
+}
+
+html.dark .bg-white,
+html.dark .bg-white\/80,
+html.dark .bg-white\/70 {
+  background-color: #132534;
+}
+
+html.dark .bg-background {
+  background-color: #0b1620;
+}
+
+html.dark .border-secondary\/10,
+html.dark .border-secondary\/5,
+html.dark .border-secondary\/8,
+html.dark .border-secondary\/15 {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .card-pro:hover {
+  box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.55);
+}
+
+html.dark .border-white\/70 {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-shell {
+  min-height: 100vh;
+  color: #0f2c41;
+  background:
+    radial-gradient(900px 420px at 92% -8%, rgba(20, 195, 208, 0.16), transparent 55%),
+    radial-gradient(720px 380px at -6% 8%, rgba(15, 44, 65, 0.06), transparent 52%),
+    #f4f2ea;
+}
+
+html.dark .admin-shell {
+  color: #e8eef3;
+  background:
+    radial-gradient(900px 420px at 92% -8%, rgba(20, 195, 208, 0.12), transparent 55%),
+    radial-gradient(720px 380px at -6% 8%, rgba(20, 195, 208, 0.05), transparent 52%),
+    #08131c;
+}
+
+.admin-card {
+  border: 1px solid rgba(15, 44, 65, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 40px -32px rgba(15, 44, 65, 0.35);
+  backdrop-filter: blur(16px);
+}
+
+html.dark .admin-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(16, 32, 45, 0.88);
+  box-shadow: 0 18px 40px -32px rgba(0, 0, 0, 0.55);
+}
+
+.admin-field,
+.admin-shell input:not([type="checkbox"]):not([type="radio"]),
+.admin-shell textarea,
+.admin-shell select {
+  background: #ffffff;
+  border-color: rgba(15, 44, 65, 0.1);
+  color: #0f2c41;
+}
+
+.admin-field:focus,
+.admin-shell input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-shell textarea:focus,
+.admin-shell select:focus {
+  border-color: #14c3d0;
+}
+
+html.dark .admin-field,
+html.dark .admin-shell input:not([type="checkbox"]):not([type="radio"]),
+html.dark .admin-shell textarea,
+html.dark .admin-shell select {
+  background: #0b1822;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e8eef3;
+}
+
+html.dark .admin-shell option {
+  background: #132534;
+  color: #e8eef3;
+}
+
+html.dark .admin-shell .text-red-600 {
+  color: #f87171;
+}
+
+.font-script {
+  font-family: var(--font-script);
+}
+
+h1,
+h2,
+.font-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.card-pro {
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.7s ease,
+    box-shadow 0.7s ease;
+}
+
+.card-pro:hover {
+  transform: translateY(-3px);
+  border-color: rgba(20, 195, 208, 0.45);
+  box-shadow: 0 16px 40px -24px rgba(15, 44, 65, 0.28);
+}
+
+.hero-ring {
+  background:
+    radial-gradient(circle at center, transparent 0 42%, rgba(20, 195, 208, 0.08) 42.5% 43%, transparent 43.5%),
+    radial-gradient(circle at center, transparent 0 62%, rgba(255, 255, 255, 0.06) 62.5% 63%, transparent 63.5%);
+}
+
+@keyframes slide-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes slogan-marquee {
+  from {
+    transform: translateX(-33.333%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slogan-marquee {
+  animation: slogan-marquee 18s linear infinite;
+}
+
+.slogan-marquee:hover {
+  animation-play-state: paused;
+}
+
+.nav-drop {
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+  transition:
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.22s;
+  transition-delay: 120ms;
+}
+
+.has-drop:hover .nav-drop,
+.has-drop:focus-within .nav-drop {
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0ms;
+}
+
+.has-drop:hover .nav-chevron,
+.has-drop:focus-within .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-chevron {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.has-drop:hover > button:not(.text-primary),
+.has-drop:focus-within > button:not(.text-primary) {
+  color: #14c3d0;
+}
+
+.nav-drop-item {
+  position: relative;
+  display: block;
+  padding: 0.7rem 1.1rem 0.7rem 1.25rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.82);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    padding-left 0.2s ease;
+}
+
+.nav-drop-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 0;
+  width: 2px;
+  background: #14c3d0;
+  transform: translateY(-50%);
+  transition: height 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-drop-item:hover,
+.nav-drop-item.is-active {
+  color: #14c3d0;
+  background: rgba(255, 255, 255, 0.04);
+  padding-left: 1.4rem;
+}
+
+.nav-drop-item:hover::before,
+.nav-drop-item.is-active::before {
+  height: 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-zoom {
+    animation: none;
+  }
+
+  .slogan-marquee {
+    animation: none;
+  }
+
+  .nav-drop,
+  .has-drop:hover .nav-drop,
+  .has-drop:focus-within .nav-drop {
+    transition: none;
+    transform: translateX(-50%);
+  }
+
+  .nav-drop {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .card-pro,
+  .card-pro:hover {
+    transition: none;
+    transform: none;
+  }
+}
