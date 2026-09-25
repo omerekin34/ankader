@@ -68,7 +68,7 @@ export default function WhatsAppFloat() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <div ref={box} className="fixed right-5 bottom-5 z-[60] sm:right-7 sm:bottom-7">
+    <div ref={box} className="fixed right-5 bottom-5 z-40 sm:right-7 sm:bottom-7">
       {open && (
         <div className="absolute right-0 bottom-20 w-[min(20.5rem,calc(100vw-2.5rem))] overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-24px_rgba(15,44,65,0.55)]">
           <div className="flex items-start justify-between bg-[#075E54] px-4 py-3.5 text-white">

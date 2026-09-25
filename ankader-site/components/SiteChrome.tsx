@@ -221,76 +221,47 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
     </header>
 
       <div
-        className={`fixed inset-0 z-[60] lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-[80] lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!open}
       >
         <button
           type="button"
-          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 bg-black/55 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
           aria-label="Menüyü kapat"
           onClick={() => setOpen(false)}
         />
         <aside
-          className={`absolute inset-y-0 right-0 flex w-[min(22rem,88vw)] flex-col bg-secondary shadow-[-24px_0_48px_-24px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`absolute inset-y-0 right-0 flex w-[min(20rem,86vw)] flex-col bg-secondary text-white shadow-[-24px_0_48px_-24px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
           aria-label="Mobil menü"
         >
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <p className="text-[11px] font-semibold tracking-[0.2em] text-primary uppercase">Menü</p>
             <button
               type="button"
-              className="inline-flex size-10 items-center justify-center rounded-xl"
+              className="inline-flex size-10 items-center justify-center rounded-xl text-white"
               aria-label="Menüyü kapat"
               onClick={() => setOpen(false)}
             >
               <X className="size-5" />
             </button>
           </div>
-          <nav className="flex-1 overflow-y-auto px-3 py-3">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm"
-              aria-expanded={kurumsalOpen}
-              onClick={() => setKurumsalOpen((value) => !value)}
-            >
-              Kurumsal
-              <ChevronDown
-                className={`size-4 transition-transform duration-300 ${kurumsalOpen ? "rotate-180 text-primary" : ""}`}
-              />
-            </button>
-            <div
-              className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
-                kurumsalOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-              }`}
-            >
-              <div className="min-h-0">
-                {kurumsalLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={`block rounded-xl py-2.5 pr-3 pl-6 text-sm ${
-                      pathname === link.href ? "text-primary" : "text-white/75"
-                    }`}
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-            {navLinks.map((link) => (
+          <nav className="flex-1 overflow-y-auto px-3 pb-4">
+            {[...kurumsalLinks, ...navLinks].map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`block rounded-xl px-3 py-3 text-sm ${pathname === link.href ? "text-primary" : ""}`}
+                className={`block rounded-xl px-3 py-3 text-base ${
+                  pathname === link.href ? "bg-white/10 text-primary" : "text-white"
+                }`}
               >
                 {link.label}
               </a>
             ))}
           </nav>
-          <div className="grid gap-2 border-t border-white/10 p-4">
+          <div className="grid gap-2 border-t border-white/10 p-4 pb-6">
             <a
               href="/uye?yol=uye"
               onClick={() => setOpen(false)}
@@ -301,7 +272,7 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
             <a
               href="/uye?yol=bagis"
               onClick={() => setOpen(false)}
-              className="block rounded-full border border-white/20 px-3 py-3 text-center text-sm font-semibold"
+              className="block rounded-full border border-white/25 px-3 py-3 text-center text-sm font-semibold text-white"
             >
               Bağış yap
             </a>
