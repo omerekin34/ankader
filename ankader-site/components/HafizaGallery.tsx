@@ -1,5 +1,6 @@
 "use client";
 
+import FilterPanel from "@/components/FilterPanel";
 import { hafizaItems, hafizaTags, type HafizaTag } from "@/lib/hafiza";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -26,27 +27,29 @@ export default function HafizaGallery({
   return (
     <div>
       {!preview && (
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Faaliyet etiketleri">
-          {(["Tümü", ...hafizaTags] as const).map((item) => {
-            const active = tag === item;
-            return (
-              <button
-                key={item}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTag(item)}
-                className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
-                  active
-                    ? "border-primary bg-primary text-white"
-                    : "border-secondary/10 bg-white text-secondary hover:border-primary/40"
-                }`}
-              >
-                {item}
-              </button>
-            );
-          })}
-        </div>
+        <FilterPanel active={tag !== "Tümü"} defaultOpen={isTag(initialTag)}>
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Faaliyet etiketleri">
+            {(["Tümü", ...hafizaTags] as const).map((item) => {
+              const active = tag === item;
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTag(item)}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
+                    active
+                      ? "border-primary bg-primary text-white"
+                      : "border-secondary/10 bg-white text-secondary hover:border-primary/40"
+                  }`}
+                >
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+        </FilterPanel>
       )}
 
       <div className={`${preview ? "" : "mt-8"} grid gap-6 sm:grid-cols-2 lg:grid-cols-3`}>

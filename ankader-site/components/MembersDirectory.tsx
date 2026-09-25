@@ -1,5 +1,6 @@
 "use client";
 
+import FilterPanel from "@/components/FilterPanel";
 import { memberFilters, type MemberFilter, type PublicMember } from "@/lib/public-members";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -31,40 +32,42 @@ export default function MembersDirectory({ members }: { members: PublicMember[] 
 
   return (
     <div>
-      <div className="rounded-2xl border border-secondary/10 bg-background/60 p-4 sm:p-5">
-        <label className="relative block">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-accent" aria-hidden />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="İsim, okul, bölüm veya görev ara"
-            className="w-full rounded-xl border border-secondary/10 bg-white py-3 pr-4 pl-10 text-sm outline-none transition focus:border-primary"
-          />
-        </label>
-        <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Üye grupları">
-          {memberFilters.map((item) => {
-            const active = group === item;
-            const count = counts[item];
-            return (
-              <button
-                key={item}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setGroup(item)}
-                className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
-                  active
-                    ? "border-primary bg-primary text-white"
-                    : "border-secondary/10 bg-white text-secondary hover:border-primary/40"
-                }`}
-              >
-                {item}
-                <span className={`ml-1.5 tabular-nums ${active ? "text-white/80" : "text-accent"}`}>{count}</span>
-              </button>
-            );
-          })}
+      <FilterPanel active={group !== "Tümü" || Boolean(query.trim())}>
+        <div className="rounded-2xl border border-secondary/10 bg-background/60 p-4 sm:p-5">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-accent" aria-hidden />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="İsim, okul, bölüm veya görev ara"
+              className="w-full rounded-xl border border-secondary/10 bg-white py-3 pr-4 pl-10 text-sm outline-none transition focus:border-primary"
+            />
+          </label>
+          <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Üye grupları">
+            {memberFilters.map((item) => {
+              const active = group === item;
+              const count = counts[item];
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setGroup(item)}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
+                    active
+                      ? "border-primary bg-primary text-white"
+                      : "border-secondary/10 bg-white text-secondary hover:border-primary/40"
+                  }`}
+                >
+                  {item}
+                  <span className={`ml-1.5 tabular-nums ${active ? "text-white/80" : "text-accent"}`}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </FilterPanel>
 
       <p className="mt-6 text-sm text-accent">
         {visible.length} üye

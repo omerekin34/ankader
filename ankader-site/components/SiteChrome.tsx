@@ -36,7 +36,7 @@ const SOCIAL = {
 export const kurumsalLinks = [
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/tuzuk", label: "Tüzük" },
-  { href: "/yonetim", label: "Ekip" },
+  { href: "/yonetim", label: "Yönetim" },
   { href: "/iletisim", label: "İletişim" },
 ];
 

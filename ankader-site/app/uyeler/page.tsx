@@ -24,7 +24,7 @@ export default async function UyelerPage() {
         <PageHero
           eyebrow="Üyeler"
           title="Üyelerimiz"
-          text="Yönetim, lise, üniversite ve mezunlar. Filtre açık kalsın diye üstte duruyor; isim veya okulla arayabilirsin."
+          text="Yönetim, lise, üniversite ve mezunlar. İsim veya okulla aramak için Filtrele’ye bas."
         />
 
         <section className="relative z-10 -mt-28 px-5 pb-24 sm:-mt-32 sm:px-8">

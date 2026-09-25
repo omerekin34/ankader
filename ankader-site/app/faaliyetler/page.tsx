@@ -27,7 +27,7 @@ export default async function FaaliyetlerPage({
         <PageHero
           eyebrow="Faaliyetler"
           title="Hafızamızdan kareler"
-          text="Birlikte geçirilen zamanlardan fotoğraflar. Etiketlere tıklayarak buluşma, mezuniyet, vefa ve ziyaretleri ayırabilirsin."
+          text="Birlikte geçirilen zamanlardan fotoğraflar. Ayırmak istersen Filtrele ile etiketleri aç."
         />
 
         <section className="relative z-10 -mt-20 px-5 pb-16 sm:-mt-24 sm:px-8">
