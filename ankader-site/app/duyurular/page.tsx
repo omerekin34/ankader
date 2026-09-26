@@ -32,7 +32,7 @@ export default async function DuyurularPage() {
       <main>
         <PageHero
           eyebrow="Duyurular"
-          title="Sahadan haber"
+          title={site.home.newsTitle}
           text="Kayıtlar, çalıştaylar ve saha notları."
         />
 

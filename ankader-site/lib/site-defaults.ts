@@ -46,7 +46,7 @@ export const defaultSite: SiteData = {
     boardEyebrow: "03 — Yönetim",
     boardTitle: "Yönetim Kurulu",
     newsEyebrow: "04 — Duyurular",
-    newsTitle: "Sahadan haber",
+    newsTitle: "ANKADER'den haber",
     joinEyebrow: "Bu masada yerin var",
     joinTitle: "Öğrenciysen, gönüllüysen veya destek olmak istiyorsan kapı açık.",
   },
