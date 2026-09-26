@@ -70,7 +70,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
           <article className="mx-auto max-w-3xl overflow-hidden rounded-[1.8rem] border border-secondary/10 bg-white">
             {post.image ? (
               <div className="relative aspect-[16/9] bg-secondary/10">
-                <Image src={post.image} alt="" fill priority sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
+                <Image src={post.image} alt="" fill priority sizes="(min-width: 768px) 768px, 100vw" unoptimized={post.image.startsWith("http")} className="object-cover" />
               </div>
             ) : null}
             <div className="px-6 py-8 sm:px-10 sm:py-12">
@@ -105,7 +105,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
                     </div>
                     {item.image ? (
                       <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
-                        <Image src={item.image} alt="" fill sizes="64px" className="object-cover" />
+                        <Image src={item.image} alt="" fill sizes="64px" unoptimized={item.image.startsWith("http")} className="object-cover" />
                       </span>
                     ) : (
                       <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />

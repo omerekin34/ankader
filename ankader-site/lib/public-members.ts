@@ -9,6 +9,7 @@ export type PublicMember = {
   group: Exclude<MemberFilter, "Tümü"> | "";
   role: string;
   detail: string;
+  photo?: string;
 };
 
 function keyName(name: string) {
@@ -47,6 +48,7 @@ export function buildPublicMembers(
       group: current.group || item.group,
       role: current.role || item.role,
       detail: current.detail || item.detail,
+      photo: current.photo || item.photo,
     });
   }
 
@@ -56,6 +58,7 @@ export function buildPublicMembers(
       group: "Yönetim",
       role: person.role,
       detail: person.role,
+      photo: person.photo,
     });
   }
 

@@ -15,6 +15,7 @@ export type SiteBoardMember = {
   role: string;
   email?: string;
   phone?: string;
+  photo?: string;
 };
 
 export const POST_TAGS = ["Genel", "Kayıt", "Etkinlik", "Saha"] as const;

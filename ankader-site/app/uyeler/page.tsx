@@ -1,7 +1,7 @@
 import MembersDirectory from "@/components/MembersDirectory";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
-import { readApplications } from "@/lib/application-data";
+import { readApplications, readUyeler } from "@/lib/application-data";
 import type { MembershipApplication } from "@/lib/application-types";
 import { buildPublicMembers } from "@/lib/public-members";
 import { readSite } from "@/lib/site-data";
@@ -17,12 +17,18 @@ export const dynamic = "force-dynamic";
 export default async function UyelerPage() {
   const site = await readSite();
   let applications: MembershipApplication[] = [];
+  let acceptedMembers: MembershipApplication[] = [];
   try {
     applications = await readApplications();
   } catch {
     applications = [];
   }
-  const members = buildPublicMembers(site.members, site.board, applications);
+  try {
+    acceptedMembers = await readUyeler();
+  } catch {
+    acceptedMembers = [];
+  }
+  const members = buildPublicMembers(site.members, site.board, [...applications, ...acceptedMembers]);
 
   return (
     <div className="bg-background text-secondary">

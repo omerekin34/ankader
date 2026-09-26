@@ -1,4 +1,5 @@
-﻿import BoardContact from "@/components/BoardContact";
+﻿import BoardAvatar from "@/components/BoardAvatar";
+import BoardContact from "@/components/BoardContact";
 import HafizaGallery from "@/components/HafizaGallery";
 import HeroSlider from "@/components/HeroSlider";
 import JoinBand from "@/components/JoinBand";
@@ -135,9 +136,12 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
               className="reveal card-pro rounded-2xl border border-secondary/10 bg-white p-6"
               style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}
             >
-              <div className="flex size-14 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-white">
-                {person.initials}
-              </div>
+              <BoardAvatar
+                name={person.name}
+                initials={person.initials}
+                image={person.photo}
+                className="size-14 bg-secondary text-sm font-semibold text-white"
+              />
               <h3 className="mt-5 text-base font-semibold font-sans">{person.name}</h3>
               <p className="mt-1 text-sm text-accent">{person.role}</p>
               <BoardContact email={person.email} phone={person.phone} />
@@ -173,7 +177,7 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
             >
               {featured.image ? (
                 <div className="relative aspect-[16/8] bg-secondary">
-                  <Image src={featured.image} alt="" fill sizes="(min-width: 1024px) 1100px, 100vw" className="object-cover opacity-80" />
+                  <Image src={featured.image} alt="" fill sizes="(min-width: 1024px) 1100px, 100vw" unoptimized={featured.image.startsWith("http")} className="object-cover opacity-80" />
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/50 to-secondary/10" />
                 </div>
               ) : null}
@@ -201,7 +205,7 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
               >
                 {post.image ? (
                   <span className="relative aspect-[16/9] bg-secondary/10">
-                    <Image src={post.image} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
+                    <Image src={post.image} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" unoptimized={post.image.startsWith("http")} className="object-cover" />
                   </span>
                 ) : null}
                 <span className="flex flex-col p-6">

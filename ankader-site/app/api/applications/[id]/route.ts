@@ -1,5 +1,5 @@
 import { isAdminLoggedIn } from "@/lib/admin-auth";
-import { deleteApplication, updateApplicationStatus } from "@/lib/application-data";
+import { acceptApplication, acceptErrorMessage, deleteApplication, updateApplicationStatus } from "@/lib/application-data";
 import { applicationStatuses, type ApplicationStatus } from "@/lib/application-types";
 import { NextResponse } from "next/server";
 
@@ -17,8 +17,16 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   try {
+    if (body.status === "kabul") {
+      await acceptApplication(id);
+      return NextResponse.json({ ok: true, moved: true });
+    }
     await updateApplicationStatus(id, body.status);
-  } catch {
+  } catch (error) {
+    if (body.status === "kabul") {
+      const missing = error instanceof Error && error.message === "NOT_FOUND";
+      return NextResponse.json({ error: acceptErrorMessage(error) }, { status: missing ? 404 : 500 });
+    }
     return NextResponse.json({ error: "Başvuru güncellenemedi." }, { status: 500 });
   }
   return NextResponse.json({ ok: true });

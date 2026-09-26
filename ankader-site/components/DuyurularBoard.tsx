@@ -48,6 +48,8 @@ export default function DuyurularBoard({
 
   return (
     <div>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="order-2 min-w-0 flex-1 sm:order-1">
       <FilterPanel active={tag !== "Tümü" || Boolean(query.trim())}>
         <div className="rounded-2xl border border-secondary/10 bg-background/60 p-4 sm:p-5">
           <label className="relative block">
@@ -85,6 +87,11 @@ export default function DuyurularBoard({
           </div>
         </div>
       </FilterPanel>
+        </div>
+        <div className="order-1 shrink-0 sm:order-2 sm:max-w-xs">
+          <CommunityJoin whatsappHref={whatsappHref} align="end" />
+        </div>
+      </div>
 
       <p className="mt-6 text-sm text-accent">
         {visible.length} duyuru
@@ -124,7 +131,7 @@ export default function DuyurularBoard({
                 <span className="flex items-center gap-3">
                   {post.image ? (
                     <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
-                      <Image src={post.image} alt="" fill sizes="64px" className="object-cover" />
+                      <Image src={post.image} alt="" fill sizes="64px" unoptimized={post.image.startsWith("http")} className="object-cover" />
                     </span>
                   ) : null}
                   <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
@@ -135,9 +142,6 @@ export default function DuyurularBoard({
         </ul>
       )}
 
-      <div className="mt-8 border-t border-secondary/10 pt-6">
-        <CommunityJoin whatsappHref={whatsappHref} />
-      </div>
     </div>
   );
 }

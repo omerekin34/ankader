@@ -319,6 +319,7 @@ function OverviewDetail({
               ["Kısa ad", member.initials || "—"],
               ["E-posta", member.email || "—"],
               ["Telefon", member.phone || "—"],
+              ["Fotoğraf", member.photo ? "Var" : "Yok"],
             ],
           }))}
         />
@@ -572,21 +573,106 @@ function EditorCard({
   );
 }
 
-function UploadChip({ label, onFile }: { label: string; onFile: (file: File) => void }) {
+function PhotoField({
+  label,
+  value,
+  onChange,
+  onFile,
+  shape = "wide",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onFile: (file: File) => Promise<void> | void;
+  shape?: "wide" | "round";
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [other, setOther] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [over, setOver] = useState(false);
+
+  async function take(file: File | undefined) {
+    if (!file || !file.type.startsWith("image/")) return;
+    setBusy(true);
+    try {
+      await onFile(file);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15">
-      {label}
+    <div className="sm:col-span-2">
+      <p className="text-sm font-medium text-secondary">{label}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => fileRef.current?.click()}
+          className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-60"
+        >
+          {busy ? "Yükleniyor..." : "Bilgisayardan seç"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOther((open) => !open)}
+          className={`inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold transition ${other ? "border-primary bg-primary/10 text-primary" : "border-secondary/15 text-secondary hover:border-primary/40"}`}
+        >
+          Başka şekilde
+        </button>
+        {value ? (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-500/15"
+          >
+            Kaldır
+          </button>
+        ) : null}
+      </div>
       <input
+        ref={fileRef}
         type="file"
         accept="image/*"
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = "";
-          if (file) onFile(file);
+          void take(file);
         }}
       />
-    </label>
+      {other ? (
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Bağlantı veya dosya yolu. Örnek: https://... ya da /hafiza/kare.jpg"
+          className="admin-field mt-3 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+        />
+      ) : null}
+      <div
+        onDragOver={(event) => {
+          event.preventDefault();
+          setOver(true);
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setOver(false);
+          void take(event.dataTransfer.files?.[0]);
+        }}
+        className={`mt-3 rounded-2xl border border-dashed px-4 py-4 transition ${over ? "border-primary bg-primary/10" : "border-secondary/15 bg-secondary/[0.03]"}`}
+      >
+        {value ? (
+          <img
+            src={value}
+            alt=""
+            className={shape === "round" ? "size-20 rounded-full object-cover" : "h-36 w-full rounded-2xl object-cover"}
+          />
+        ) : (
+          <p className="text-sm text-accent">Fotoğraf yok. Bilgisayardan seçebilir ya da dosyayı buraya bırakabilirsin.</p>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -627,6 +713,7 @@ export default function AdminShell({
   const [overview, setOverview] = useState<OverviewKey>("tumu");
   const [overviewItem, setOverviewItem] = useState<string | null>(null);
   const overviewPanel = useRef<HTMLElement>(null);
+  const acceptingIds = useRef(new Set<string>());
   const [notice, setNotice] = useState<Notice | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -667,23 +754,36 @@ export default function AdminShell({
   }
 
   async function setApplicationStatus(id: string, status: ApplicationStatus) {
-    const response = await fetch(`/api/applications/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (!response.ok) {
-      toast("err", "Durum değişmedi", "Başvuru güncellenemedi. Tekrar dene.");
-      return;
-    }
-    setApplications((items) => items.map((item) => (item.id === id ? { ...item, status } : item)));
-    if (status === "kabul") {
-      const accepted = applications.find((item) => item.id === id);
-      if (accepted && !(data.members ?? []).some((member) => member.name.toLocaleLowerCase("tr-TR") === accepted.name.toLocaleLowerCase("tr-TR"))) {
-        setData({ ...data, members: [...(data.members ?? []), { name: accepted.name }] });
+    if (status === "kabul" && acceptingIds.current.has(id)) return;
+    if (status === "kabul") acceptingIds.current.add(id);
+    try {
+      const response = await fetch(`/api/applications/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) {
+        const json = (await response.json().catch(() => null)) as { error?: string } | null;
+        toast(
+          "err",
+          status === "kabul" ? "Kabul edilemedi" : "Durum değişmedi",
+          json?.error || (status === "kabul" ? "Üye kaydı tamamlanamadı. Başvuru listede duruyor." : "Başvuru güncellenemedi. Tekrar dene."),
+        );
+        return;
       }
+      if (status === "kabul") {
+        setApplications((items) => items.filter((item) => item.id !== id));
+        setOverviewItem((current) => (current === id ? null : current));
+        toast("ok", "Üye oldu", "Kayıt üyelere eklendi ve başvuru listeden kalktı.");
+        return;
+      }
+      setApplications((items) => items.map((item) => (item.id === id ? { ...item, status } : item)));
+      toast("ok", "Başvuru güncellendi", `${statusLabel[status]} olarak işaretlendi.`);
+    } catch {
+      toast("err", status === "kabul" ? "Kabul edilemedi" : "Durum değişmedi", "Bağlantı koptu. Tekrar dene.");
+    } finally {
+      if (status === "kabul") acceptingIds.current.delete(id);
     }
-    toast("ok", "Başvuru güncellendi", `${statusLabel[status]} olarak işaretlendi.`);
   }
 
   async function removeApplication(id: string) {
@@ -939,25 +1039,20 @@ export default function AdminShell({
                         hero: { ...data.hero, slides: data.hero.slides.filter((_, i) => i !== index) },
                       })
                     }
-                    extra={
-                      <UploadChip
-                        label="Yükle"
-                        onFile={async (file) => {
-                          const uploaded = await uploadAndNotify(file);
-                          if (!uploaded) return;
-                          const slides = [...data.hero.slides];
-                          slides[index] = uploaded;
-                          setData({ ...data, hero: { ...data.hero, slides } });
-                        }}
-                      />
-                    }
                   >
-                    <Field
-                      label="Dosya yolu"
+                    <PhotoField
+                      label="Arka plan görseli"
                       value={src}
                       onChange={(value) => {
                         const slides = [...data.hero.slides];
                         slides[index] = value;
+                        setData({ ...data, hero: { ...data.hero, slides } });
+                      }}
+                      onFile={async (file) => {
+                        const uploaded = await uploadAndNotify(file);
+                        if (!uploaded) return;
+                        const slides = [...data.hero.slides];
+                        slides[index] = uploaded;
                         setData({ ...data, hero: { ...data.hero, slides } });
                       }}
                     />
@@ -1147,25 +1242,20 @@ export default function AdminShell({
                   index={index}
                   title={item.alt || "Kare"}
                   onRemove={() => setData({ ...data, hafiza: data.hafiza.filter((_, i) => i !== index) })}
-                  extra={
-                    <UploadChip
-                      label="Fotoğraf yükle"
-                      onFile={async (file) => {
-                        const src = await uploadAndNotify(file);
-                        if (!src) return;
-                        const hafiza = [...data.hafiza];
-                        hafiza[index] = { ...item, src };
-                        setData({ ...data, hafiza });
-                      }}
-                    />
-                  }
                 >
-                  <Field
-                    label="Görsel yolu"
+                  <PhotoField
+                    label="Fotoğraf"
                     value={item.src}
                     onChange={(value) => {
                       const hafiza = [...data.hafiza];
                       hafiza[index] = { ...item, src: value };
+                      setData({ ...data, hafiza });
+                    }}
+                    onFile={async (file) => {
+                      const src = await uploadAndNotify(file);
+                      if (!src) return;
+                      const hafiza = [...data.hafiza];
+                      hafiza[index] = { ...item, src };
                       setData({ ...data, hafiza });
                     }}
                   />
@@ -1196,9 +1286,9 @@ export default function AdminShell({
             <section className="grid gap-4">
               <ListHead
                 title="Yönetim kurulu"
-                hint="İsim, görev, e-posta ve telefon. Boş iletişim sitede görünmez."
+                hint="İsim, görev, e-posta, telefon ve fotoğraf. Boş iletişim ve boş fotoğraf sitede görünmez; fotoğraf yoksa harfler durur."
                 action={
-                  <AddButton onClick={() => setData({ ...data, board: [{ initials: "YY", name: "Yeni Üye", role: "Yönetim Kurulu Üyesi", email: "", phone: "" }, ...data.board] })}>
+                  <AddButton onClick={() => setData({ ...data, board: [{ initials: "YY", name: "Yeni Üye", role: "Yönetim Kurulu Üyesi", email: "", phone: "", photo: "" }, ...data.board] })}>
                     Üye ekle
                   </AddButton>
                 }
@@ -1237,6 +1327,23 @@ export default function AdminShell({
                     board[index] = { ...item, phone: value };
                     setData({ ...data, board });
                   }} />
+                  <PhotoField
+                    label="Fotoğraf (boşsa harfler görünür)"
+                    shape="round"
+                    value={item.photo || ""}
+                    onChange={(value) => {
+                      const board = [...data.board];
+                      board[index] = { ...item, photo: value };
+                      setData({ ...data, board });
+                    }}
+                    onFile={async (file) => {
+                      const uploaded = await uploadAndNotify(file);
+                      if (!uploaded) return;
+                      const board = [...data.board];
+                      board[index] = { ...item, photo: uploaded };
+                      setData({ ...data, board });
+                    }}
+                  />
                 </EditorCard>
               ))}
             </section>
@@ -1346,18 +1453,6 @@ export default function AdminShell({
                   title={item.title || "Duyuru"}
                   columns="grid gap-3 sm:grid-cols-2"
                   onRemove={() => setData({ ...data, posts: data.posts.filter((_, i) => i !== index) })}
-                  extra={
-                    <UploadChip
-                      label="Fotoğraf yükle"
-                      onFile={async (file) => {
-                        const uploaded = await uploadAndNotify(file);
-                        if (!uploaded) return;
-                        const posts = [...data.posts];
-                        posts[index] = { ...item, image: uploaded };
-                        setData({ ...data, posts });
-                      }}
-                    />
-                  }
                 >
                   <Field label="Gün" value={item.day} onChange={(value) => {
                     const posts = [...data.posts];
@@ -1405,20 +1500,22 @@ export default function AdminShell({
                       setData({ ...data, posts });
                     }} />
                   </div>
-                  <div className="sm:col-span-2">
-                    <Field
-                      label="Fotoğraf (boşsa gizlenir)"
-                      value={item.image || ""}
-                      onChange={(value) => {
-                        const posts = [...data.posts];
-                        posts[index] = { ...item, image: value };
-                        setData({ ...data, posts });
-                      }}
-                    />
-                    {item.image ? (
-                      <img src={item.image} alt="" className="mt-3 h-36 w-full rounded-2xl object-cover" />
-                    ) : null}
-                  </div>
+                  <PhotoField
+                    label="Fotoğraf (boşsa gizlenir)"
+                    value={item.image || ""}
+                    onChange={(value) => {
+                      const posts = [...data.posts];
+                      posts[index] = { ...item, image: value };
+                      setData({ ...data, posts });
+                    }}
+                    onFile={async (file) => {
+                      const uploaded = await uploadAndNotify(file);
+                      if (!uploaded) return;
+                      const posts = [...data.posts];
+                      posts[index] = { ...item, image: uploaded };
+                      setData({ ...data, posts });
+                    }}
+                  />
                   <div className="sm:col-span-2">
                     <Field
                       multiline

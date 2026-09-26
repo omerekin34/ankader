@@ -66,6 +66,7 @@ export default function HafizaGallery({
                 src={item.src}
                 alt={item.alt}
                 fill
+                unoptimized={item.src.startsWith("http")}
                 quality={90}
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover transition duration-700 group-hover:scale-[1.03]"

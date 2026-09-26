@@ -1,3 +1,4 @@
+import BoardAvatar from "@/components/BoardAvatar";
 import BoardContact from "@/components/BoardContact";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
@@ -139,12 +140,12 @@ export default async function HakkimizdaPage() {
                   key={person.name}
                   className="card-pro rounded-2xl border border-secondary/10 bg-white p-6"
                 >
-                  <div
-                    className="mx-auto flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-lg font-bold text-white"
-                    aria-hidden
-                  >
-                    {person.initials}
-                  </div>
+                  <BoardAvatar
+                    name={person.name}
+                    initials={person.initials}
+                    image={person.photo}
+                    className="mx-auto size-20 bg-gradient-to-br from-primary to-secondary text-lg font-bold text-white"
+                  />
                   <h3 className="mt-5 text-base font-bold text-secondary">{person.name}</h3>
                   <p className="mt-1 text-sm text-accent">{person.role}</p>
                   <BoardContact email={person.email} phone={person.phone} />

@@ -1,5 +1,6 @@
 "use client";
 
+import BoardAvatar from "@/components/BoardAvatar";
 import FilterPanel from "@/components/FilterPanel";
 import { memberFilters, type MemberFilter, type PublicMember } from "@/lib/public-members";
 import { Search } from "lucide-react";
@@ -85,15 +86,18 @@ export default function MembersDirectory({ members }: { members: PublicMember[] 
               className="rounded-2xl border border-secondary/10 bg-white p-5 transition hover:border-primary/35"
             >
               <div className="flex items-start justify-between gap-3">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-white">
-                  {member.name
+                <BoardAvatar
+                  name={member.name}
+                  image={member.photo}
+                  initials={member.name
                     .split(" ")
                     .filter(Boolean)
                     .map((part) => part[0])
                     .join("")
                     .slice(0, 2)
                     .toLocaleUpperCase("tr-TR")}
-                </span>
+                  className="size-11 shrink-0 bg-secondary text-xs font-semibold text-white"
+                />
                 {member.group ? (
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-primary uppercase">
                     {member.group}

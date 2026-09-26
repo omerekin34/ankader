@@ -35,6 +35,7 @@ export default function HeroSlider({ hero }: { hero: SiteData["hero"] }) {
             src={src}
             alt=""
             fill
+            unoptimized={src.startsWith("http")}
             priority={i === 0}
             quality={95}
             sizes="100vw"
