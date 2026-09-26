@@ -103,9 +103,11 @@ export default function FilterCombobox({
           } else if (event.key === "ArrowUp") {
             event.preventDefault();
             setActive((current) => Math.max(current - 1, 0));
-          } else if (event.key === "Enter" && open && filtered[active]) {
+          } else if (event.key === "Enter" && open) {
             event.preventDefault();
-            pick(filtered[active]);
+            const typed = query.trim();
+            if (filtered[active]) pick(filtered[active]);
+            else if (typed) pick(typed);
           } else if (event.key === "Escape") {
             setOpen(false);
             setQuery("");
@@ -123,10 +125,24 @@ export default function FilterCombobox({
           role="listbox"
           className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-secondary/10 bg-white py-1 shadow-lg dark:bg-background"
         >
-          {filtered.length === 0 ? (
-            <li className="px-4 py-2.5 text-sm text-accent">
-              Eşleşme yok — yazdığın ad kullanılacak
+          {query.trim() &&
+          !options.some(
+            (item) => item.toLocaleLowerCase("tr-TR") === query.trim().toLocaleLowerCase("tr-TR"),
+          ) ? (
+            <li>
+              <button
+                type="button"
+                tabIndex={-1}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => pick(query.trim())}
+                className="w-full px-4 py-2.5 text-left text-sm font-semibold text-primary hover:bg-primary/5"
+              >
+                “{query.trim()}” olarak kullan
+              </button>
             </li>
+          ) : null}
+          {filtered.length === 0 && !query.trim() ? (
+            <li className="px-4 py-2.5 text-sm text-accent">Listeden seç veya adını yaz.</li>
           ) : (
             filtered.map((item, index) => (
               <li key={item} role="option" aria-selected={index === active}>

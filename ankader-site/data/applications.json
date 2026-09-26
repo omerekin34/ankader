@@ -1,18 +1,1 @@
-[
-  {
-    "id": "app_1790254233012_qm6bg3",
-    "createdAt": "2026-09-24T12:50:33.012Z",
-    "status": "yeni",
-    "name": "Ayşe Demir",
-    "email": "ayse.demir@ogrenci.edu.tr",
-    "phone": "0532 000 00 00",
-    "university": "Marmara Üniversitesi",
-    "department": "İktisat",
-    "year": "2. sınıf",
-    "studentNo": "20241234",
-    "city": "İstanbul",
-    "intent": "Üye olmak istiyorum",
-    "support": "Eğitim ve burs desteği",
-    "note": "Öğrencilere destek olmak ve gönüllü çalışmalara katılmak istiyorum."
-  }
-]
+[]

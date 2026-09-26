@@ -8,11 +8,11 @@ import {
   highSchoolTracks,
   highSchoolYears,
   highSchools,
-  homeSchool,
   universities,
   universityYears,
 } from "@/lib/form-options";
-import { Send } from "lucide-react";
+import { insertBasvuru } from "@/lib/supabase";
+import { Check, Send } from "lucide-react";
 import { useState } from "react";
 
 const stages: ApplicantStage[] = ["Lise öğrencisi", "Üniversite öğrencisi", "Mezun"];
@@ -30,11 +30,10 @@ const empty = {
   email: "",
   phone: "",
   stage: "Lise öğrencisi" as ApplicantStage,
-  school: homeSchool,
+  school: "",
   university: "",
   department: "",
   year: "11. sınıf",
-  studentNo: "",
   city: "",
   intent: "Üye olmak istiyorum",
   support: "Eğitim ve burs desteği",
@@ -43,12 +42,12 @@ const empty = {
 
 function defaultsFor(stage: ApplicantStage) {
   if (stage === "Lise öğrencisi") {
-    return { school: homeSchool, university: "", department: "", year: "11. sınıf", studentNo: "" };
+    return { school: "", university: "", department: "", year: "11. sınıf" };
   }
   if (stage === "Üniversite öğrencisi") {
-    return { school: homeSchool, university: "", department: "", year: "1. sınıf", studentNo: "" };
+    return { school: "", university: "", department: "", year: "1. sınıf" };
   }
-  return { school: homeSchool, university: "", department: "", year: "2024", studentNo: "" };
+  return { school: "", university: "", department: "", year: "2024" };
 }
 
 export default function JoinForm() {
@@ -65,22 +64,62 @@ export default function JoinForm() {
     setForm((current) => ({ ...current, stage, ...defaultsFor(stage) }));
   }
 
+  function education() {
+    const school = form.school.trim();
+    const university = form.university.trim();
+    const year = form.year.trim();
+    const department = form.department.trim();
+    if (form.stage === "Lise öğrencisi") {
+      return { okul_adi: school, sinif: year, alan: department };
+    }
+    if (form.stage === "Üniversite öğrencisi") {
+      return {
+        okul_adi: [university, school].filter(Boolean).join(" · "),
+        sinif: year,
+        alan: department,
+      };
+    }
+    return {
+      okul_adi: [university, school].filter(Boolean).join(" · "),
+      sinif: year,
+      alan: university ? department : "",
+    };
+  }
+
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
     setError("");
-    const response = await fetch("/api/applications", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    setSaving(false);
-    if (!response.ok) {
-      setError("Başvuru gönderilemedi. Alanları kontrol edip tekrar deneyin.");
-      return;
+    const school = education();
+    try {
+      await insertBasvuru({
+        ad_soyad: form.name.trim(),
+        eposta: form.email.trim(),
+        telefon: form.phone.trim(),
+        ogrenci_durumu: form.stage,
+        okul_adi: school.okul_adi,
+        sinif: school.sinif,
+        alan: school.alan,
+        sehir: form.city.trim(),
+        basvuru_amaci: form.intent,
+        destek_alani: form.support,
+        mesaj: form.note.trim(),
+      });
+      setForm(empty);
+      setSent(true);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const denied = message.includes("row-level security") || message.includes("42501");
+      setError(
+        message === "MISSING_ENV"
+          ? "Başvuru şu an kaydedilemiyor. Bağlantı ayarları eksik."
+          : denied
+            ? "Kayıt izni kapalı. Supabase’de başvurular tablosuna ekleme izni gerekiyor."
+            : "Başvuru gönderilemedi. Biraz sonra tekrar dene.",
+      );
+    } finally {
+      setSaving(false);
     }
-    setSent(true);
-    setForm(empty);
   }
 
   const field =
@@ -88,16 +127,18 @@ export default function JoinForm() {
 
   if (sent) {
     return (
-      <div className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-6">
-        <p className="text-sm font-semibold">Başvurun alındı.</p>
+      <div className="mt-8 rounded-2xl border border-primary/25 bg-primary/10 px-6 py-8 text-center">
+        <span className="mx-auto inline-flex size-12 items-center justify-center rounded-full bg-primary text-white">
+          <Check className="size-6" strokeWidth={2.5} aria-hidden />
+        </span>
+        <p className="mt-4 text-lg font-semibold">Başvurunuz başarıyla alındı!</p>
         <p className="mt-2 text-sm leading-7 text-accent">
-          Yönetim panelinde görünecek. Değerlendirme sonrası seninle e-posta
-          veya telefon üzerinden iletişime geçilir.
+          Kaydın ulaştı. Değerlendirme sonrası e-posta veya telefonla dönüş yapılır.
         </p>
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="mt-4 text-sm font-semibold text-primary"
+          className="mt-5 text-sm font-semibold text-primary"
         >
           Yeni başvuru
         </button>
@@ -151,39 +192,56 @@ export default function JoinForm() {
         </div>
       </div>
 
-      <FilterCombobox
-        required
-        value={form.school}
-        onChange={(value) => set("school", value)}
-        options={highSchools}
-        placeholder="Lise"
-      />
-
       {form.stage === "Lise öğrencisi" && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <select
-            required
-            value={form.year}
-            onChange={(event) => set("year", event.target.value)}
-            className={field}
-          >
-            {highSchoolYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-          <FilterCombobox
-            value={form.department}
-            onChange={(value) => set("department", value)}
-            options={highSchoolTracks}
-            placeholder="Alan (isteğe bağlı)"
-          />
+        <div className="space-y-3 rounded-2xl border border-secondary/10 bg-background/60 p-4">
+          <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">Lise bilgilerin</p>
+          <div className="space-y-1.5">
+            <FilterCombobox
+              required
+              value={form.school}
+              onChange={(value) => set("school", value)}
+              options={highSchools}
+              placeholder="Okuduğun lise"
+            />
+            <p className="text-xs leading-5 text-accent">Listede yoksa okulunun adını kendin yaz.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <select
+              required
+              aria-label="Sınıf"
+              value={form.year}
+              onChange={(event) => set("year", event.target.value)}
+              className={field}
+            >
+              {highSchoolYears.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            <FilterCombobox
+              value={form.department}
+              onChange={(value) => set("department", value)}
+              options={highSchoolTracks}
+              placeholder="Alan (isteğe bağlı)"
+            />
+          </div>
         </div>
       )}
 
       {form.stage === "Üniversite öğrencisi" && (
-        <>
+        <div className="space-y-3 rounded-2xl border border-secondary/10 bg-background/60 p-4">
+          <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">Üniversite bilgilerin</p>
+          <div className="space-y-1.5">
+            <FilterCombobox
+              required
+              value={form.school}
+              onChange={(value) => set("school", value)}
+              options={highSchools}
+              placeholder="Mezun olduğun lise"
+            />
+            <p className="text-xs leading-5 text-accent">Listede yoksa okulunun adını kendin yaz.</p>
+          </div>
           <FilterCombobox
             required
             value={form.university}
@@ -201,6 +259,7 @@ export default function JoinForm() {
             />
             <select
               required
+              aria-label="Sınıf"
               value={form.year}
               onChange={(event) => set("year", event.target.value)}
               className={field}
@@ -212,28 +271,25 @@ export default function JoinForm() {
               ))}
             </select>
           </div>
-        </>
+        </div>
       )}
 
       {form.stage === "Mezun" && (
-        <>
-          <FilterCombobox
-            value={form.university}
-            onChange={(value) => set("university", value)}
-            options={universities}
-            placeholder="Üniversite (mezun olduysan)"
-          />
-          {form.university.trim() ? (
+        <div className="space-y-3 rounded-2xl border border-secondary/10 bg-background/60 p-4">
+          <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">Mezuniyet bilgilerin</p>
+          <div className="space-y-1.5">
             <FilterCombobox
               required
-              value={form.department}
-              onChange={(value) => set("department", value)}
-              options={departments}
-              placeholder="Bölüm"
+              value={form.school}
+              onChange={(value) => set("school", value)}
+              options={highSchools}
+              placeholder="Mezun olduğun lise"
             />
-          ) : null}
+            <p className="text-xs leading-5 text-accent">Listede yoksa okulunun adını kendin yaz.</p>
+          </div>
           <select
             required
+            aria-label="Mezuniyet yılı"
             value={form.year}
             onChange={(event) => set("year", event.target.value)}
             className={field}
@@ -244,16 +300,22 @@ export default function JoinForm() {
               </option>
             ))}
           </select>
-        </>
-      )}
-
-      {form.stage !== "Mezun" && (
-        <input
-          value={form.studentNo}
-          onChange={(event) => set("studentNo", event.target.value)}
-          placeholder="Öğrenci numarası (isteğe bağlı)"
-          className={field}
-        />
+          <FilterCombobox
+            value={form.university}
+            onChange={(value) => set("university", value)}
+            options={universities}
+            placeholder="Üniversite (isteğe bağlı)"
+          />
+          {form.university.trim() ? (
+            <FilterCombobox
+              required
+              value={form.department}
+              onChange={(value) => set("department", value)}
+              options={departments}
+              placeholder="Bölüm"
+            />
+          ) : null}
+        </div>
       )}
 
       <input
@@ -298,9 +360,13 @@ export default function JoinForm() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-primary/90 disabled:opacity-60"
       >
         <Send className="size-4" aria-hidden />
-        {saving ? "Gönderiliyor..." : "Başvuruyu gönder"}
+        {saving ? "Yükleniyor..." : "Başvuruyu gönder"}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

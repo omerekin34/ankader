@@ -37,6 +37,35 @@ export type SiteMember = {
   year?: string;
 };
 
+export type SiteStep = {
+  n: string;
+  title: string;
+  text: string;
+};
+
+export type SiteValue = {
+  title: string;
+  text: string;
+};
+
+export type SiteHafiza = {
+  src: string;
+  alt: string;
+  caption: string;
+  tags: string[];
+};
+
+export type SiteArticle = {
+  n: string;
+  title: string;
+  text: string;
+};
+
+export type SiteSchedule = {
+  day: string;
+  time: string;
+};
+
 export type SiteData = {
   hero: {
     eyebrow: string;
@@ -46,28 +75,80 @@ export type SiteData = {
     subtitle: string;
     primaryCta: string;
     secondaryCta: string;
+    ctaHref: string;
+    slides: string[];
+  };
+  identity: {
+    ticker: string;
+    schoolName: string;
+    footerTagline: string;
+    footerMotto: string;
+    footerCredit: string;
+    schoolUrl: string;
+  };
+  home: {
+    pathEyebrow: string;
+    pathTitle: string;
+    pathText: string;
+    steps: SiteStep[];
+    quote: string;
+    activitiesEyebrow: string;
+    activitiesTitle: string;
+    activitiesText: string;
+    galleryNoteTitle: string;
+    galleryNoteText: string;
+    boardEyebrow: string;
+    boardTitle: string;
+    newsEyebrow: string;
+    newsTitle: string;
+    joinEyebrow: string;
+    joinTitle: string;
   };
   stats: SiteStat[];
   corporate: {
     title: string;
     text: string;
+    missionTitle: string;
     mission: string;
+    visionTitle: string;
     vision: string;
   };
   activities: SiteActivity[];
   board: SiteBoardMember[];
   members: SiteMember[];
   posts: SitePost[];
+  hafiza: SiteHafiza[];
   about: {
+    heroEyebrow: string;
     heroTitle: string;
     heroText: string;
+    storyLabel: string;
     storyTitle: string;
     storyText: string;
+    schoolQuoteLabel: string;
+    schoolQuote: string;
+    schoolQuoteText: string;
+    principlesEyebrow: string;
+    principlesTitle: string;
+    principlesText: string;
+    values: SiteValue[];
+    verseRef: string;
+    verseText: string;
+    teamTitle: string;
+  };
+  tuzuk: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    items: SiteArticle[];
   };
   donate: {
     pageEyebrow: string;
     pageTitle: string;
     pageText: string;
+    donateHeroEyebrow: string;
+    donateHeroTitle: string;
+    donateHeroText: string;
     joinTitle: string;
     joinText: string;
     donateTitle: string;
@@ -91,5 +172,11 @@ export type SiteData = {
     mapLat: string;
     mapLng: string;
     mapsUrl: string;
+    pageEyebrow: string;
+    pageTitle: string;
+    pageText: string;
+    formEyebrow: string;
+    formText: string;
+    schedule: SiteSchedule[];
   };
 };

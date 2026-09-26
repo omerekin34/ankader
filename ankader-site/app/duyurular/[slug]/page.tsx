@@ -37,7 +37,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <section className="relative bg-secondary text-white">
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -118,9 +118,9 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
           </section>
         )}
 
-        <JoinBand />
+        <JoinBand eyebrow={site.home.joinEyebrow} title={site.home.joinTitle} />
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

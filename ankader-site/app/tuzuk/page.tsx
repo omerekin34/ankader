@@ -1,5 +1,6 @@
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,42 +8,18 @@ export const metadata: Metadata = {
   description: "ANKADER dernek tüzüğünün özeti ve temel maddeleri.",
 };
 
-const maddeler = [
-  {
-    n: "01",
-    title: "Amaç",
-    text: "Zorlu süreçlerden geçen öğrencilerin yanında durmak; eğitim, gönüllülük ve saha dayanışmasıyla yalnızlığı kırmak.",
-  },
-  {
-    n: "02",
-    title: "Çalışma alanları",
-    text: "Burs ve mentorluk, çalıştaylar, mahalle ve kampüs destekleri. Her faaliyet ihtiyaç görülünce başlar, sonuç paylaşılır.",
-  },
-  {
-    n: "03",
-    title: "Üyelik",
-    text: "Öğrenci başvurusu yönetimce değerlendirilir. Üye, gönüllü ve destek talep eden aynı kapıdan girer.",
-  },
-  {
-    n: "04",
-    title: "Şeffaflık",
-    text: "Karar, kaynak ve saha işi görünür durur. Bağış ve aidat kayıtları dernek usulünce tutulur.",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function TuzukPage() {
+export default async function TuzukPage() {
+  const site = await readSite();
   return (
     <div className="bg-background text-secondary">
-      <Navbar />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
-        <PageHero
-          eyebrow="Kurumsal"
-          title="Tüzüğümüz, yönümüz"
-          text="Tam metin dernek dosyasında durur. Burada yönümüzü özetliyoruz. Resmî suret için iletişime yazın."
-        />
+        <PageHero eyebrow={site.tuzuk.eyebrow} title={site.tuzuk.title} text={site.tuzuk.text} />
         <section className="relative z-10 -mt-20 px-5 pb-12 sm:-mt-24 sm:px-8">
           <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
-            {maddeler.map((item) => (
+            {site.tuzuk.items.map((item) => (
               <article
                 key={item.n}
                 data-reveal
@@ -56,7 +33,7 @@ export default function TuzukPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

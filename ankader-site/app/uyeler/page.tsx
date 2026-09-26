@@ -2,6 +2,7 @@ import MembersDirectory from "@/components/MembersDirectory";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { readApplications } from "@/lib/application-data";
+import type { MembershipApplication } from "@/lib/application-types";
 import { buildPublicMembers } from "@/lib/public-members";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
@@ -14,12 +15,18 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function UyelerPage() {
-  const [site, applications] = await Promise.all([readSite(), readApplications()]);
+  const site = await readSite();
+  let applications: MembershipApplication[] = [];
+  try {
+    applications = await readApplications();
+  } catch {
+    applications = [];
+  }
   const members = buildPublicMembers(site.members, site.board, applications);
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <PageHero
           eyebrow="Üyeler"
@@ -45,7 +52,7 @@ export default async function UyelerPage() {
           </article>
         </section>
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

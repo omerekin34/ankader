@@ -13,12 +13,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const schedule = [
-  { day: "Pazartesi — Cuma", time: "09:00 — 17:00" },
-  { day: "Cumartesi", time: "10:00 — 17:00" },
-  { day: "Pazar", time: "Kapalı" },
-];
-
 function digits(value: string) {
   return value.replace(/\D/g, "");
 }
@@ -80,13 +74,9 @@ export default async function IletisimPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
-        <PageHero
-          eyebrow="İletişim"
-          title="Hayalinizdeki dayanışma için buradayız"
-          text="Üyelik, gönüllülük veya destek için yazın, arayın ya da derneğe uğrayın. Ekibimiz size yardımcı olmaktan mutluluk duyar."
-        />
+        <PageHero eyebrow={contact.pageEyebrow} title={contact.pageTitle} text={contact.pageText} />
 
         <section className="relative z-10 -mt-28 px-5 sm:-mt-32 sm:px-8">
           <div className="mx-auto grid max-w-7xl gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -114,10 +104,8 @@ export default async function IletisimPage() {
         <section className="px-5 py-16 sm:px-8 sm:py-24">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
             <article className="rounded-[1.8rem] bg-white p-7 sm:p-10 shadow-[0_18px_50px_-32px_rgba(15,44,65,0.35)]">
-              <p className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">Bize yazın</p>
-              <p className="mt-3 text-sm leading-7 text-accent">
-                Üyelik, gönüllülük veya bağış sorularınızı iletin, en kısa sürede dönüş yapalım.
-              </p>
+              <p className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">{contact.formEyebrow}</p>
+              <p className="mt-3 text-sm leading-7 text-accent">{contact.formText}</p>
               <ContactForm email={contact.email} />
             </article>
 
@@ -127,7 +115,7 @@ export default async function IletisimPage() {
                   Çalışma saatleri
                 </p>
                 <ul className="mt-6 space-y-4">
-                  {schedule.map((row) => (
+                  {contact.schedule.map((row) => (
                     <li
                       key={row.day}
                       className="flex items-baseline justify-between gap-4 border-b border-secondary/5 pb-3 text-sm last:border-0 last:pb-0"
@@ -161,7 +149,7 @@ export default async function IletisimPage() {
           </div>
         </section>
       </main>
-      <Footer contact={contact} />
+      <Footer contact={contact} identity={site.identity} />
     </div>
   );
 }

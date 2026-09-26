@@ -1,35 +1,41 @@
 "use client";
 
 import FilterPanel from "@/components/FilterPanel";
-import { hafizaItems, hafizaTags, type HafizaTag } from "@/lib/hafiza";
+import { hafizaTags } from "@/lib/hafiza";
+import type { SiteHafiza } from "@/lib/site-types";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-
-function isTag(value: string | undefined): value is HafizaTag {
-  return Boolean(value && (hafizaTags as readonly string[]).includes(value));
-}
 
 export default function HafizaGallery({
   preview = false,
   initialTag,
+  items: source = [],
 }: {
   preview?: boolean;
   initialTag?: string;
+  items?: SiteHafiza[];
 }) {
-  const [tag, setTag] = useState<HafizaTag | "Tümü">(isTag(initialTag) ? initialTag : "Tümü");
+  const tags = useMemo(() => {
+    const set = new Set<string>(hafizaTags);
+    for (const item of source) {
+      for (const itemTag of item.tags) set.add(itemTag);
+    }
+    return [...set];
+  }, [source]);
+  const [tag, setTag] = useState(initialTag && tags.includes(initialTag) ? initialTag : "Tümü");
 
   const items = useMemo(() => {
-    if (preview) return hafizaItems.slice(0, 6);
-    if (tag === "Tümü") return hafizaItems;
-    return hafizaItems.filter((item) => item.tags.includes(tag));
-  }, [preview, tag]);
+    if (preview) return source.slice(0, 6);
+    if (tag === "Tümü") return source;
+    return source.filter((item) => item.tags.includes(tag));
+  }, [preview, source, tag]);
 
   return (
     <div>
       {!preview && (
-        <FilterPanel active={tag !== "Tümü"} defaultOpen={isTag(initialTag)}>
+        <FilterPanel active={tag !== "Tümü"} defaultOpen={Boolean(initialTag && tags.includes(initialTag))}>
           <div className="flex flex-wrap gap-2" role="tablist" aria-label="Faaliyet etiketleri">
-            {(["Tümü", ...hafizaTags] as const).map((item) => {
+            {["Tümü", ...tags].map((item) => {
               const active = tag === item;
               return (
                 <button
@@ -53,8 +59,8 @@ export default function HafizaGallery({
       )}
 
       <div className={`${preview ? "" : "mt-8"} grid gap-6 sm:grid-cols-2 lg:grid-cols-3`}>
-        {items.map((item) => (
-          <figure key={item.src} className="group">
+        {items.map((item, index) => (
+          <figure key={`${item.src}-${index}`} className="group">
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-secondary/10">
               <Image
                 src={item.src}

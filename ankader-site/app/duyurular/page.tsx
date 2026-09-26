@@ -27,7 +27,7 @@ export default async function DuyurularPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <PageHero
           eyebrow="Duyurular"
@@ -45,7 +45,7 @@ export default async function DuyurularPage() {
           </article>
         </section>
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

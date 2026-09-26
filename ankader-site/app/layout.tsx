@@ -1,5 +1,6 @@
 import ScrollReveal from "@/components/ScrollReveal";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 import { Great_Vibes, Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
     "ANKADER, dayanışmayla büyüyen gençlerin sesini yükselten bir sivil toplum kuruluşudur.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const site = await readSite();
   return (
     <html lang="tr" suppressHydrationWarning className={`${jakarta.variable} ${serif.variable} ${script.variable} h-full antialiased`}>
       <head>
@@ -39,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full bg-background text-secondary">
         <ScrollReveal />
         {children}
-        <WhatsAppFloat />
+        <WhatsAppFloat phone={site.contact.phone} />
       </body>
     </html>
   );

@@ -2,12 +2,14 @@
 
 import { BrandLockup, BrandStack } from "@/components/Brand";
 import ThemeToggle from "@/components/ThemeToggle";
+import { defaultSite } from "@/lib/site-defaults";
 import type { SiteData } from "@/lib/site-types";
 import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const fallbackContact: SiteData["contact"] = {
+  ...defaultSite.contact,
   address: "Şeyhli Mahallesi, Üstün Caddesi, Merdane Sokak No:1, 34920 Pendik / İstanbul",
   email: "info@ankader.org",
   phone: "+90 531 945 02 36",
@@ -17,9 +19,6 @@ const fallbackContact: SiteData["contact"] = {
   linkedin: "https://linkedin.com",
   whatsappCommunity: "",
   registry: "06.123.456",
-  mapLat: "40.911291",
-  mapLng: "29.2895983",
-  mapsUrl: "https://www.google.com/maps/place/ANKADER/@40.911291,29.2895983,19z",
 };
 
 const SOCIAL = {
@@ -56,7 +55,13 @@ export const footerLinks = [
   { href: "/tuzuk", label: "Tüzük" },
 ];
 
-export function Navbar({ contact = fallbackContact }: { contact?: SiteData["contact"] }) {
+export function Navbar({
+  contact = fallbackContact,
+  ticker = defaultSite.identity.ticker,
+}: {
+  contact?: SiteData["contact"];
+  ticker?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [kurumsalOpen, setKurumsalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -122,17 +127,17 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
           <div className="min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
             <p className="slogan-marquee flex w-max items-center gap-8 text-[11px] font-medium tracking-[0.2em] text-white/80 uppercase sm:text-xs">
               <span>
-                Küllerinden doğarak, geleceği omuz omuza
+                {ticker}
                 <span className="mx-3 text-primary">•</span>
                 <span className="text-primary">ANKADER</span>
               </span>
               <span aria-hidden>
-                Küllerinden doğarak, geleceği omuz omuza
+                {ticker}
                 <span className="mx-3 text-primary">•</span>
                 <span className="text-primary">ANKADER</span>
               </span>
               <span aria-hidden>
-                Küllerinden doğarak, geleceği omuz omuza
+                {ticker}
                 <span className="mx-3 text-primary">•</span>
                 <span className="text-primary">ANKADER</span>
               </span>
@@ -334,7 +339,13 @@ function SocialIcon({ label, path, href }: { label: string; path: string; href: 
   );
 }
 
-export function Footer({ contact = fallbackContact }: { contact?: SiteData["contact"] }) {
+export function Footer({
+  contact = fallbackContact,
+  identity = defaultSite.identity,
+}: {
+  contact?: SiteData["contact"];
+  identity?: SiteData["identity"];
+}) {
   return (
     <footer id="iletisim" className="scroll-mt-28 bg-secondary text-white">
       <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
@@ -343,14 +354,10 @@ export function Footer({ contact = fallbackContact }: { contact?: SiteData["cont
             <BrandStack className="w-40" onDark />
           </a>
           <p className="mt-5 text-[11px] font-semibold leading-5 tracking-[0.16em] text-primary uppercase">
-            Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi
+            {identity.schoolName}
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/80">
-            Okulumuzun mezunlar derneği.
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-white/70">
-            Geleceği birlikte, küllerimizden doğarak inşa ediyoruz.
-          </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/80">{identity.footerTagline}</p>
+          <p className="mt-4 text-sm leading-relaxed text-white/70">{identity.footerMotto}</p>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row">
             <a
               href="/uye?yol=uye"
@@ -441,7 +448,7 @@ export function Footer({ contact = fallbackContact }: { contact?: SiteData["cont
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-5 text-center text-xs text-white/50 sm:flex-row sm:justify-between sm:px-6 sm:text-left">
           <p>© 2026 ANKADER</p>
-          <p>Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi mezunlar derneği</p>
+          <p>{identity.footerCredit}</p>
         </div>
       </div>
     </footer>

@@ -1,12 +1,60 @@
 {
   "hero": {
-    "eyebrow": "ANKADER · Küllerinden Doğuyor",
-    "title": "Geleceği Birlikte,",
-    "highlight": "Küllerimizden Doğarak",
-    "titleEnd": "İnşa Ediyoruz.",
-    "subtitle": "Öğrenci derneğiyiz. Eğitim, mentorluk ve saha dayanışmasıyla zorlu süreçlerden geçen gençlerin yanında duruyoruz.",
-    "primaryCta": "Faaliyetleri gör",
-    "secondaryCta": "Üye ol"
+    "eyebrow": "ANKADER · Pendik",
+    "title": "Küllerinden",
+    "highlight": "Doğuyor",
+    "titleEnd": "",
+    "subtitle": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi  Mezunlar Derneği.",
+    "primaryCta": "Hikâyemiz",
+    "secondaryCta": "",
+    "ctaHref": "/hakkimizda",
+    "slides": [
+      "/slides/hero-ziyaret.jpg",
+      "/slides/hero-etayfa.jpg",
+      "/slides/hero-mezuniyet.png"
+    ]
+  },
+  "identity": {
+    "ticker": "Küllerinden doğarak, geleceği omuz omuza",
+    "schoolName": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
+    "footerTagline": "Okulumuzun Mezunlar Derneği.",
+    "footerMotto": "Geleceği birlikte, küllerimizden doğarak inşa ediyoruz.",
+    "footerCredit": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi Mezunlar Derneği",
+    "schoolUrl": "https://pendikitosaaihl.meb.k12.tr/"
+  },
+  "home": {
+    "pathEyebrow": "Bize katıl",
+    "pathTitle": "Kapı açık. Yol kısa.",
+    "pathText": "Üye, gönüllü ya da destek — üç adımda aynı masaya oturursun.",
+    "steps": [
+      {
+        "n": "01",
+        "title": "Başvur",
+        "text": "Öğrenci formunu doldur. Üye, gönüllü ya da destek — üç yol da açık."
+      },
+      {
+        "n": "02",
+        "title": "Eşleş",
+        "text": "Yönetim başvurunu okur. İhtiyacına veya katkına göre ekibe bağlanır."
+      },
+      {
+        "n": "03",
+        "title": "Sahaya in",
+        "text": "Eğitim, mentorluk ya da mahalle işi. Söz masada kalmaz, işe döner."
+      }
+    ],
+    "quote": "Kimse tek başına yürümesin diye buradayız.",
+    "activitiesEyebrow": "02 — Faaliyetler",
+    "activitiesTitle": "Hafızamızdan kareler",
+    "activitiesText": "Birlikte geçirilen zamanlardan seçilmiş kareler.",
+    "galleryNoteTitle": "Bu masada yerin var",
+    "galleryNoteText": "Mentörlük, kariyer buluşmaları, vefa programları ve okul ziyaretleri. Gönüllü veya üye olarak sahaya inebilirsin.",
+    "boardEyebrow": "03 — Yönetim",
+    "boardTitle": "Yönetim Kurulu",
+    "newsEyebrow": "04 — Duyurular",
+    "newsTitle": "Sahadan haber",
+    "joinEyebrow": "Bu masada yerin var",
+    "joinTitle": "Öğrenciysen, gönüllüysen veya destek olmak istiyorsan kapı açık."
   },
   "stats": [
     {
@@ -38,7 +86,9 @@
   "corporate": {
     "title": "Neden bir aradayız?",
     "text": "ANKADER; farklı dönemlerden mezunların, öğretmenlerin ve okul mensuplarının ortak hafızasını korurken bugünün öğrencilerine de yol arkadaşlığı etmeyi amaçlar.",
+    "missionTitle": "Tecrübeyi yeni nesillere aktarmak",
     "mission": "Mezunlar ve mensuplar arasındaki bağı korumak; öğrencilerin akademik, mesleki ve kişisel gelişimine rehberlik etmek; okulumuzun kültürüne ve geleceğine somut katkı sunmak.",
+    "visionTitle": "Kalıcı bir dayanışma kültürü kurmak",
     "vision": "Köklerine bağlı, çağın ihtiyaçlarını anlayan ve topluma fayda üretmeyi sorumluluk bilen mezunları aynı çatı altında buluşturan güvenilir bir yapı olmak."
   },
   "activities": [
@@ -139,16 +189,178 @@
       "body": "Yeni kaydı onaylanan üyeler için kısa bir karşılama: tüzük özeti, iletişim kanalları, dönem takvimi ve ofis tanışması.\n\nOryantasyon bir sınav değil. Masaya oturduğun ilk gün kimin ne yaptığı net olsun diye var."
     }
   ],
+  "hafiza": [
+    {
+      "src": "/hafiza/etayfa.jpeg",
+      "alt": "E-Tayfa buluşması",
+      "caption": "Geleneksel E-Tayfa Buluşmaları",
+      "tags": [
+        "Buluşmalar"
+      ]
+    },
+    {
+      "src": "/hafiza/mezun-bulusma.jpeg",
+      "alt": "Mezunlar buluşması",
+      "caption": "Yıllar sonra aynı heyecan, aynı muhabbet ve aynı gönül bağıyla yeniden buluştuk.",
+      "tags": [
+        "Buluşmalar"
+      ]
+    },
+    {
+      "src": "/hafiza/mezuniyet-2026.jpeg",
+      "alt": "2026 mezuniyet programı",
+      "caption": "2026 / 7. Dönem Mezuniyet Programımız",
+      "tags": [
+        "Mezuniyet"
+      ]
+    },
+    {
+      "src": "/hafiza/zirve.jpeg",
+      "alt": "Zirve Yolunda Mezun Buluşmaları",
+      "caption": "Zirve Yolunda Mezun Buluşmaları",
+      "tags": [
+        "Buluşmalar",
+        "Mentörlük"
+      ]
+    },
+    {
+      "src": "/hafiza/vefa.jpeg",
+      "alt": "Vefa programı",
+      "caption": "Vefa programlarından bir hatıra",
+      "tags": [
+        "Vefa"
+      ]
+    },
+    {
+      "src": "/hafiza/kurumsal.jpeg",
+      "alt": "Kurumsal ziyaret",
+      "caption": "Kurumsal ziyaretler ve iş birlikleri",
+      "tags": [
+        "İş Birliği",
+        "Ziyaret"
+      ]
+    },
+    {
+      "src": "/hafiza/ziyaret.jpeg",
+      "alt": "Mezun ziyareti",
+      "caption": "Mezunlarımızdan bir ziyaret hatırası",
+      "tags": [
+        "Ziyaret"
+      ]
+    },
+    {
+      "src": "/hafiza/soylesi.jpeg",
+      "alt": "Mezun söyleşisi",
+      "caption": "Köklerden göklere uzanan tecrübe paylaşımı",
+      "tags": [
+        "Mentörlük"
+      ]
+    },
+    {
+      "src": "/hafiza/pihmed.jpeg",
+      "alt": "PİHMED 50. yıl şenlikleri",
+      "caption": "2025 mezunlarımız PİHMED 50. Yıl Şenliklerinde büyük başarı elde ederek futbol turnuvası 1.’si oldular.",
+      "tags": [
+        "Spor",
+        "Mezuniyet"
+      ]
+    },
+    {
+      "src": "/hafiza/kurultay.jpeg",
+      "alt": "İmam Hatipler Kurultayı",
+      "caption": "23. İmam Hatipler Kurultay’ına katıldık.",
+      "tags": [
+        "Kurultay",
+        "İş Birliği"
+      ]
+    },
+    {
+      "src": "/hafiza/mudur-ziyaret.jpeg",
+      "alt": "Okul müdürü ziyareti",
+      "caption": "Okul müdürümüz Sayın Ebamüslim Yaşaroğlu hocamızı ziyaret ettik.",
+      "tags": [
+        "Ziyaret",
+        "Okul"
+      ]
+    },
+    {
+      "src": "/hafiza/yeni-yil.jpeg",
+      "alt": "Yeni eğitim öğretim yılı",
+      "caption": "Yeni eğitim öğretim yılı hayırlı olsun!",
+      "tags": [
+        "Okul"
+      ]
+    }
+  ],
   "about": {
-    "heroTitle": "Hakkımızda",
+    "heroEyebrow": "Hakkımızda",
+    "heroTitle": "Bağımız mezuniyetle bitmedi",
     "heroText": "Okul yıllarında kurulan dostluğu, mezuniyetten sonra sorumluluk ve dayanışmayla sürdüren bir mezunlar topluluğuyuz.",
+    "storyLabel": "Nasıl başladık?",
     "storyTitle": "Bağımız mezuniyetle bitmedi",
-    "storyText": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi koridorlarında kurulan dostluklar, mezuniyet sonrasında da devam etti. Birbirimize destek olmak, okulumuzla ilişkimizi korumak ve edindiğimiz tecrübeyi öğrencilerle paylaşmak için kurumsal bir çatı altında buluştuk. ANKADER; farklı dönemlerden mezunların, öğretmenlerin ve okul mensuplarının ortak hafızasını korurken bugünün öğrencilerine de yol arkadaşlığı etmeyi amaçlar. Anka kuşu bizim için geçmişi silmek değil, köklerden güç alarak yeniden ayağa kalkmak demektir."
+    "storyText": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi koridorlarında kurulan dostluklar, mezuniyet sonrasında da devam etti. Birbirimize destek olmak, okulumuzla ilişkimizi korumak ve edindiğimiz tecrübeyi öğrencilerle paylaşmak için kurumsal bir çatı altında buluştuk.\n\nANKADER; farklı dönemlerden mezunların, öğretmenlerin ve okul mensuplarının ortak hafızasını korurken bugünün öğrencilerine de yol arkadaşlığı etmeyi amaçlar. Anka kuşu bizim için geçmişi silmek değil, köklerden güç alarak yeniden ayağa kalkmak demektir.",
+    "schoolQuoteLabel": "Okulumuzdan aldığımız ölçü",
+    "schoolQuote": "Önce karakter, sonra kariyer.",
+    "schoolQuoteText": "Rehberlik çalışmalarımızda yalnızca mesleki başarıyı değil; sorumluluk sahibi, güvenilir ve fayda üreten insanlar olmayı da önemsiyoruz.",
+    "principlesEyebrow": "İlkelerimiz",
+    "principlesTitle": "Birlikteliğimizi taşıyan değerler",
+    "principlesText": "Kararlarımızda ve çalışmalarımızda okul kültürümüzden gelen dört ilkeyi gözetiyoruz.",
+    "values": [
+      {
+        "title": "Vefa",
+        "text": "Bizi yetiştiren öğretmenleri, okul kültürünü ve ortak hatıralarımızı unutmamak."
+      },
+      {
+        "title": "Dayanışma",
+        "text": "Farklı dönemlerden mezunlar ve mensuplar arasında güvene dayalı bağlar kurmak."
+      },
+      {
+        "title": "Rehberlik",
+        "text": "Edindiğimiz tecrübeyi bizden sonra gelen öğrenciler ve genç mezunlarla paylaşmak."
+      },
+      {
+        "title": "Sorumluluk",
+        "text": "Okulumuza, çevremize ve topluma fayda üreten işlerde birlikte hareket etmek."
+      }
+    ],
+    "verseRef": "En’âm Suresi · 162",
+    "verseText": "Şüphesiz benim namazım da, diğer ibadetlerim de, yaşamam da, ölümüm de âlemlerin Rabbi Allah içindir.",
+    "teamTitle": "Bu yolu birlikte yürüyoruz"
+  },
+  "tuzuk": {
+    "eyebrow": "Kurumsal",
+    "title": "Tüzüğümüz, yönümüz",
+    "text": "Tam metin dernek dosyasında durur. Burada yönümüzü özetliyoruz. Resmî suret için iletişime yazın.",
+    "items": [
+      {
+        "n": "01",
+        "title": "Amaç",
+        "text": "Zorlu süreçlerden geçen öğrencilerin yanında durmak; eğitim, gönüllülük ve saha dayanışmasıyla yalnızlığı kırmak."
+      },
+      {
+        "n": "02",
+        "title": "Çalışma alanları",
+        "text": "Burs ve mentorluk, çalıştaylar, mahalle ve kampüs destekleri. Her faaliyet ihtiyaç görülünce başlar, sonuç paylaşılır."
+      },
+      {
+        "n": "03",
+        "title": "Üyelik",
+        "text": "Öğrenci başvurusu yönetimce değerlendirilir. Üye, gönüllü ve destek talep eden aynı kapıdan girer."
+      },
+      {
+        "n": "04",
+        "title": "Şeffaflık",
+        "text": "Karar, kaynak ve saha işi görünür durur. Bağış ve aidat kayıtları dernek usulünce tutulur."
+      }
+    ]
   },
   "donate": {
-    "pageEyebrow": "Katkı",
-    "pageTitle": "Üye ol veya bağış yap",
-    "pageText": "Öğrenci derneğiyiz. Üye olarak veya bağışınla sahadaki desteğin sürmesini sağlarsın.",
+    "pageEyebrow": "Katıl",
+    "pageTitle": "Nasıl katılmak istiyorsun?",
+    "pageText": "Üstten üye ol veya bağış yap de, ilgili form önüne gelsin.",
+    "donateHeroEyebrow": "Bağış",
+    "donateHeroTitle": "Bağışınla dayanışmaya katıl",
+    "donateHeroText": "Tutarı seç, IBAN’a havale veya EFT yap, dekontu ilet. Kartla ödeme yok.",
     "joinTitle": "Üye ol",
     "joinText": "Öğrenci bilgilerini doldur, başvurunu gönder. Kayıtlar yönetim panelinde toplanır.",
     "donateTitle": "Bağış yap",
@@ -176,6 +388,25 @@
     "whatsappCommunity": "",
     "mapLat": "40.911291",
     "mapLng": "29.2895983",
-    "mapsUrl": "https://www.google.com/maps/place/ANKADER/@40.911291,29.2895983,19z/data=!4m6!3m5!1s0x14cadbfd979fff2b:0x7df2ba103e23b123!8m2!3d40.911291!4d29.2895983!16s%2Fg%2F11zf3zwz13"
+    "mapsUrl": "https://www.google.com/maps/place/ANKADER/@40.911291,29.2895983,19z/data=!4m6!3m5!1s0x14cadbfd979fff2b:0x7df2ba103e23b123!8m2!3d40.911291!4d29.2895983!16s%2Fg%2F11zf3zwz13",
+    "pageEyebrow": "İletişim",
+    "pageTitle": "Hayalinizdeki dayanışma için buradayız",
+    "pageText": "Üyelik, gönüllülük veya destek için yazın, arayın ya da derneğe uğrayın. Ekibimiz size yardımcı olmaktan mutluluk duyar.",
+    "formEyebrow": "Bize yazın",
+    "formText": "Üyelik, gönüllülük veya bağış sorularınızı iletin, en kısa sürede dönüş yapalım.",
+    "schedule": [
+      {
+        "day": "Pazartesi — Cuma",
+        "time": "09:00 — 17:00"
+      },
+      {
+        "day": "Cumartesi",
+        "time": "10:00 — 17:00"
+      },
+      {
+        "day": "Pazar",
+        "time": "Kapalı"
+      }
+    ]
   }
 }

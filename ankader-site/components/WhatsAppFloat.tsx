@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
-const WHATSAPP = "905319450236";
+function digits(value: string) {
+  const raw = value.replace(/\D/g, "");
+  if (raw.startsWith("90")) return raw;
+  if (raw.startsWith("0")) return `90${raw.slice(1)}`;
+  return raw ? `90${raw}` : "905319450236";
+}
 
 const templates = [
   {
@@ -33,8 +38,8 @@ const templates = [
   },
 ];
 
-function waLink(text: string) {
-  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
+function waLink(phone: string, text: string) {
+  return `https://wa.me/${digits(phone)}?text=${encodeURIComponent(text)}`;
 }
 
 function WhatsAppMark({ className }: { className?: string }) {
@@ -48,7 +53,7 @@ function WhatsAppMark({ className }: { className?: string }) {
   );
 }
 
-export default function WhatsAppFloat() {
+export default function WhatsAppFloat({ phone = "+90 531 945 02 36" }: { phone?: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -89,7 +94,7 @@ export default function WhatsAppFloat() {
             {templates.map((item) => (
               <li key={item.label}>
                 <a
-                  href={waLink(item.text)}
+                  href={waLink(phone, item.text)}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => setOpen(false)}

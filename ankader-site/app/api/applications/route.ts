@@ -1,6 +1,7 @@
 import { isAdminLoggedIn } from "@/lib/admin-auth";
-import { readApplications, writeApplications } from "@/lib/application-data";
+import { applicationErrorMessage, readApplications } from "@/lib/application-data";
 import { applicantStages, type MembershipApplication } from "@/lib/application-types";
+import { insertBasvuru } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 function text(value: unknown, max = 240) {
@@ -11,7 +12,11 @@ export async function GET() {
   if (!(await isAdminLoggedIn())) {
     return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
   }
-  return NextResponse.json(await readApplications());
+  try {
+    return NextResponse.json(await readApplications());
+  } catch (error) {
+    return NextResponse.json({ error: applicationErrorMessage(error) }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -21,37 +26,43 @@ export async function POST(request: Request) {
     ? (stageRaw as MembershipApplication["stage"])
     : "";
 
-  const application: MembershipApplication = {
-    id: `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    createdAt: new Date().toISOString(),
-    status: "yeni",
-    name: text(body.name, 80),
-    email: text(body.email, 120),
-    phone: text(body.phone, 40),
-    stage,
-    school: text(body.school, 140),
-    university: text(body.university, 120),
-    department: text(body.department, 120),
-    year: text(body.year, 40),
-    studentNo: stage === "Mezun" ? "" : text(body.studentNo, 40),
-    city: text(body.city, 80),
-    intent: text(body.intent, 80),
-    support: text(body.support, 80),
-    note: text(body.note, 800),
-  };
+  const name = text(body.name, 80);
+  const email = text(body.email, 120);
+  const phone = text(body.phone, 40);
+  const school = text(body.school, 140);
+  const university = text(body.university, 120);
+  const department = text(body.department, 120);
+  const year = text(body.year, 40);
+  const city = text(body.city, 80);
+  const intent = text(body.intent, 80);
+  const support = text(body.support, 80);
+  const note = text(body.note, 800);
 
-  const missingCore = !application.name || !application.email || !application.intent || !application.stage || !application.school;
-  const missingUni =
-    application.stage === "Üniversite öğrencisi" &&
-    (!application.university || !application.department);
-  const missingGradUni = application.stage === "Mezun" && application.university && !application.department;
+  const missingCore = !name || !email || !intent || !stage || !school;
+  const missingUni = stage === "Üniversite öğrencisi" && (!university || !department);
+  const missingGradUni = stage === "Mezun" && university && !department;
 
   if (missingCore || missingUni || missingGradUni) {
     return NextResponse.json({ error: "Zorunlu alanlar eksik." }, { status: 400 });
   }
 
-  const items = await readApplications();
-  items.unshift(application);
-  await writeApplications(items.slice(0, 500));
-  return NextResponse.json({ ok: true, id: application.id });
+  try {
+    await insertBasvuru({
+      ad_soyad: name,
+      eposta: email,
+      telefon: phone,
+      ogrenci_durumu: stage,
+      okul_adi: [university, school].filter(Boolean).join(" · "),
+      sinif: year,
+      alan: department,
+      sehir: city,
+      basvuru_amaci: intent,
+      destek_alani: support,
+      mesaj: note,
+    });
+  } catch {
+    return NextResponse.json({ error: "Başvuru kaydedilemedi." }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

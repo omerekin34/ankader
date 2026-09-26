@@ -17,7 +17,6 @@ export type MembershipApplication = {
   university: string;
   department: string;
   year: string;
-  studentNo: string;
   city: string;
   intent: string;
   support: string;

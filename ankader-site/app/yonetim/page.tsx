@@ -16,7 +16,7 @@ export default async function YonetimPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <PageHero
           eyebrow="Kurumsal"
@@ -62,7 +62,7 @@ export default async function YonetimPage() {
           </div>
         </section>
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

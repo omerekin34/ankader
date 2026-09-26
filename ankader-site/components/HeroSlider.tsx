@@ -1,11 +1,13 @@
 "use client";
 
+import type { SiteData } from "@/lib/site-types";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-const slides = ["/slides/hero-ziyaret.jpg", "/slides/hero-etayfa.jpg", "/slides/hero-mezuniyet.png"];
+const fallbackSlides = ["/slides/hero-ziyaret.jpg", "/slides/hero-etayfa.jpg", "/slides/hero-mezuniyet.png"];
 
-export default function HeroSlider() {
+export default function HeroSlider({ hero }: { hero: SiteData["hero"] }) {
+  const slides = hero.slides?.length ? hero.slides : fallbackSlides;
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -49,21 +51,43 @@ export default function HeroSlider() {
 
       <div className="relative z-10 flex h-full items-end px-6 pb-24 sm:px-12 sm:pb-20">
         <div className="mx-auto w-full max-w-6xl">
-          <p className="text-[11px] font-semibold tracking-[0.32em] text-primary uppercase">ANKADER · Pendik</p>
+          <p className="text-[11px] font-semibold tracking-[0.32em] text-primary uppercase">{hero.eyebrow}</p>
           <h1 className="mt-4 max-w-lg text-4xl leading-[0.95] sm:text-6xl lg:text-7xl">
-            Küllerinden
-            <br />
-            Doğuyor
+            {hero.title}
+            {hero.highlight ? (
+              <>
+                <br />
+                {hero.highlight}
+              </>
+            ) : null}
+            {hero.titleEnd ? (
+              <>
+                <br />
+                {hero.titleEnd}
+              </>
+            ) : null}
           </h1>
-          <p className="mt-5 max-w-xl text-sm leading-7 text-white/70">
-            Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi mezunlar derneği.
-          </p>
-          <a
-            href="/hakkimizda"
-            className="mt-7 inline-flex rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-primary hover:text-primary"
-          >
-            Hikâyemiz
-          </a>
+          {hero.subtitle ? (
+            <p className="mt-5 max-w-xl text-sm leading-7 text-white/70">{hero.subtitle}</p>
+          ) : null}
+          <div className="mt-7 flex flex-wrap gap-3">
+            {hero.primaryCta ? (
+              <a
+                href={hero.ctaHref || "/hakkimizda"}
+                className="inline-flex rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-primary hover:text-primary"
+              >
+                {hero.primaryCta}
+              </a>
+            ) : null}
+            {hero.secondaryCta ? (
+              <a
+                href="/uye?yol=uye"
+                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
+              >
+                {hero.secondaryCta}
+              </a>
+            ) : null}
+          </div>
 
           <div className="mt-10 flex gap-2" role="tablist" aria-label="Görseller">
             {slides.map((src, i) => (

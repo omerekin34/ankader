@@ -1,5 +1,5 @@
 import { isAdminLoggedIn } from "@/lib/admin-auth";
-import { readApplications, writeApplications } from "@/lib/application-data";
+import { deleteApplication, updateApplicationStatus } from "@/lib/application-data";
 import { applicationStatuses, type ApplicationStatus } from "@/lib/application-types";
 import { NextResponse } from "next/server";
 
@@ -16,12 +16,11 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Geçersiz durum." }, { status: 400 });
   }
 
-  const items = await readApplications();
-  const index = items.findIndex((item) => item.id === id);
-  if (index < 0) return NextResponse.json({ error: "Bulunamadı." }, { status: 404 });
-
-  items[index] = { ...items[index], status: body.status };
-  await writeApplications(items);
+  try {
+    await updateApplicationStatus(id, body.status);
+  } catch {
+    return NextResponse.json({ error: "Başvuru güncellenemedi." }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }
 
@@ -31,7 +30,10 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const items = await readApplications();
-  await writeApplications(items.filter((item) => item.id !== id));
+  try {
+    await deleteApplication(id);
+  } catch {
+    return NextResponse.json({ error: "Başvuru silinemedi." }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }

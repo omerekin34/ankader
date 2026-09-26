@@ -18,24 +18,17 @@ export const dynamic = "force-dynamic";
 const seeAllClass =
   "group inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition duration-300 hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_10px_28px_-12px_rgba(20,195,208,0.85)]";
 
-function Path() {
-  const steps = [
-    { n: "01", title: "Başvur", text: "Öğrenci formunu doldur. Üye, gönüllü ya da destek — üç yol da açık." },
-    { n: "02", title: "Eşleş", text: "Yönetim başvurunu okur. İhtiyacına veya katkına göre ekibe bağlanır." },
-    { n: "03", title: "Sahaya in", text: "Eğitim, mentorluk ya da mahalle işi. Söz masada kalmaz, işe döner." },
-  ];
+function Path({ home }: { home: SiteData["home"] }) {
   return (
     <section className="px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-6xl">
         <div data-reveal className="reveal max-w-2xl">
-          <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">Bize katıl</p>
-          <h2 className="mt-4 text-3xl sm:text-5xl">Kapı açık. Yol kısa.</h2>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-accent">
-            Üye, gönüllü ya da destek — üç adımda aynı masaya oturursun.
-          </p>
+          <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">{home.pathEyebrow}</p>
+          <h2 className="mt-4 text-3xl sm:text-5xl">{home.pathTitle}</h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-accent">{home.pathText}</p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {steps.map((step, index) => (
+          {home.steps.map((step, index) => (
             <article
               key={step.n}
               data-reveal
@@ -53,7 +46,7 @@ function Path() {
   );
 }
 
-function Corporate({ data }: { data: SiteData["corporate"] }) {
+function Corporate({ data, quote }: { data: SiteData["corporate"]; quote: string }) {
   return (
     <section className="scroll-mt-28 px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
@@ -66,7 +59,7 @@ function Corporate({ data }: { data: SiteData["corporate"] }) {
           data-reveal
           className="reveal mt-12 max-w-4xl text-2xl leading-snug text-secondary sm:text-4xl"
         >
-          “Kimse tek başına yürümesin diye buradayız.”
+          “{quote}”
         </blockquote>
         <div className="mt-14 grid gap-6 md:grid-cols-2">
           <article data-reveal className="reveal card-pro rounded-2xl border border-secondary/10 bg-white p-8 sm:p-10">
@@ -89,17 +82,21 @@ function Corporate({ data }: { data: SiteData["corporate"] }) {
   );
 }
 
-function Activities() {
+function Activities({
+  home,
+  hafiza,
+}: {
+  home: SiteData["home"];
+  hafiza: SiteData["hafiza"];
+}) {
   return (
     <section id="faaliyetler" className="scroll-mt-28 px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <div data-reveal className="reveal flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">02 — Faaliyetler</p>
-            <h2 className="mt-4 text-3xl sm:text-5xl">Hafızamızdan kareler</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-accent">
-              Birlikte geçirilen zamanlardan seçilmiş kareler.
-            </p>
+            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">{home.activitiesEyebrow}</p>
+            <h2 className="mt-4 text-3xl sm:text-5xl">{home.activitiesTitle}</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-accent">{home.activitiesText}</p>
           </div>
           <a href="/faaliyetler" className={seeAllClass}>
             Tümünü gör
@@ -107,21 +104,21 @@ function Activities() {
           </a>
         </div>
         <div className="mt-10">
-          <HafizaGallery preview />
+          <HafizaGallery preview items={hafiza} />
         </div>
       </div>
     </section>
   );
 }
 
-function Board({ board }: { board: SiteData["board"] }) {
+function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home"] }) {
   return (
     <section className="scroll-mt-28 px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <div data-reveal className="reveal flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">03 — Yönetim</p>
-            <h2 className="mt-4 text-3xl sm:text-5xl">Yönetim Kurulu</h2>
+            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">{home.boardEyebrow}</p>
+            <h2 className="mt-4 text-3xl sm:text-5xl">{home.boardTitle}</h2>
           </div>
           <a href="/yonetim" className={seeAllClass}>
             Kurulu gör
@@ -149,15 +146,15 @@ function Board({ board }: { board: SiteData["board"] }) {
   );
 }
 
-function Announcements({ posts }: { posts: SiteData["posts"] }) {
+function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteData["home"] }) {
   const [featured, ...rest] = posts;
   return (
     <section className="scroll-mt-28 px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <div data-reveal className="reveal flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">04 — Duyurular</p>
-            <h2 className="mt-4 text-3xl sm:text-5xl">Sahadan haber</h2>
+            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">{home.newsEyebrow}</p>
+            <h2 className="mt-4 text-3xl sm:text-5xl">{home.newsTitle}</h2>
           </div>
           <a href="/duyurular" className={seeAllClass}>
             Tüm duyurular
@@ -213,18 +210,18 @@ export default async function Home() {
   const site = await readSite();
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
-        <HeroSlider />
+        <HeroSlider hero={site.hero} />
         <StatsStrip items={site.stats} />
-        <Path />
-        <Corporate data={site.corporate} />
-        <Activities />
-        <Board board={site.board} />
-        <Announcements posts={site.posts} />
-        <JoinBand />
+        <Path home={site.home} />
+        <Corporate data={site.corporate} quote={site.home.quote} />
+        <Activities home={site.home} hafiza={site.hafiza} />
+        <Board board={site.board} home={site.home} />
+        <Announcements posts={site.posts} home={site.home} />
+        <JoinBand eyebrow={site.home.joinEyebrow} title={site.home.joinTitle} />
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }

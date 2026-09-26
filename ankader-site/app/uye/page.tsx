@@ -1,5 +1,5 @@
 import ContributeChoice from "@/app/uye/ContributeChoice";
-import { PageHero } from "@/components/PageHero";
+import JoinPageHero from "@/app/uye/JoinPageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
@@ -17,13 +17,11 @@ export default async function UyePage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
-        <PageHero
-          eyebrow="Katıl"
-          title="Nasıl katılmak istiyorsun?"
-          text="Üstten üye ol veya bağış yap de, ilgili form önüne gelsin."
-        />
+        <Suspense fallback={<p className="bg-secondary px-5 pt-36 text-sm text-white/70">Yükleniyor…</p>}>
+          <JoinPageHero donate={site.donate} />
+        </Suspense>
 
         <section className="relative z-10 -mt-28 px-5 pb-24 sm:-mt-32 sm:px-8">
           <Suspense fallback={<p className="mx-auto max-w-4xl text-sm text-accent">Yükleniyor…</p>}>
@@ -31,7 +29,7 @@ export default async function UyePage() {
           </Suspense>
         </section>
       </main>
-      <Footer contact={site.contact} />
+      <Footer contact={site.contact} identity={site.identity} />
     </div>
   );
 }
