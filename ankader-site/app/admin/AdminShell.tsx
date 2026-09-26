@@ -712,6 +712,7 @@ export default function AdminShell({
   const [appFiltersOpen, setAppFiltersOpen] = useState(false);
   const [overview, setOverview] = useState<OverviewKey>("tumu");
   const [overviewItem, setOverviewItem] = useState<string | null>(null);
+  const [acceptAsk, setAcceptAsk] = useState<{ id: string; name: string } | null>(null);
   const overviewPanel = useRef<HTMLElement>(null);
   const acceptingIds = useRef(new Set<string>());
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -1829,7 +1830,13 @@ export default function AdminShell({
                               key={status}
                               type="button"
                               aria-pressed={active}
-                              onClick={() => setApplicationStatus(item.id, status)}
+                              onClick={() => {
+                                if (status === "kabul") {
+                                  setAcceptAsk({ id: item.id, name: item.name });
+                                  return;
+                                }
+                                void setApplicationStatus(item.id, status);
+                              }}
                               className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition ${
                                 active ? tone.on : `bg-background ${tone.idle}`
                               }`}
@@ -1987,6 +1994,43 @@ export default function AdminShell({
           )}
         </div>
       </div>
+
+      {acceptAsk ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/45 px-4" role="presentation" onClick={() => setAcceptAsk(null)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="accept-title"
+            className="admin-card w-full max-w-md rounded-3xl p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p id="accept-title" className="text-lg font-semibold text-secondary">Emin misin?</p>
+            <p className="mt-2 text-sm leading-6 text-accent">
+              {acceptAsk.name || "Bu kişi"} kabul edilince üye listesine geçer ve başvurusu buradan kalkar.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAcceptAsk(null)}
+                className="rounded-full border border-secondary/15 px-4 py-2 text-sm font-semibold text-secondary transition hover:border-primary/40"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const pending = acceptAsk;
+                  setAcceptAsk(null);
+                  void setApplicationStatus(pending.id, "kabul");
+                }}
+                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+              >
+                Evet, kabul et
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {notice && (
         <div className="pointer-events-none fixed right-4 bottom-4 z-[80] w-[min(22rem,calc(100vw-2rem))] sm:right-6 sm:bottom-6">
