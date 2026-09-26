@@ -1,8 +1,10 @@
 "use client";
 
+import CommunityJoin from "@/components/CommunityJoin";
 import { POST_TAGS } from "@/lib/site-types";
 import FilterPanel from "@/components/FilterPanel";
 import { ArrowRight, Bell, Search } from "lucide-react";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 export type DuyuruCard = {
@@ -13,6 +15,7 @@ export type DuyuruCard = {
   tag: string;
   slug: string;
   href: string;
+  image?: string;
 };
 
 const filters = ["Tümü", ...POST_TAGS] as const;
@@ -118,34 +121,22 @@ export default function DuyurularBoard({
                   <span className="mt-1.5 block font-sans text-base font-semibold leading-snug sm:text-lg">{post.title}</span>
                   <span className="mt-1 block line-clamp-1 text-sm leading-6 text-accent">{post.text}</span>
                 </span>
-                <ArrowRight className="mt-1 size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5 sm:mt-0" />
+                <span className="flex items-center gap-3">
+                  {post.image ? (
+                    <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
+                      <Image src={post.image} alt="" fill sizes="64px" className="object-cover" />
+                    </span>
+                  ) : null}
+                  <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
+                </span>
               </a>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-2 border-t border-secondary/10 pt-6">
-        <a
-          href="/uye?yol=uye"
-          className="inline-flex rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
-        >
-          Üye ol
-        </a>
-        <a
-          href="/uye?yol=bagis"
-          className="inline-flex rounded-full border border-secondary/10 px-4 py-2.5 text-sm font-semibold hover:border-primary/40"
-        >
-          Bağış yap
-        </a>
-        <a
-          href={whatsappHref}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95"
-        >
-          WhatsApp’tan katıl
-        </a>
+      <div className="mt-8 border-t border-secondary/10 pt-6">
+        <CommunityJoin whatsappHref={whatsappHref} />
       </div>
     </div>
   );

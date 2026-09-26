@@ -1,3 +1,4 @@
+import BoardContact from "@/components/BoardContact";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import StatsStrip from "@/components/StatsStrip";
@@ -146,6 +147,7 @@ export default async function HakkimizdaPage() {
                   </div>
                   <h3 className="mt-5 text-base font-bold text-secondary">{person.name}</h3>
                   <p className="mt-1 text-sm text-accent">{person.role}</p>
+                  <BoardContact email={person.email} phone={person.phone} />
                 </article>
               ))}
             </div>

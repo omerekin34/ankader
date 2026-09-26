@@ -13,6 +13,8 @@ export type SiteBoardMember = {
   initials: string;
   name: string;
   role: string;
+  email?: string;
+  phone?: string;
 };
 
 export const POST_TAGS = ["Genel", "Kayıt", "Etkinlik", "Saha"] as const;
@@ -26,6 +28,7 @@ export type SitePost = {
   body?: string;
   tag?: string;
   slug?: string;
+  image?: string;
 };
 
 export type SiteMember = {

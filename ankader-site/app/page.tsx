@@ -1,4 +1,5 @@
-﻿import HafizaGallery from "@/components/HafizaGallery";
+﻿import BoardContact from "@/components/BoardContact";
+import HafizaGallery from "@/components/HafizaGallery";
 import HeroSlider from "@/components/HeroSlider";
 import JoinBand from "@/components/JoinBand";
 import { Footer, Navbar } from "@/components/SiteChrome";
@@ -12,6 +13,7 @@ import {
   Eye,
   Target,
 } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -138,6 +140,7 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
               </div>
               <h3 className="mt-5 text-base font-semibold font-sans">{person.name}</h3>
               <p className="mt-1 text-sm text-accent">{person.role}</p>
+              <BoardContact email={person.email} phone={person.phone} />
             </article>
           ))}
         </div>
@@ -166,17 +169,25 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
             <a
               href={getPostHref(featured, posts)}
               data-reveal
-              className="group reveal relative overflow-hidden rounded-2xl bg-secondary p-7 text-white sm:p-10"
+              className="group reveal relative overflow-hidden rounded-2xl bg-secondary text-white"
             >
-              <span className="inline-flex rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
-                {getPostTag(featured)} · {featured.day} {featured.month}
-              </span>
-              <h3 className="mt-5 max-w-3xl text-2xl leading-tight sm:text-4xl">{featured.title}</h3>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/70">{featured.text}</p>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                Duyuruyu oku
-                <ArrowRight className="size-4 transition duration-300 group-hover:translate-x-0.5" />
-              </span>
+              {featured.image ? (
+                <div className="relative aspect-[16/8] bg-secondary">
+                  <Image src={featured.image} alt="" fill sizes="(min-width: 1024px) 1100px, 100vw" className="object-cover opacity-80" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/50 to-secondary/10" />
+                </div>
+              ) : null}
+              <div className={`relative p-7 sm:p-10 ${featured.image ? "-mt-24" : ""}`}>
+                <span className="inline-flex rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
+                  {getPostTag(featured)} · {featured.day} {featured.month}
+                </span>
+                <h3 className="mt-5 max-w-3xl text-2xl leading-tight sm:text-4xl">{featured.title}</h3>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/70">{featured.text}</p>
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                  Duyuruyu oku
+                  <ArrowRight className="size-4 transition duration-300 group-hover:translate-x-0.5" />
+                </span>
+              </div>
             </a>
           )}
           <div className="grid gap-4 md:grid-cols-3">
@@ -185,9 +196,15 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
                 key={`${post.day}-${post.month}-${post.title}`}
                 href={getPostHref(post, posts)}
                 data-reveal
-                className="reveal card-pro group flex flex-col rounded-2xl border border-secondary/10 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-primary/40"
+                className="reveal card-pro group flex flex-col overflow-hidden rounded-2xl border border-secondary/10 bg-white transition duration-300 hover:-translate-y-1 hover:border-primary/40"
                 style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}
               >
+                {post.image ? (
+                  <span className="relative aspect-[16/9] bg-secondary/10">
+                    <Image src={post.image} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
+                  </span>
+                ) : null}
+                <span className="flex flex-col p-6">
                 <span className="flex size-14 flex-col items-center justify-center rounded-2xl bg-secondary text-white">
                   <span className="text-lg font-extrabold leading-none">{post.day}</span>
                   <span className="mt-1 text-[10px] font-semibold tracking-wider text-primary uppercase">
@@ -197,6 +214,7 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
                 <span className="mt-5 text-[11px] font-semibold tracking-wide text-primary uppercase">{getPostTag(post)}</span>
                 <h3 className="mt-2 text-lg font-semibold leading-snug">{post.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-accent">{post.text}</p>
+                </span>
               </a>
             ))}
           </div>

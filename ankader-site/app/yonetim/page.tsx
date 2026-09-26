@@ -1,4 +1,5 @@
 import { PageHero } from "@/components/PageHero";
+import BoardContact from "@/components/BoardContact";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
@@ -38,6 +39,7 @@ export default async function YonetimPage() {
                   <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">Başkan</p>
                   <h2 className="mt-3 text-3xl sm:text-4xl">{lead.name}</h2>
                   <p className="mt-2 text-white/70">{lead.role}</p>
+                  <BoardContact email={lead.email} phone={lead.phone} tone="dark" />
                 </div>
               </article>
             )}
@@ -56,6 +58,7 @@ export default async function YonetimPage() {
                   </div>
                   <h2 className="mt-6 text-lg font-sans font-semibold text-secondary">{person.name}</h2>
                   <p className="mt-1 text-sm text-accent">{person.role}</p>
+                  <BoardContact email={person.email} phone={person.phone} />
                 </article>
               ))}
             </div>

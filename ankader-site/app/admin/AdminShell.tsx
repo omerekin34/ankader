@@ -317,6 +317,8 @@ function OverviewDetail({
             facts: [
               ["Görev", member.role || "—"],
               ["Kısa ad", member.initials || "—"],
+              ["E-posta", member.email || "—"],
+              ["Telefon", member.phone || "—"],
             ],
           }))}
         />
@@ -1194,9 +1196,9 @@ export default function AdminShell({
             <section className="grid gap-4">
               <ListHead
                 title="Yönetim kurulu"
-                hint="İsim, görev ve karttaki kısaltma."
+                hint="İsim, görev, e-posta ve telefon. Boş iletişim sitede görünmez."
                 action={
-                  <AddButton onClick={() => setData({ ...data, board: [{ initials: "YY", name: "Yeni Üye", role: "Yönetim Kurulu Üyesi" }, ...data.board] })}>
+                  <AddButton onClick={() => setData({ ...data, board: [{ initials: "YY", name: "Yeni Üye", role: "Yönetim Kurulu Üyesi", email: "", phone: "" }, ...data.board] })}>
                     Üye ekle
                   </AddButton>
                 }
@@ -1206,7 +1208,7 @@ export default function AdminShell({
                   key={index}
                   index={index}
                   title={item.name || "Üye"}
-                  columns="grid gap-3 sm:grid-cols-3"
+                  columns="grid gap-3 sm:grid-cols-2"
                   onRemove={() => setData({ ...data, board: data.board.filter((_, i) => i !== index) })}
                 >
                   <Field label="Ad Soyad" value={item.name} onChange={(value) => {
@@ -1223,6 +1225,16 @@ export default function AdminShell({
                   <Field label="Kısaltma" value={item.initials} onChange={(value) => {
                     const board = [...data.board];
                     board[index] = { ...item, initials: value };
+                    setData({ ...data, board });
+                  }} />
+                  <Field label="E-posta" value={item.email || ""} onChange={(value) => {
+                    const board = [...data.board];
+                    board[index] = { ...item, email: value };
+                    setData({ ...data, board });
+                  }} />
+                  <Field label="Telefon" value={item.phone || ""} onChange={(value) => {
+                    const board = [...data.board];
+                    board[index] = { ...item, phone: value };
                     setData({ ...data, board });
                   }} />
                 </EditorCard>
@@ -1317,7 +1329,7 @@ export default function AdminShell({
                       setData({
                         ...data,
                         posts: [
-                          { day: "01", month: "Oca", title: "Yeni duyuru", text: "Kısa açıklama", body: "", tag: "Genel", slug: "" },
+                          { day: "01", month: "Oca", title: "Yeni duyuru", text: "Kısa açıklama", body: "", tag: "Genel", slug: "", image: "" },
                           ...data.posts,
                         ],
                       })
@@ -1328,7 +1340,25 @@ export default function AdminShell({
                 }
               />
               {data.posts.map((item, index) => (
-                <EditorCard key={index} index={index} title={item.title || "Duyuru"} columns="grid gap-3 sm:grid-cols-2" onRemove={() => setData({ ...data, posts: data.posts.filter((_, i) => i !== index) })}>
+                <EditorCard
+                  key={index}
+                  index={index}
+                  title={item.title || "Duyuru"}
+                  columns="grid gap-3 sm:grid-cols-2"
+                  onRemove={() => setData({ ...data, posts: data.posts.filter((_, i) => i !== index) })}
+                  extra={
+                    <UploadChip
+                      label="Fotoğraf yükle"
+                      onFile={async (file) => {
+                        const uploaded = await uploadAndNotify(file);
+                        if (!uploaded) return;
+                        const posts = [...data.posts];
+                        posts[index] = { ...item, image: uploaded };
+                        setData({ ...data, posts });
+                      }}
+                    />
+                  }
+                >
                   <Field label="Gün" value={item.day} onChange={(value) => {
                     const posts = [...data.posts];
                     posts[index] = { ...item, day: value };
@@ -1374,6 +1404,20 @@ export default function AdminShell({
                       posts[index] = { ...item, text: value };
                       setData({ ...data, posts });
                     }} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field
+                      label="Fotoğraf (boşsa gizlenir)"
+                      value={item.image || ""}
+                      onChange={(value) => {
+                        const posts = [...data.posts];
+                        posts[index] = { ...item, image: value };
+                        setData({ ...data, posts });
+                      }}
+                    />
+                    {item.image ? (
+                      <img src={item.image} alt="" className="mt-3 h-36 w-full rounded-2xl object-cover" />
+                    ) : null}
                   </div>
                   <div className="sm:col-span-2">
                     <Field

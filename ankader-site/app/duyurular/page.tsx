@@ -22,6 +22,7 @@ export default async function DuyurularPage() {
     tag: getPostTag(post),
     slug,
     href: `/duyurular/${slug}`,
+    image: post.image || "",
   }));
   const whatsappHref = site.contact.whatsappCommunity || "https://wa.me/905319450236";
 

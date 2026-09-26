@@ -1,9 +1,11 @@
+import CommunityJoin from "@/components/CommunityJoin";
 import JoinBand from "@/components/JoinBand";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { findPostBySlug, getPostHref, getPostTag, postParagraphs, postsWithSlugs } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +36,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
   const related = postsWithSlugs(site.posts)
     .filter((item) => item.slug !== slug)
     .slice(0, 3);
+  const whatsappHref = site.contact.whatsappCommunity || "https://wa.me/905319450236";
 
   return (
     <div className="bg-background text-secondary">
@@ -64,31 +67,21 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
         </section>
 
         <section className="relative z-10 -mt-20 px-5 pb-8 sm:-mt-24 sm:px-8">
-          <article className="mx-auto max-w-3xl rounded-[1.8rem] border border-secondary/10 bg-white px-6 py-8 sm:px-10 sm:py-12">
-            <div className="space-y-5 text-base leading-8 text-accent">
-              {paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-            <div className="mt-10 flex flex-wrap gap-3 border-t border-secondary/10 pt-8">
-              <a
-                href="/uye?yol=uye"
-                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
-              >
-                Üye ol
-              </a>
-              <a
-                href="/uye?yol=bagis"
-                className="inline-flex rounded-full border border-secondary/10 px-5 py-2.5 text-sm font-semibold hover:border-primary/40"
-              >
-                Bağış yap
-              </a>
-              <a
-                href="/faaliyetler"
-                className="inline-flex rounded-full border border-secondary/10 px-5 py-2.5 text-sm font-semibold hover:border-primary/40"
-              >
-                Faaliyetleri gör
-              </a>
+          <article className="mx-auto max-w-3xl overflow-hidden rounded-[1.8rem] border border-secondary/10 bg-white">
+            {post.image ? (
+              <div className="relative aspect-[16/9] bg-secondary/10">
+                <Image src={post.image} alt="" fill priority sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
+              </div>
+            ) : null}
+            <div className="px-6 py-8 sm:px-10 sm:py-12">
+              <div className="space-y-5 text-base leading-8 text-accent">
+                {paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+              <div className="mt-10 border-t border-secondary/10 pt-8">
+                <CommunityJoin whatsappHref={whatsappHref} />
+              </div>
             </div>
           </article>
         </section>
@@ -104,13 +97,19 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
                     href={getPostHref(item, site.posts)}
                     className="card-pro group flex items-center justify-between gap-4 rounded-2xl border border-secondary/10 bg-white p-5"
                   >
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-accent">
                         {item.day} {item.month} · {getPostTag(item)}
                       </p>
                       <h2 className="mt-1 font-sans text-base font-semibold">{item.title}</h2>
                     </div>
-                    <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
+                    {item.image ? (
+                      <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
+                        <Image src={item.image} alt="" fill sizes="64px" className="object-cover" />
+                      </span>
+                    ) : (
+                      <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
+                    )}
                   </a>
                 ))}
               </div>

@@ -1,3 +1,4 @@
+import BoardContact from "@/components/BoardContact";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { readSite } from "@/lib/site-data";
@@ -112,6 +113,7 @@ export default async function KurumsalPage() {
                   </div>
                   <h3 className="mt-5 text-base font-bold text-secondary">{person.name}</h3>
                   <p className="mt-1 text-sm text-accent">{person.role}</p>
+                  <BoardContact email={person.email} phone={person.phone} align="center" />
                 </article>
               ))}
             </div>
