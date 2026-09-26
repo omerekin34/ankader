@@ -210,7 +210,13 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
             className="inline-flex size-10 items-center justify-center rounded-xl text-white lg:hidden"
             aria-expanded={open}
             aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
-            onClick={() => setOpen((value) => !value)}
+            onClick={() => {
+              setOpen((value) => {
+                const next = !value;
+                if (next && kurumsalActive) setKurumsalOpen(true);
+                return next;
+              });
+            }}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -248,7 +254,36 @@ export function Navbar({ contact = fallbackContact }: { contact?: SiteData["cont
             </button>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 pb-4">
-            {[...kurumsalLinks, ...navLinks].map((link) => (
+            <div>
+              <button
+                type="button"
+                aria-expanded={kurumsalOpen}
+                onClick={() => setKurumsalOpen((value) => !value)}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-base ${
+                  kurumsalActive ? "text-primary" : "text-white"
+                }`}
+              >
+                Kurumsal
+                <ChevronDown className={`size-4 transition ${kurumsalOpen ? "rotate-180" : ""}`} aria-hidden />
+              </button>
+              {kurumsalOpen ? (
+                <div className="mb-1 ml-3 border-l border-white/10 pl-2">
+                  {kurumsalLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`block rounded-xl px-3 py-2.5 text-[15px] ${
+                        pathname === link.href ? "bg-white/10 text-primary" : "text-white/80"
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
