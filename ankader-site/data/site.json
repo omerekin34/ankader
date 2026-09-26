@@ -127,30 +127,7 @@
       "role": "Yönetim Kurulu Üyesi"
     }
   ],
-  "members": [
-    {
-      "name": "Zeynep Aksoy",
-      "stage": "Lise",
-      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
-      "year": "11. sınıf"
-    },
-    {
-      "name": "Ali Korkmaz",
-      "stage": "Üniversite",
-      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
-      "university": "Marmara Üniversitesi",
-      "department": "İlahiyat",
-      "year": "3. sınıf"
-    },
-    {
-      "name": "Hüseyin Demir",
-      "stage": "Mezun",
-      "school": "Pendik İTO Şehit Ahmet Aslanhan Anadolu İmam Hatip Lisesi",
-      "university": "Yıldız Teknik Üniversitesi",
-      "department": "Bilgisayar Mühendisliği",
-      "year": "2021"
-    }
-  ],
+  "members": [],
   "posts": [
     {
       "day": "12",
@@ -246,14 +223,6 @@
       "caption": "Mezunlarımızdan bir ziyaret hatırası",
       "tags": [
         "Ziyaret"
-      ]
-    },
-    {
-      "src": "/hafiza/soylesi.jpeg",
-      "alt": "Mezun söyleşisi",
-      "caption": "Köklerden göklere uzanan tecrübe paylaşımı",
-      "tags": [
-        "Mentörlük"
       ]
     },
     {

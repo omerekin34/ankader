@@ -213,7 +213,7 @@ export default async function Home() {
       <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <HeroSlider hero={site.hero} />
-        <StatsStrip items={site.stats} />
+        <StatsStrip items={site.stats} faaliyetSayisi={site.hafiza.length} />
         <Path home={site.home} />
         <Corporate data={site.corporate} quote={site.home.quote} />
         <Activities home={site.home} hafiza={site.hafiza} />

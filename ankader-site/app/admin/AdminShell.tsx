@@ -11,8 +11,10 @@ import {
   LayoutDashboard,
   LogOut,
   HeartHandshake,
+  ChevronDown,
   ClipboardList,
   MessageSquare,
+  Search,
   Plus,
   Save,
   Trash2,
@@ -22,8 +24,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
-import type { ApplicationStatus, MembershipApplication } from "@/lib/application-types";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { applicantStages, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
 import type { SiteData } from "@/lib/site-types";
 
 const tabs = [
@@ -76,7 +78,351 @@ const statusTone: Record<ApplicationStatus, { badge: string; idle: string; on: s
   },
 };
 
+type TimeFilter = "tumu" | "bugun" | "hafta" | "ay" | "aralik";
+
+const timeFilters: { id: TimeFilter; label: string }[] = [
+  { id: "tumu", label: "Tüm zaman" },
+  { id: "bugun", label: "Bugün" },
+  { id: "hafta", label: "Bu hafta" },
+  { id: "ay", label: "Bu ay" },
+  { id: "aralik", label: "Tarih aralığı" },
+];
+
+function startOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function applicationTime(value: string) {
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function matchesTime(createdAt: string, when: TimeFilter, from: string, to: string) {
+  if (when === "tumu") return true;
+  const time = applicationTime(createdAt);
+  if (time == null) return false;
+  const now = new Date();
+  if (when === "bugun") return time >= startOfDay(now).getTime();
+  if (when === "hafta") {
+    const start = startOfDay(now);
+    const mondayOffset = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - mondayOffset);
+    return time >= start.getTime();
+  }
+  if (when === "ay") return time >= new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const fromTime = from ? new Date(`${from}T00:00:00`).getTime() : null;
+  const toTime = to ? new Date(`${to}T23:59:59.999`).getTime() : null;
+  if (fromTime != null && time < fromTime) return false;
+  if (toTime != null && time > toTime) return false;
+  return true;
+}
+
 type TabId = (typeof tabs)[number]["id"];
+
+type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "kurul" | "uyeler" | "duyuru" | "faaliyet";
+
+function OverviewCard({
+  label,
+  value,
+  active,
+  Icon,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  active: boolean;
+  Icon: typeof Check;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`admin-card rounded-3xl p-5 text-left transition ${
+        active ? "ring-2 ring-primary" : "hover:-translate-y-0.5 hover:ring-1 hover:ring-primary/40"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm text-accent">{label}</p>
+        <span
+          className={`flex size-9 shrink-0 items-center justify-center rounded-2xl ${
+            active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+          }`}
+        >
+          <Icon className="size-4" aria-hidden />
+        </span>
+      </div>
+      <p className="mt-4 text-3xl font-extrabold tracking-tight">{value}</p>
+      <p className="mt-2 text-xs font-semibold text-primary">{active ? "Seçili" : "Ayrıntıyı gör"}</p>
+    </button>
+  );
+}
+
+function ApplicationFacts({ item }: { item: MembershipApplication }) {
+  const rows: [string, string, boolean?][] = [
+    ["Başvuran", item.stage || "—"],
+    ["E-posta", item.email || "—"],
+    ["Telefon", item.phone || "—"],
+    ["Lise", item.school || "—"],
+    ["Üniversite", item.university || "—"],
+    ["Bölüm / Alan", item.department || "—"],
+    ["Sınıf / Mezuniyet", item.year || "—"],
+    ["Şehir", item.city || "—"],
+    ["Amaç", item.intent || "—", true],
+    ["Destek alanı", item.support || "—", true],
+    ["Not", item.note || "—", true],
+  ];
+  return (
+    <dl className="mt-4 grid gap-3 border-t border-secondary/10 pt-4 text-sm sm:grid-cols-2">
+      {rows.map(([label, value, wide]) => (
+        <div key={label} className={wide ? "sm:col-span-2" : ""}>
+          <dt className="text-[11px] font-semibold tracking-[0.16em] text-accent uppercase">{label}</dt>
+          <dd className="mt-1 leading-6 break-words">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+const overviewTitles: Record<OverviewKey, string> = {
+  tumu: "Tüm başvurular",
+  yeni: "Yeni başvurular",
+  inceleniyor: "İncelenen başvurular",
+  kabul: "Kabul edilen başvurular",
+  red: "Reddedilen başvurular",
+  kurul: "Yönetim kurulu",
+  uyeler: "Sitedeki üyeler",
+  duyuru: "Duyurular",
+  faaliyet: "Faaliyetler",
+};
+
+function OverviewDetail({
+  overview,
+  overviewItem,
+  setOverviewItem,
+  applications,
+  applicationsError,
+  data,
+  onOpenApplications,
+  onOpenTab,
+}: {
+  overview: OverviewKey;
+  overviewItem: string | null;
+  setOverviewItem: (id: string | null) => void;
+  applications: MembershipApplication[];
+  applicationsError: string;
+  data: SiteData;
+  onOpenApplications: (status: ApplicationStatus | "") => void;
+  onOpenTab: (tab: TabId) => void;
+}) {
+  const isApp = overview === "tumu" || overview === "yeni" || overview === "inceleniyor" || overview === "kabul" || overview === "red";
+  const shown = isApp ? applications.filter((item) => overview === "tumu" || item.status === overview) : [];
+  const stageLine = applicantStages
+    .map((stage) => `${stage.replace(" öğrencisi", "")} ${shown.filter((item) => item.stage === stage).length}`)
+    .join(" · ");
+
+  function toggle(id: string) {
+    setOverviewItem(overviewItem === id ? null : id);
+  }
+
+  function jump() {
+    if (overview === "kurul") onOpenTab("kurul");
+    else if (overview === "uyeler") onOpenTab("uyeler");
+    else if (overview === "duyuru") onOpenTab("duyuru");
+    else if (overview === "faaliyet") onOpenTab("faaliyet");
+    else onOpenApplications(overview === "tumu" ? "" : overview);
+  }
+
+  const siteCount =
+    overview === "kurul"
+      ? data.board.length
+      : overview === "uyeler"
+        ? (data.members ?? []).length
+        : overview === "duyuru"
+          ? data.posts.length
+          : data.hafiza.length;
+
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">Seçilen kart</p>
+          <h3 className="mt-1 text-lg font-extrabold">{overviewTitles[overview]}</h3>
+          <p className="mt-1 text-sm text-accent">
+            {isApp
+              ? applicationsError
+                ? "Başvurular şu an okunamadı."
+                : `${shown.length} kayıt · ${stageLine}`
+              : `${siteCount} kayıt · satıra bas, bilgisi açılsın`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={jump}
+          className="rounded-2xl border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+        >
+          {isApp ? "Başvurular sekmesinde aç" : "Bu sekmeyi düzenle"}
+        </button>
+      </div>
+
+      {isApp && applicationsError && (
+        <p className="mt-4 rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-500">{applicationsError}</p>
+      )}
+
+      {isApp && !applicationsError && shown.length === 0 && <p className="mt-4 text-sm text-accent">Bu grupta başvuru yok.</p>}
+
+      {isApp && !applicationsError && shown.length > 0 && (
+        <ul className="mt-4 grid max-h-[36rem] gap-2 overflow-auto pr-1">
+          {shown.map((item) => {
+            const open = overviewItem === item.id;
+            return (
+              <li key={item.id} className={`rounded-2xl border ${open ? "border-primary/40 bg-primary/5" : "border-secondary/10"}`}>
+                <button type="button" aria-expanded={open} onClick={() => toggle(item.id)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left">
+                  <span className="min-w-0">
+                    <span className="block font-semibold">{item.name}</span>
+                    <span className="mt-0.5 block truncate text-sm text-accent">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleString("tr-TR") : "Tarih yok"}
+                      {item.stage ? ` · ${item.stage}` : ""}
+                      {item.city ? ` · ${item.city}` : ""}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusTone[item.status].badge}`}>{statusLabel[item.status]}</span>
+                    <ChevronDown className={`size-4 text-accent transition ${open ? "rotate-180" : ""}`} aria-hidden />
+                  </span>
+                </button>
+                {open && (
+                  <div className="px-4 pb-4">
+                    <ApplicationFacts item={item} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {overview === "kurul" && (
+        <OverviewRows
+          empty="Kurulda kimse yok."
+          openId={overviewItem}
+          onToggle={toggle}
+          rows={data.board.map((member, index) => ({
+            id: `kurul-${index}`,
+            title: member.name || "İsimsiz",
+            meta: member.role || "Görev yazılmamış",
+            facts: [
+              ["Görev", member.role || "—"],
+              ["Kısa ad", member.initials || "—"],
+            ],
+          }))}
+        />
+      )}
+
+      {overview === "uyeler" && (
+        <OverviewRows
+          empty="Sitede listelenen üye yok."
+          openId={overviewItem}
+          onToggle={toggle}
+          rows={(data.members ?? []).map((member, index) => ({
+            id: `uye-${index}`,
+            title: member.name || "İsimsiz",
+            meta: [member.stage, member.university || member.school].filter(Boolean).join(" · ") || "Bilgi yok",
+            facts: [
+              ["Durum", member.stage || "—"],
+              ["Lise", member.school || "—"],
+              ["Üniversite", member.university || "—"],
+              ["Bölüm", member.department || "—"],
+              ["Sınıf / yıl", member.year || "—"],
+            ],
+          }))}
+        />
+      )}
+
+      {overview === "duyuru" && (
+        <OverviewRows
+          empty="Duyuru yok."
+          openId={overviewItem}
+          onToggle={toggle}
+          rows={data.posts.map((post, index) => ({
+            id: post.slug || `duyuru-${index}`,
+            title: post.title || "Başlıksız",
+            meta: [post.day, post.month, post.tag].filter(Boolean).join(" · "),
+            facts: [
+              ["Tarih", [post.day, post.month].filter(Boolean).join(" ") || "—"],
+              ["Etiket", post.tag || "—"],
+              ["Özet", post.text || "—"],
+              ["Metin", post.body || post.text || "—"],
+            ],
+          }))}
+        />
+      )}
+
+      {overview === "faaliyet" && (
+        <OverviewRows
+          empty="Faaliyet yok."
+          openId={overviewItem}
+          onToggle={toggle}
+          rows={data.hafiza.map((item, index) => ({
+            id: `${item.src}-${index}`,
+            title: item.caption || item.alt || "Faaliyet",
+            meta: item.tags.filter(Boolean).join(" · ") || "Etiket yok",
+            facts: [
+              ["Yazı", item.caption || "—"],
+              ["Kısa ad", item.alt || "—"],
+              ["Etiket", item.tags.join(", ") || "—"],
+            ],
+          }))}
+        />
+      )}
+    </>
+  );
+}
+
+function OverviewRows({
+  rows,
+  empty,
+  openId,
+  onToggle,
+}: {
+  rows: { id: string; title: string; meta: string; facts: [string, string][] }[];
+  empty: string;
+  openId: string | null;
+  onToggle: (id: string) => void;
+}) {
+  if (rows.length === 0) return <p className="mt-4 text-sm text-accent">{empty}</p>;
+  return (
+    <ul className="mt-4 grid max-h-[36rem] gap-2 overflow-auto pr-1">
+      {rows.map((row) => {
+        const open = openId === row.id;
+        return (
+          <li key={row.id} className={`rounded-2xl border ${open ? "border-primary/40 bg-primary/5" : "border-secondary/10"}`}>
+            <button type="button" aria-expanded={open} onClick={() => onToggle(row.id)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left">
+              <span className="min-w-0">
+                <span className="block font-semibold">{row.title}</span>
+                <span className="mt-0.5 block truncate text-sm text-accent">{row.meta}</span>
+              </span>
+              <ChevronDown className={`size-4 shrink-0 text-accent transition ${open ? "rotate-180" : ""}`} aria-hidden />
+            </button>
+            {open && (
+              <dl className="grid gap-3 border-t border-secondary/10 px-4 py-4 text-sm sm:grid-cols-2">
+                {row.facts.map(([label, value]) => (
+                  <div key={label} className={label === "Özet" || label === "Metin" || label === "Açıklama" || label === "Yazı" ? "sm:col-span-2" : ""}>
+                    <dt className="text-[11px] font-semibold tracking-[0.16em] text-accent uppercase">{label}</dt>
+                    <dd className="mt-1 leading-6 break-words">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 type Notice = {
   id: number;
@@ -130,6 +476,21 @@ function TagsField({ tags, onChange }: { tags: string[]; onChange: (tags: string
         className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
       />
     </label>
+  );
+}
+
+function FilterChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+        active ? "border-primary bg-primary text-white" : "border-secondary/15 bg-background text-secondary hover:border-primary/40"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -253,6 +614,17 @@ export default function AdminShell({
     members: initialData.members ?? [],
   });
   const [applications, setApplications] = useState(initialApplications);
+  const [appQuery, setAppQuery] = useState("");
+  const [appStatus, setAppStatus] = useState<ApplicationStatus | "">("");
+  const [appStage, setAppStage] = useState<ApplicantStage | "">("");
+  const [appWhen, setAppWhen] = useState<TimeFilter>("tumu");
+  const [appFrom, setAppFrom] = useState("");
+  const [appTo, setAppTo] = useState("");
+  const [appNewestFirst, setAppNewestFirst] = useState(true);
+  const [appFiltersOpen, setAppFiltersOpen] = useState(false);
+  const [overview, setOverview] = useState<OverviewKey>("tumu");
+  const [overviewItem, setOverviewItem] = useState<string | null>(null);
+  const overviewPanel = useRef<HTMLElement>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -330,6 +702,74 @@ export default function AdminShell({
       return "";
     }
   }
+
+  const query = appQuery.trim().toLocaleLowerCase("tr-TR");
+  const timedApplications = applications.filter((item) => {
+    if (appStage && item.stage !== appStage) return false;
+    if (!matchesTime(item.createdAt, appWhen, appFrom, appTo)) return false;
+    if (!query) return true;
+    const haystack = [item.name, item.email, item.phone, item.school, item.university, item.city, item.department]
+      .join(" ")
+      .toLocaleLowerCase("tr-TR");
+    return haystack.includes(query);
+  });
+  const statusCounts = {
+    yeni: timedApplications.filter((item) => item.status === "yeni").length,
+    inceleniyor: timedApplications.filter((item) => item.status === "inceleniyor").length,
+    kabul: timedApplications.filter((item) => item.status === "kabul").length,
+    red: timedApplications.filter((item) => item.status === "red").length,
+  };
+  const visibleApplications = timedApplications
+    .filter((item) => !appStatus || item.status === appStatus)
+    .sort((a, b) => {
+      const left = applicationTime(a.createdAt) ?? 0;
+      const right = applicationTime(b.createdAt) ?? 0;
+      return appNewestFirst ? right - left : left - right;
+    });
+  const filtersActive = Boolean(query || appStatus || appStage || appWhen !== "tumu" || appFrom || appTo || !appNewestFirst);
+
+  function clearApplicationFilters() {
+    setAppQuery("");
+    setAppStatus("");
+    setAppStage("");
+    setAppWhen("tumu");
+    setAppFrom("");
+    setAppTo("");
+    setAppNewestFirst(true);
+  }
+
+  function pickOverview(key: OverviewKey) {
+    setOverview(key);
+    setOverviewItem(null);
+    window.requestAnimationFrame(() => {
+      overviewPanel.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
+  function openApplicationsTab(status: ApplicationStatus | "") {
+    setAppQuery("");
+    setAppStage("");
+    setAppWhen("tumu");
+    setAppFrom("");
+    setAppTo("");
+    setAppNewestFirst(true);
+    setAppStatus(status);
+    setAppFiltersOpen(Boolean(status));
+    setTab("basvuru");
+  }
+
+  const sortedApplications = [...applications].sort((a, b) => (applicationTime(b.createdAt) ?? 0) - (applicationTime(a.createdAt) ?? 0));
+  const overviewCounts = {
+    yeni: applications.filter((item) => item.status === "yeni").length,
+    inceleniyor: applications.filter((item) => item.status === "inceleniyor").length,
+    kabul: applications.filter((item) => item.status === "kabul").length,
+    red: applications.filter((item) => item.status === "red").length,
+    tumu: applications.length,
+    kurul: data.board.length,
+    uyeler: (data.members ?? []).length,
+    duyuru: data.posts.length,
+    faaliyet: data.hafiza.length,
+  };
 
   return (
     <div className="admin-shell">
@@ -411,23 +851,59 @@ export default function AdminShell({
           </div>
 
           {tab === "ozet" && (
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                ["Yeni başvuru", applications.filter((item) => item.status === "yeni").length],
-                ["Toplam başvuru", applications.length],
-                ["Kabul edilen", applications.filter((item) => item.status === "kabul").length],
-                ["Kurul üyesi", data.board.length],
-              ].map(([label, value]) => (
-                <article key={String(label)} className="admin-card rounded-3xl p-6 backdrop-blur-md">
-                  <p className="text-sm text-accent">{label}</p>
-                  <p className="mt-2 text-3xl font-extrabold">{value}</p>
-                </article>
-              ))}
-              <article className="rounded-3xl border border-secondary bg-secondary p-6 text-white sm:col-span-2 xl:col-span-4">
-                <p className="text-sm text-primary">Nasıl kullanılır?</p>
-                <p className="mt-2 text-lg font-semibold">
-                  Soldaki sekmelerden metni, fotoğrafı veya sayıyı değiştirip Kaydet’e bas. Açık olan site sekmesini yenilediğinde değişiklik hemen görünür.
+            <section className="grid gap-5">
+              <div>
+                <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">Panel</p>
+                <h2 className="mt-1 text-2xl font-extrabold">Özet</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-accent">
+                  Bir karta bas, altta o sayının kayıtları açılsın. Kayda bir kez daha basınca verdiği bilgiler görünsün.
                 </p>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-accent uppercase">Başvurular</p>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  {(
+                    [
+                      ["tumu", "Toplam başvuru", overviewCounts.tumu, ClipboardList],
+                      ["yeni", "Yeni başvuru", overviewCounts.yeni, ClipboardList],
+                      ["inceleniyor", "İnceleniyor", overviewCounts.inceleniyor, Clock],
+                      ["kabul", "Kabul edilen", overviewCounts.kabul, Check],
+                      ["red", "Reddedildi", overviewCounts.red, X],
+                    ] as const
+                  ).map(([key, label, value, Icon]) => (
+                    <OverviewCard key={key} label={label} value={value} active={overview === key} Icon={Icon} onClick={() => pickOverview(key)} />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-accent uppercase">Site içeriği</p>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  {(
+                    [
+                      ["kurul", "Kurul üyesi", overviewCounts.kurul, Users],
+                      ["uyeler", "Sitedeki üye", overviewCounts.uyeler, Users],
+                      ["duyuru", "Duyuru", overviewCounts.duyuru, Bell],
+                      ["faaliyet", "Faaliyet", overviewCounts.faaliyet, BookOpen],
+                    ] as const
+                  ).map(([key, label, value, Icon]) => (
+                    <OverviewCard key={key} label={label} value={value} active={overview === key} Icon={Icon} onClick={() => pickOverview(key)} />
+                  ))}
+                </div>
+              </div>
+
+              <article ref={overviewPanel} className="admin-card rounded-3xl p-5 sm:p-6">
+                <OverviewDetail
+                  overview={overview}
+                  overviewItem={overviewItem}
+                  setOverviewItem={setOverviewItem}
+                  applications={sortedApplications}
+                  applicationsError={applicationsError}
+                  data={data}
+                  onOpenApplications={openApplicationsTab}
+                  onOpenTab={setTab}
+                />
               </article>
             </section>
           )}
@@ -578,11 +1054,25 @@ export default function AdminShell({
                   columns="grid gap-3 sm:grid-cols-3"
                   onRemove={() => setData({ ...data, stats: data.stats.filter((_, i) => i !== index) })}
                 >
-                  <Field label="Sayı" value={item.value} onChange={(value) => {
-                    const stats = [...data.stats];
-                    stats[index] = { ...item, value };
-                    setData({ ...data, stats });
-                  }} />
+                  {item.label.trim().toLocaleLowerCase("tr-TR") === "tamamlanan proje" ? (
+                    <label className="block text-sm font-medium text-secondary">
+                      Sayı
+                      <input
+                        readOnly
+                        value={String(data.hafiza.length)}
+                        className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                      />
+                      <span className="mt-2 block text-xs leading-5 font-normal text-accent">
+                        Faaliyetler sekmesindeki kare sayısı. Kare ekleyince veya silince bu sayı değişir.
+                      </span>
+                    </label>
+                  ) : (
+                    <Field label="Sayı" value={item.value} onChange={(value) => {
+                      const stats = [...data.stats];
+                      stats[index] = { ...item, value };
+                      setData({ ...data, stats });
+                    }} />
+                  )}
                   <Field label="Başlık" value={item.label} onChange={(value) => {
                     const stats = [...data.stats];
                     stats[index] = { ...item, label: value };
@@ -996,6 +1486,118 @@ export default function AdminShell({
 
           {tab === "basvuru" && (
             <section className="grid gap-4">
+              <article className="admin-card rounded-3xl p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">Filtre</p>
+                    <p className="mt-1 text-xs text-accent">
+                      {visibleApplications.length} / {applications.length} başvuru
+                      {filtersActive ? " · filtre uygulanıyor" : ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {filtersActive && (
+                      <button type="button" onClick={clearApplicationFilters} className="text-sm font-semibold text-primary">
+                        Filtreleri temizle
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      aria-expanded={appFiltersOpen}
+                      onClick={() => setAppFiltersOpen((open) => !open)}
+                      className="inline-flex items-center gap-2 rounded-full border border-secondary/15 bg-background px-4 py-2 text-sm font-semibold text-secondary transition hover:border-primary/40"
+                    >
+                      {appFiltersOpen ? "Filtreyi kapat" : "Filtreyi aç"}
+                      <ChevronDown className={`size-4 transition ${appFiltersOpen ? "rotate-180" : ""}`} aria-hidden />
+                    </button>
+                  </div>
+                </div>
+                {appFiltersOpen && (
+                <div className="mt-4 grid gap-4">
+                <label className="relative block">
+                  <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-accent" aria-hidden />
+                  <input
+                    value={appQuery}
+                    onChange={(event) => setAppQuery(event.target.value)}
+                    placeholder="Ad, e-posta, telefon, okul veya şehir"
+                    className="admin-field w-full rounded-2xl border py-2.5 pr-4 pl-10 text-sm outline-none"
+                  />
+                </label>
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold tracking-[0.16em] text-accent uppercase">Başvuru durumu</p>
+                  <div className="flex flex-wrap gap-2">
+                    <FilterChip active={!appStatus} onClick={() => setAppStatus("")} label={`Tümü ${timedApplications.length}`} />
+                    {(["yeni", "inceleniyor", "kabul", "red"] as ApplicationStatus[]).map((status) => (
+                      <FilterChip
+                        key={status}
+                        active={appStatus === status}
+                        onClick={() => setAppStatus(appStatus === status ? "" : status)}
+                        label={`${statusLabel[status]} ${statusCounts[status]}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold tracking-[0.16em] text-accent uppercase">Kim</p>
+                  <div className="flex flex-wrap gap-2">
+                    <FilterChip active={!appStage} onClick={() => setAppStage("")} label="Tümü" />
+                    {applicantStages.map((stage) => (
+                      <FilterChip
+                        key={stage}
+                        active={appStage === stage}
+                        onClick={() => setAppStage(appStage === stage ? "" : stage)}
+                        label={stage === "Lise öğrencisi" ? "Lise" : stage === "Üniversite öğrencisi" ? "Üniversite" : "Mezun"}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[11px] font-semibold tracking-[0.16em] text-accent uppercase">Zaman</p>
+                    <button
+                      type="button"
+                      onClick={() => setAppNewestFirst((current) => !current)}
+                      className="text-xs font-semibold text-primary"
+                    >
+                      {appNewestFirst ? "En yeni üstte" : "En eski üstte"}
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {timeFilters.map((item) => (
+                      <FilterChip
+                        key={item.id}
+                        active={appWhen === item.id}
+                        onClick={() => setAppWhen(item.id)}
+                        label={item.label}
+                      />
+                    ))}
+                  </div>
+                  {appWhen === "aralik" && (
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <label className="grid gap-1 text-xs font-semibold text-accent">
+                        Başlangıç
+                        <input
+                          type="date"
+                          value={appFrom}
+                          onChange={(event) => setAppFrom(event.target.value)}
+                          className="admin-field rounded-xl border px-3 py-2 text-sm font-medium text-secondary outline-none"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-xs font-semibold text-accent">
+                        Bitiş
+                        <input
+                          type="date"
+                          value={appTo}
+                          onChange={(event) => setAppTo(event.target.value)}
+                          className="admin-field rounded-xl border px-3 py-2 text-sm font-medium text-secondary outline-none"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+                </div>
+                )}
+              </article>
               {applicationsError && (
                 <article className="rounded-2xl border border-red-500/20 bg-red-500/10 px-6 py-5" role="alert">
                   <p className="text-sm font-semibold text-red-600">Liste açılamadı</p>
@@ -1010,7 +1612,15 @@ export default function AdminShell({
                   </p>
                 </article>
               )}
-              {applications.map((item) => (
+              {!applicationsError && applications.length > 0 && visibleApplications.length === 0 && (
+                <article className="admin-card rounded-2xl p-8">
+                  <p className="text-sm font-semibold">Bu filtreye uyan başvuru yok.</p>
+                  <button type="button" onClick={clearApplicationFilters} className="mt-3 text-sm font-semibold text-primary">
+                    Filtreleri temizle
+                  </button>
+                </article>
+              )}
+              {visibleApplications.map((item) => (
                 <article key={item.id} className="admin-card rounded-2xl p-6">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -1025,7 +1635,7 @@ export default function AdminShell({
                   </div>
                   <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
                     <div>
-                      <dt className="text-xs tracking-[0.16em] text-accent uppercase">Durum</dt>
+                      <dt className="text-xs tracking-[0.16em] text-accent uppercase">Başvuran</dt>
                       <dd className="mt-1">{item.stage || "—"}</dd>
                     </div>
                     <div>

@@ -64,7 +64,7 @@ export default async function HakkimizdaPage() {
           </div>
         </section>
 
-        <StatsStrip items={site.stats} />
+        <StatsStrip items={site.stats} faaliyetSayisi={site.hafiza.length} />
 
         <section className="px-4 py-16 sm:px-8 sm:py-24">
           <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
