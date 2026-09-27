@@ -25,7 +25,7 @@ export default async function UyePage() {
 
         <section className="relative z-10 -mt-28 px-5 pb-24 sm:-mt-32 sm:px-8">
           <Suspense fallback={<p className="mx-auto max-w-4xl text-sm text-accent">Yükleniyor…</p>}>
-            <ContributeChoice donate={site.donate} email={site.contact.email} />
+            <ContributeChoice donate={site.donate} email={site.contact.email} phone={site.contact.phone} />
           </Suspense>
         </section>
       </main>

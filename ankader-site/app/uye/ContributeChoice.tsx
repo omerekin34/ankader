@@ -16,9 +16,11 @@ function modeFromQuery(value: string | null): Mode {
 export default function ContributeChoice({
   donate,
   email,
+  phone,
 }: {
   donate: SiteData["donate"];
   email: string;
+  phone: string;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -98,6 +100,7 @@ export default function ContributeChoice({
           note={donate.note}
           amounts={donate.amounts}
           email={email}
+          phone={phone}
         />
       )}
     </article>

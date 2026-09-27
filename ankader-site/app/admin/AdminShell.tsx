@@ -13,6 +13,7 @@ import {
   HeartHandshake,
   ChevronDown,
   ClipboardList,
+  PenLine,
   MessageSquare,
   Search,
   Plus,
@@ -25,7 +26,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import BlogApprovals from "@/components/BlogApprovals";
 import { applicantStages, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
+import type { BlogPost } from "@/lib/blog-types";
 import type { SiteData } from "@/lib/site-types";
 
 const tabs = [
@@ -40,6 +43,7 @@ const tabs = [
   { id: "hakkimizda", label: "Hakkımızda", icon: MessageSquare },
   { id: "tuzuk", label: "Tüzük", icon: BookOpen },
   { id: "basvuru", label: "Başvurular", icon: ClipboardList },
+  { id: "blog", label: "Blog onayları", icon: PenLine },
   { id: "uye", label: "Üye / Bağış", icon: HeartHandshake },
   { id: "iletisim", label: "İletişim", icon: MessageSquare },
 ] as const;
@@ -205,6 +209,8 @@ function OverviewDetail({
   setOverviewItem,
   applications,
   applicationsError,
+  members,
+  membersError,
   data,
   onOpenApplications,
   onOpenTab,
@@ -214,6 +220,8 @@ function OverviewDetail({
   setOverviewItem: (id: string | null) => void;
   applications: MembershipApplication[];
   applicationsError: string;
+  members: MembershipApplication[];
+  membersError: string;
   data: SiteData;
   onOpenApplications: (status: ApplicationStatus | "") => void;
   onOpenTab: (tab: TabId) => void;
@@ -240,7 +248,7 @@ function OverviewDetail({
     overview === "kurul"
       ? data.board.length
       : overview === "uyeler"
-        ? (data.members ?? []).length
+        ? members.length
         : overview === "duyuru"
           ? data.posts.length
           : data.hafiza.length;
@@ -256,7 +264,9 @@ function OverviewDetail({
               ? applicationsError
                 ? "Başvurular şu an okunamadı."
                 : `${shown.length} kayıt · ${stageLine}`
-              : `${siteCount} kayıt · satıra bas, bilgisi açılsın`}
+              : overview === "uyeler" && membersError
+                ? "Üyeler şu an okunamadı."
+                : `${siteCount} kayıt · satıra bas, bilgisi açılsın`}
           </p>
         </div>
         <button
@@ -264,7 +274,7 @@ function OverviewDetail({
           onClick={jump}
           className="rounded-2xl border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
         >
-          {isApp ? "Başvurular sekmesinde aç" : "Bu sekmeyi düzenle"}
+          {isApp ? "Başvurular sekmesinde aç" : overview === "uyeler" ? "Üyeler sekmesinde aç" : "Bu sekmeyi düzenle"}
         </button>
       </div>
 
@@ -325,21 +335,28 @@ function OverviewDetail({
         />
       )}
 
-      {overview === "uyeler" && (
+      {overview === "uyeler" && membersError && (
+        <p className="mt-4 rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-500">{membersError}</p>
+      )}
+
+      {overview === "uyeler" && !membersError && (
         <OverviewRows
-          empty="Sitede listelenen üye yok."
+          empty="Kabul edilen üye yok."
           openId={overviewItem}
           onToggle={toggle}
-          rows={(data.members ?? []).map((member, index) => ({
-            id: `uye-${index}`,
+          rows={members.map((member) => ({
+            id: member.id,
             title: member.name || "İsimsiz",
-            meta: [member.stage, member.university || member.school].filter(Boolean).join(" · ") || "Bilgi yok",
+            meta: [member.stage, member.city].filter(Boolean).join(" · ") || "Bilgi yok",
             facts: [
+              ["E-posta", member.email || "—"],
+              ["Telefon", member.phone || "—"],
               ["Durum", member.stage || "—"],
               ["Lise", member.school || "—"],
               ["Üniversite", member.university || "—"],
               ["Bölüm", member.department || "—"],
               ["Sınıf / yıl", member.year || "—"],
+              ["Şehir", member.city || "—"],
             ],
           }))}
         />
@@ -689,10 +706,18 @@ export default function AdminShell({
   initialData,
   initialApplications,
   applicationsError = "",
+  initialBlogs = [],
+  blogsError = "",
+  initialMembers = [],
+  membersError = "",
 }: {
   initialData: SiteData;
   initialApplications: MembershipApplication[];
   applicationsError?: string;
+  initialBlogs?: BlogPost[];
+  blogsError?: string;
+  initialMembers?: MembershipApplication[];
+  membersError?: string;
 }) {
   const router = useRouter();
   const theme = useAnkaderTheme();
@@ -702,6 +727,7 @@ export default function AdminShell({
     members: initialData.members ?? [],
   });
   const [applications, setApplications] = useState(initialApplications);
+  const [members, setMembers] = useState(initialMembers);
   const [appQuery, setAppQuery] = useState("");
   const [appStatus, setAppStatus] = useState<ApplicationStatus | "">("");
   const [appStage, setAppStage] = useState<ApplicantStage | "">("");
@@ -713,6 +739,9 @@ export default function AdminShell({
   const [overview, setOverview] = useState<OverviewKey>("tumu");
   const [overviewItem, setOverviewItem] = useState<string | null>(null);
   const [acceptAsk, setAcceptAsk] = useState<{ id: string; name: string } | null>(null);
+  const [memberEdit, setMemberEdit] = useState<MembershipApplication | null>(null);
+  const [memberAsk, setMemberAsk] = useState<MembershipApplication | null>(null);
+  const [memberBusy, setMemberBusy] = useState("");
   const overviewPanel = useRef<HTMLElement>(null);
   const acceptingIds = useRef(new Set<string>());
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -721,6 +750,10 @@ export default function AdminShell({
   function toast(kind: Notice["kind"], title: string, text: string) {
     setNotice({ id: Date.now(), kind, title, text });
   }
+
+  useEffect(() => {
+    setMembers(initialMembers);
+  }, [initialMembers]);
 
   useEffect(() => {
     if (!notice) return;
@@ -773,9 +806,14 @@ export default function AdminShell({
         return;
       }
       if (status === "kabul") {
+        const accepted = applications.find((item) => item.id === id);
         setApplications((items) => items.filter((item) => item.id !== id));
+        if (accepted) {
+          setMembers((items) => [accepted, ...items.filter((item) => item.email !== accepted.email || item.name !== accepted.name)]);
+        }
         setOverviewItem((current) => (current === id ? null : current));
         toast("ok", "Üye oldu", "Kayıt üyelere eklendi ve başvuru listeden kalktı.");
+        router.refresh();
         return;
       }
       setApplications((items) => items.map((item) => (item.id === id ? { ...item, status } : item)));
@@ -795,6 +833,58 @@ export default function AdminShell({
     }
     setApplications((items) => items.filter((item) => item.id !== id));
     toast("ok", "Başvuru silindi", "Kayıt listeden kalktı.");
+  }
+
+  async function saveMember() {
+    if (!memberEdit) return;
+    const draft = memberEdit;
+    setMemberBusy(draft.id);
+    try {
+      const response = await fetch(`/api/members/${draft.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const json = (await response.json().catch(() => null)) as { error?: string; member?: MembershipApplication } | null;
+      if (!response.ok || !json?.member) {
+        toast("err", "Kaydedilemedi", json?.error || "Üye güncellenemedi. Tekrar dene.");
+        return;
+      }
+      const saved = json.member;
+      setMembers((items) =>
+        items
+          .map((item) => (item.id === saved.id ? { ...item, ...saved } : item))
+          .sort((a, b) => a.name.localeCompare(b.name, "tr")),
+      );
+      setMemberEdit(null);
+      toast("ok", "Üye güncellendi", "Değişiklik admin listesine geçti.");
+      router.refresh();
+    } catch {
+      toast("err", "Kaydedilemedi", "Bağlantı koptu. Tekrar dene.");
+    } finally {
+      setMemberBusy("");
+    }
+  }
+
+  async function removeMember(id: string) {
+    setMemberBusy(id);
+    try {
+      const response = await fetch(`/api/members/${id}`, { method: "DELETE" });
+      const json = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        toast("err", "Silinemedi", json?.error || "Üye duruyor. Tekrar dene.");
+        return;
+      }
+      setMembers((items) => items.filter((item) => item.id !== id));
+      setOverviewItem((current) => (current === id ? null : current));
+      setMemberEdit((current) => (current?.id === id ? null : current));
+      toast("ok", "Üye silindi", "Kayıt listeden kalktı.");
+      router.refresh();
+    } catch {
+      toast("err", "Silinemedi", "Bağlantı koptu. Tekrar dene.");
+    } finally {
+      setMemberBusy("");
+    }
   }
 
   async function uploadAndNotify(file: File) {
@@ -869,7 +959,7 @@ export default function AdminShell({
     red: applications.filter((item) => item.status === "red").length,
     tumu: applications.length,
     kurul: data.board.length,
-    uyeler: (data.members ?? []).length,
+    uyeler: members.length,
     duyuru: data.posts.length,
     faaliyet: data.hafiza.length,
   };
@@ -940,7 +1030,7 @@ export default function AdminShell({
                 <ThemeToggle surface="panel" />
               </div>
             </div>
-            {tab !== "basvuru" && (
+            {tab !== "basvuru" && tab !== "blog" && tab !== "uyeler" && (
               <button
                 type="button"
                 onClick={save}
@@ -1003,6 +1093,8 @@ export default function AdminShell({
                   setOverviewItem={setOverviewItem}
                   applications={sortedApplications}
                   applicationsError={applicationsError}
+                  members={members}
+                  membersError={membersError}
                   data={data}
                   onOpenApplications={openApplicationsTab}
                   onOpenTab={setTab}
@@ -1165,11 +1257,18 @@ export default function AdminShell({
                       </span>
                     </label>
                   ) : (
-                    <Field label="Sayı" value={item.value} onChange={(value) => {
-                      const stats = [...data.stats];
-                      stats[index] = { ...item, value };
-                      setData({ ...data, stats });
-                    }} />
+                    <div>
+                      <Field label="Sayı" value={item.value} onChange={(value) => {
+                        const stats = [...data.stats];
+                        stats[index] = { ...item, value };
+                        setData({ ...data, stats });
+                      }} />
+                      {["üye sayısı", "gönüllü sayısı"].includes(item.label.trim().toLocaleLowerCase("tr-TR")) ? (
+                        <span className="mt-2 block text-xs leading-5 text-accent">
+                          Sitede bu yazdığın sayı görünür. Üye veya gönüllü eklemek bu sayıyı değiştirmez.
+                        </span>
+                      ) : null}
+                    </div>
                   )}
                   <Field label="Başlık" value={item.label} onChange={(value) => {
                     const stats = [...data.stats];
@@ -1352,77 +1451,116 @@ export default function AdminShell({
 
           {tab === "uyeler" && (
             <section className="grid gap-4">
-              <ListHead
-                title="Üye listesi"
-                hint="Bu isimler /uyeler sayfasında alfabetik sıralanır. Kaydetmeyi unutma."
-                action={
-                  <AddButton onClick={() => setData({ ...data, members: [{ name: "", stage: "" }, ...(data.members ?? [])] })}>
-                    İsim ekle
-                  </AddButton>
-                }
-              />
-              {(data.members ?? []).map((item, index) => (
-                <EditorCard
-                  key={index}
-                  index={index}
-                  title={item.name || "Yeni üye"}
-                  columns="grid gap-3 sm:grid-cols-2"
-                  onRemove={() =>
-                    setData({
-                      ...data,
-                      members: (data.members ?? []).filter((_, i) => i !== index),
-                    })
-                  }
-                >
-                  <Field
-                    label="Ad soyad"
-                    value={item.name}
-                    onChange={(value) => {
-                      const members = [...(data.members ?? [])];
-                      members[index] = { ...item, name: value };
-                      setData({ ...data, members });
-                    }}
-                  />
-                  <Field label="Lise" value={item.school || ""} onChange={(value) => {
-                    const members = [...(data.members ?? [])];
-                    members[index] = { ...item, school: value };
-                    setData({ ...data, members });
-                  }} />
-                  <Field label="Üniversite" value={item.university || ""} onChange={(value) => {
-                    const members = [...(data.members ?? [])];
-                    members[index] = { ...item, university: value };
-                    setData({ ...data, members });
-                  }} />
-                  <Field label="Bölüm" value={item.department || ""} onChange={(value) => {
-                    const members = [...(data.members ?? [])];
-                    members[index] = { ...item, department: value };
-                    setData({ ...data, members });
-                  }} />
-                  <Field label="Sınıf / yıl" value={item.year || ""} onChange={(value) => {
-                    const members = [...(data.members ?? [])];
-                    members[index] = { ...item, year: value };
-                    setData({ ...data, members });
-                  }} />
-                  <label className="grid gap-2 text-sm">
-                    <span className="text-xs tracking-[0.16em] text-accent uppercase">Durum</span>
-                    <select
-                      value={item.stage || ""}
-                      onChange={(event) => {
-                        const members = [...(data.members ?? [])];
-                        members[index] = { ...item, stage: event.target.value };
-                        setData({ ...data, members });
-                      }}
-                      className="admin-field rounded-xl border px-3 py-2.5"
-                    >
-                      {["Yönetim", "Lise", "Üniversite", "Mezun"].map((stage) => (
-                        <option key={stage} value={stage}>
-                          {stage}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </EditorCard>
-              ))}
+              <article className="admin-card rounded-3xl p-5">
+                <p className="text-sm font-semibold">Üyeler</p>
+                <p className="mt-1 text-xs leading-5 text-accent">
+                  Kabul edilen başvurular burada durur. Bu bilgiler sitede görünmez.
+                </p>
+              </article>
+              {membersError ? (
+                <article className="rounded-2xl border border-red-500/20 bg-red-500/10 px-6 py-5" role="alert">
+                  <p className="text-sm font-semibold text-red-600">Liste açılamadı</p>
+                  <p className="mt-2 text-sm leading-7 text-red-600">{membersError}</p>
+                </article>
+              ) : null}
+              {!membersError && members.length === 0 ? (
+                <article className="admin-card rounded-2xl p-8">
+                  <p className="text-sm font-semibold">Kabul edilen üye yok.</p>
+                  <p className="mt-2 text-sm leading-7 text-accent">Başvurular sekmesinden kabul edilen kişi bu listeye düşer.</p>
+                </article>
+              ) : null}
+              {members.map((item) => {
+                const editing = memberEdit?.id === item.id;
+                const draft = editing ? memberEdit : item;
+                return (
+                  <article key={item.id} className="admin-card rounded-2xl p-6">
+                    {editing ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field label="Ad soyad" value={draft.name} onChange={(value) => setMemberEdit({ ...draft, name: value })} />
+                        <Field label="E-posta" value={draft.email} onChange={(value) => setMemberEdit({ ...draft, email: value })} />
+                        <Field label="Telefon" value={draft.phone} onChange={(value) => setMemberEdit({ ...draft, phone: value })} />
+                        <label className="block text-sm font-medium text-secondary">
+                          Durum
+                          <select
+                            value={draft.stage}
+                            onChange={(event) => setMemberEdit({ ...draft, stage: event.target.value as MembershipApplication["stage"] })}
+                            className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                          >
+                            <option value="">Seçilmedi</option>
+                            {applicantStages.map((stage) => (
+                              <option key={stage} value={stage}>
+                                {stage}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <Field label="Lise" value={draft.school} onChange={(value) => setMemberEdit({ ...draft, school: value })} />
+                        <Field label="Üniversite" value={draft.university} onChange={(value) => setMemberEdit({ ...draft, university: value })} />
+                        <Field label="Bölüm" value={draft.department} onChange={(value) => setMemberEdit({ ...draft, department: value })} />
+                        <Field label="Sınıf / yıl" value={draft.year} onChange={(value) => setMemberEdit({ ...draft, year: value })} />
+                        <Field label="Şehir" value={draft.city} onChange={(value) => setMemberEdit({ ...draft, city: value })} />
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-lg font-semibold">{item.name || "İsimsiz"}</p>
+                        <p className="mt-1 text-sm text-accent">{[item.stage, item.city].filter(Boolean).join(" · ") || "Bilgi yok"}</p>
+                        <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+                          {(
+                            [
+                              ["E-posta", item.email],
+                              ["Telefon", item.phone],
+                              ["Durum", item.stage],
+                              ["Lise", item.school],
+                              ["Üniversite", item.university],
+                              ["Bölüm", item.department],
+                              ["Sınıf / yıl", item.year],
+                              ["Şehir", item.city],
+                            ] as const
+                          ).map(([label, value]) => (
+                            <div key={label}>
+                              <dt className="text-xs tracking-[0.16em] text-accent uppercase">{label}</dt>
+                              <dd className="mt-1">{value || "—"}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </>
+                    )}
+                    <div className="mt-5 flex flex-wrap justify-end gap-2 border-t border-secondary/10 pt-4">
+                      {editing ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={memberBusy === item.id}
+                            onClick={() => setMemberEdit(null)}
+                            className="rounded-full border border-secondary/15 px-4 py-2 text-sm font-semibold text-secondary transition hover:border-primary/40 disabled:opacity-60"
+                          >
+                            Vazgeç
+                          </button>
+                          <button
+                            type="button"
+                            disabled={memberBusy === item.id}
+                            onClick={() => void saveMember()}
+                            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-60"
+                          >
+                            {memberBusy === item.id ? "Kaydediliyor..." : "Kaydet"}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setMemberEdit(item)}
+                            className="rounded-full border border-secondary/15 px-4 py-2 text-sm font-semibold text-secondary transition hover:border-primary/40"
+                          >
+                            Düzenle
+                          </button>
+                          <RemoveButton onClick={() => setMemberAsk(item)} label="Sil" />
+                        </>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
             </section>
           )}
 
@@ -1855,6 +1993,8 @@ export default function AdminShell({
             </section>
           )}
 
+          {tab === "blog" && <BlogApprovals initialBlogs={initialBlogs} error={blogsError} onToast={toast} />}
+
           {tab === "iletisim" && (
             <section className="grid gap-4 admin-card rounded-3xl p-6 backdrop-blur-md">
               <Field label="Sayfa etiketi" value={data.contact.pageEyebrow} onChange={(value) => setData({ ...data, contact: { ...data.contact, pageEyebrow: value } })} />
@@ -1939,6 +2079,9 @@ export default function AdminShell({
                 <Field label="Hesap adı" value={data.donate.accountName} onChange={(value) => setData({ ...data, donate: { ...data.donate, accountName: value } })} />
                 <Field label="Banka" value={data.donate.bank} onChange={(value) => setData({ ...data, donate: { ...data.donate, bank: value } })} />
                 <Field label="IBAN" value={data.donate.iban} onChange={(value) => setData({ ...data, donate: { ...data.donate, iban: value } })} />
+                <p className="text-xs leading-5 text-accent">
+                  Sitede hesap, gerçek banka adı ve 26 haneli IBAN kaydedilince görünür.
+                </p>
                 <Field multiline label="Dekont notu" value={data.donate.note} onChange={(value) => setData({ ...data, donate: { ...data.donate, note: value } })} />
               </article>
 
@@ -1994,6 +2137,43 @@ export default function AdminShell({
           )}
         </div>
       </div>
+
+      {memberAsk ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/45 px-4" role="presentation" onClick={() => setMemberAsk(null)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="member-delete-title"
+            className="admin-card w-full max-w-md rounded-3xl p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p id="member-delete-title" className="text-lg font-semibold text-secondary">Emin misin?</p>
+            <p className="mt-2 text-sm leading-6 text-accent">
+              {memberAsk.name || "Bu üye"} admin listesinden silinir.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setMemberAsk(null)}
+                className="rounded-full border border-secondary/15 px-4 py-2 text-sm font-semibold text-secondary transition hover:border-primary/40"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const pending = memberAsk;
+                  setMemberAsk(null);
+                  void removeMember(pending.id);
+                }}
+                className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500/90"
+              >
+                Evet, sil
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {acceptAsk ? (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/45 px-4" role="presentation" onClick={() => setAcceptAsk(null)}>

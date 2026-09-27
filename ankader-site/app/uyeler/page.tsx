@@ -1,34 +1,24 @@
-import MembersDirectory from "@/components/MembersDirectory";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
-import { readApplications, readUyeler } from "@/lib/application-data";
-import type { MembershipApplication } from "@/lib/application-types";
-import { buildPublicMembers } from "@/lib/public-members";
+import { uyeLinks } from "@/lib/nav";
 import { readSite } from "@/lib/site-data";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Üyelerimiz — ANKADER",
-  description: "ANKADER üyeleri: yönetim, lise, üniversite ve mezunlar.",
+  title: "Üyeler — ANKADER",
+  description: "ANKADER üye ayrıcalıkları ve üyelerden blog yazıları.",
 };
 
 export const dynamic = "force-dynamic";
 
+const blurbs: Record<string, string> = {
+  "/uyeler/ayricaliklar": "Üyeliğin sağladığı imkanlar burada toplanır.",
+  "/uyeler/blog": "Üyelerin yazıları burada yayınlanır.",
+};
+
 export default async function UyelerPage() {
   const site = await readSite();
-  let applications: MembershipApplication[] = [];
-  let acceptedMembers: MembershipApplication[] = [];
-  try {
-    applications = await readApplications();
-  } catch {
-    applications = [];
-  }
-  try {
-    acceptedMembers = await readUyeler();
-  } catch {
-    acceptedMembers = [];
-  }
-  const members = buildPublicMembers(site.members, site.board, [...applications, ...acceptedMembers]);
 
   return (
     <div className="bg-background text-secondary">
@@ -36,26 +26,27 @@ export default async function UyelerPage() {
       <main>
         <PageHero
           eyebrow="Üyeler"
-          title="Üyelerimiz"
-          text="Yönetim, lise, üniversite ve mezunlar. İsim veya okulla aramak için Filtrele’ye bas."
+          title="Üyeler"
+          text="Üye ayrıcalıkları ve üyelerden blog yazıları. İki bölüm de kendi sayfasında durur."
         />
 
         <section className="relative z-10 -mt-28 px-5 pb-24 sm:-mt-32 sm:px-8">
-          <article className="mx-auto max-w-7xl rounded-[1.8rem] bg-white px-6 py-8 shadow-[0_18px_50px_-28px_rgba(15,44,65,0.45)] sm:px-10 sm:py-12">
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">Üye listesi</p>
-                <p className="mt-2 text-sm text-accent">{members.length} kişi</p>
-              </div>
+          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
+            {uyeLinks.map((link) => (
               <a
-                href="/uye?yol=uye"
-                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+                key={link.href}
+                href={link.href}
+                className="group rounded-[1.8rem] bg-white p-8 shadow-[0_18px_50px_-28px_rgba(15,44,65,0.45)] transition hover:-translate-y-1 hover:shadow-[0_22px_50px_-24px_rgba(20,195,208,0.45)]"
               >
-                Üye ol
+                <h2 className="text-2xl">{link.label}</h2>
+                <p className="mt-3 text-sm leading-7 text-accent">{blurbs[link.href]}</p>
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                  Aç
+                  <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+                </span>
               </a>
-            </div>
-            <MembersDirectory members={members} />
-          </article>
+            ))}
+          </div>
         </section>
       </main>
       <Footer contact={site.contact} identity={site.identity} />

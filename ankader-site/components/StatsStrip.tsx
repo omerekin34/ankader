@@ -18,8 +18,10 @@ export default function StatsStrip({ items, faaliyetSayisi = 0 }: { items: SiteD
         {items.map((item, index) => {
           const Icon = icons[index] ?? Users;
           const label = statLabel(item.label);
-          const value =
-            label === "faaliyet yılı"
+          const manual = label === "üye sayısı" || label === "gönüllü sayısı";
+          const value = manual
+            ? item.value
+            : label === "faaliyet yılı"
               ? String(faaliyetYili)
               : label === "tamamlanan proje"
                 ? String(faaliyetSayisi)
@@ -35,7 +37,7 @@ export default function StatsStrip({ items, faaliyetSayisi = 0 }: { items: SiteD
             >
               <Icon className="size-4 text-primary" aria-hidden />
               <p className="mt-5 text-3xl tracking-tight tabular-nums sm:text-4xl">
-                <CountUp value={value} delay={index * 90} />
+                {manual ? <span aria-label={value}>{value}</span> : <CountUp value={value} delay={index * 90} />}
               </p>
               <p className="mt-2 text-sm font-semibold">{item.label}</p>
               <p className="mt-1 text-sm text-accent">{item.note}</p>

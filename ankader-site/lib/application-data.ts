@@ -177,7 +177,30 @@ export async function readUyeler(): Promise<MembershipApplication[]> {
     const mapped = mapRow({ ...row, id: row.id ?? `uye-${index}`, durum: "kabul" });
     if (mapped) items.push({ ...mapped, status: "kabul" });
   });
+  items.sort((a, b) => a.name.localeCompare(b.name, "tr"));
   return items;
+}
+
+export async function updateUye(id: string, member: MembershipApplication) {
+  const row: UyeRow = {
+    ad_soyad: member.name.trim(),
+    eposta: member.email.trim(),
+    telefon: member.phone.trim(),
+    ogrenci_durumu: member.stage,
+    okul_adi: [member.university, member.school].map((part) => part.trim()).filter(Boolean).join(" · "),
+    sinif: member.year.trim(),
+    alan: member.department.trim(),
+    sehir: member.city.trim(),
+  };
+  const { data, error } = await getSupabaseAdmin().from("uyeler").update(row).eq("id", id).select("id");
+  if (error) throw new Error(error.message);
+  if (!data?.length) throw new Error("NOT_FOUND");
+}
+
+export async function deleteUye(id: string) {
+  const { data, error } = await getSupabaseAdmin().from("uyeler").delete().eq("id", id).select("id");
+  if (error) throw new Error(error.message);
+  if (!data?.length) throw new Error("NOT_FOUND");
 }
 
 export function acceptErrorMessage(error: unknown) {

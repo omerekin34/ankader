@@ -130,7 +130,7 @@ export const defaultSite: SiteData = {
     pageText: "Üstten üye ol veya bağış yap de, ilgili form önüne gelsin.",
     donateHeroEyebrow: "Bağış",
     donateHeroTitle: "Bağışınla dayanışmaya katıl",
-    donateHeroText: "Tutarı seç, IBAN’a havale veya EFT yap, dekontu ilet. Kartla ödeme yok.",
+    donateHeroText: "Tutarı seçin, hesaba havale veya EFT yapın, dekontu iletin.",
     joinTitle: "",
     joinText: "",
     donateTitle: "",

@@ -4,6 +4,7 @@ import { BrandLockup, BrandStack } from "@/components/Brand";
 import ThemeToggle from "@/components/ThemeToggle";
 import { defaultSite } from "@/lib/site-defaults";
 import type { SiteData } from "@/lib/site-types";
+import { uyeLinks } from "@/lib/nav";
 import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -40,14 +41,14 @@ export const kurumsalLinks = [
 ];
 
 export const navLinks = [
-  { href: "/uyeler", label: "Üyeler" },
   { href: "/faaliyetler", label: "Faaliyetler" },
   { href: "/duyurular", label: "Duyurular" },
 ];
 
 export const footerLinks = [
   { href: "/hakkimizda", label: "Hakkımızda" },
-  { href: "/uyeler", label: "Üyeler" },
+  { href: "/uyeler/ayricaliklar", label: "Üye Ayrıcalıkları" },
+  { href: "/uyeler/blog", label: "Üyelerden Blog Yazıları" },
   { href: "/faaliyetler", label: "Faaliyetler" },
   { href: "/yonetim", label: "Yönetim" },
   { href: "/duyurular", label: "Duyurular" },
@@ -64,11 +65,13 @@ export function Navbar({
 }) {
   const [open, setOpen] = useState(false);
   const [kurumsalOpen, setKurumsalOpen] = useState(false);
+  const [uyeOpen, setUyeOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const home = pathname === "/";
   const overlay = home && !scrolled;
   const kurumsalActive = kurumsalLinks.some((link) => link.href === pathname);
+  const uyeActive = pathname === "/uyeler" || uyeLinks.some((link) => pathname === link.href);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -80,6 +83,7 @@ export function Navbar({
   useEffect(() => {
     setOpen(false);
     setKurumsalOpen(false);
+    setUyeOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -184,6 +188,35 @@ export function Navbar({
               </div>
             </div>
           </div>
+          <div className="has-drop relative">
+            <button
+              type="button"
+              className={`inline-flex items-center gap-1.5 text-[13px] font-medium tracking-[0.14em] uppercase transition-colors ${
+                uyeActive ? "text-primary" : "text-white/90 hover:text-primary"
+              }`}
+              aria-haspopup="menu"
+            >
+              Üyeler
+              <ChevronDown className="nav-chevron size-3.5" />
+            </button>
+            <div className="nav-drop absolute left-1/2 top-full z-50 w-64 pt-3">
+              <div
+                role="menu"
+                className="overflow-hidden rounded-xl border border-white/10 bg-secondary py-1.5 shadow-[0_24px_48px_-18px_rgba(0,0,0,0.75)]"
+              >
+                {uyeLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    role="menuitem"
+                    className={`nav-drop-item ${pathname === link.href ? "is-active" : ""}`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -219,6 +252,7 @@ export function Navbar({
               setOpen((value) => {
                 const next = !value;
                 if (next && kurumsalActive) setKurumsalOpen(true);
+                if (next && uyeActive) setUyeOpen(true);
                 return next;
               });
             }}
@@ -274,6 +308,35 @@ export function Navbar({
               {kurumsalOpen ? (
                 <div className="mb-1 ml-3 border-l border-white/10 pl-2">
                   {kurumsalLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`block rounded-xl px-3 py-2.5 text-[15px] ${
+                        pathname === link.href ? "bg-white/10 text-primary" : "text-white/80"
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            <div>
+              <button
+                type="button"
+                aria-expanded={uyeOpen}
+                onClick={() => setUyeOpen((value) => !value)}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-base ${
+                  uyeActive ? "text-primary" : "text-white"
+                }`}
+              >
+                Üyeler
+                <ChevronDown className={`size-4 transition ${uyeOpen ? "rotate-180" : ""}`} aria-hidden />
+              </button>
+              {uyeOpen ? (
+                <div className="mb-1 ml-3 border-l border-white/10 pl-2">
+                  {uyeLinks.map((link) => (
                     <a
                       key={link.href}
                       href={link.href}
