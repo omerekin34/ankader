@@ -29,7 +29,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import BlogApprovals from "@/components/BlogApprovals";
 import { applicantStages, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
 import type { BlogPost } from "@/lib/blog-types";
-import type { SiteData } from "@/lib/site-types";
+import { councilInitials } from "@/lib/site-defaults";
+import type { SiteBoardMember, SiteData } from "@/lib/site-types";
 
 const tabs = [
   { id: "ozet", label: "Özet", icon: LayoutDashboard },
@@ -37,7 +38,7 @@ const tabs = [
   { id: "gorunum", label: "Şerit ve alt bilgi", icon: Home },
   { id: "istatistik", label: "İstatistikler", icon: BarChart3 },
   { id: "faaliyet", label: "Faaliyetler", icon: BookOpen },
-  { id: "kurul", label: "Yönetim Kurulu", icon: Users },
+  { id: "kurul", label: "Kurullar", icon: Users },
   { id: "uyeler", label: "Üyelerimiz", icon: Users },
   { id: "duyuru", label: "Duyurular", icon: Bell },
   { id: "hakkimizda", label: "Hakkımızda", icon: MessageSquare },
@@ -197,7 +198,7 @@ const overviewTitles: Record<OverviewKey, string> = {
   inceleniyor: "İncelenen başvurular",
   kabul: "Kabul edilen başvurular",
   red: "Reddedilen başvurular",
-  kurul: "Yönetim kurulu",
+  kurul: "Kurullar",
   uyeler: "Sitedeki üyeler",
   duyuru: "Duyurular",
   faaliyet: "Faaliyetler",
@@ -246,7 +247,7 @@ function OverviewDetail({
 
   const siteCount =
     overview === "kurul"
-      ? data.board.length
+      ? data.yonetim_kurulu.length + data.denetim_kurulu.length
       : overview === "uyeler"
         ? members.length
         : overview === "duyuru"
@@ -320,14 +321,13 @@ function OverviewDetail({
           empty="Kurulda kimse yok."
           openId={overviewItem}
           onToggle={toggle}
-          rows={data.board.map((member, index) => ({
+          rows={[...data.yonetim_kurulu, ...data.denetim_kurulu].map((member, index) => ({
             id: `kurul-${index}`,
             title: member.name || "İsimsiz",
-            meta: member.role || "Görev yazılmamış",
+            meta: `${index < data.yonetim_kurulu.length ? "Yönetim Kurulu" : "Denetim Kurulu"} · ${member.role || "Görev yazılmamış"}`,
             facts: [
+              ["Kurul", index < data.yonetim_kurulu.length ? "Yönetim Kurulu" : "Denetim Kurulu"],
               ["Görev", member.role || "—"],
-              ["Kısa ad", member.initials || "—"],
-              ["E-posta", member.email || "—"],
               ["Telefon", member.phone || "—"],
               ["Fotoğraf", member.photo ? "Var" : "Yok"],
             ],
@@ -456,11 +456,13 @@ function Field({
   value,
   onChange,
   multiline,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   multiline?: boolean;
+  placeholder?: string;
 }) {
   const cls =
     "admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none";
@@ -468,9 +470,9 @@ function Field({
     <label className="block text-sm font-medium text-secondary">
       {label}
       {multiline ? (
-        <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} className={cls} />
+        <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} placeholder={placeholder} className={cls} />
       ) : (
-        <input value={value} onChange={(event) => onChange(event.target.value)} className={cls} />
+        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={cls} />
       )}
     </label>
   );
@@ -537,6 +539,129 @@ function RemoveButton({ onClick, label = "Sil" }: { onClick: () => void; label?:
       <Trash2 className="size-3.5" />
       {label}
     </button>
+  );
+}
+
+function patchMember(list: SiteBoardMember[], index: number, patch: Partial<SiteBoardMember>) {
+  const next = [...list];
+  const current = next[index];
+  const name = patch.name ?? current.name;
+  next[index] = {
+    ...current,
+    ...patch,
+    initials: patch.name !== undefined ? councilInitials(name) : current.initials,
+  };
+  return next;
+}
+
+function CouncilPanel({
+  kind,
+  onKind,
+  yonetim,
+  denetim,
+  onYonetim,
+  onDenetim,
+  onUpload,
+}: {
+  kind: "yonetim" | "denetim";
+  onKind: (kind: "yonetim" | "denetim") => void;
+  yonetim: SiteBoardMember[];
+  denetim: SiteBoardMember[];
+  onYonetim: (list: SiteBoardMember[]) => void;
+  onDenetim: (list: SiteBoardMember[]) => void;
+  onUpload: (file: File) => Promise<string | null>;
+}) {
+  const yonetimMode = kind === "yonetim";
+  const list = yonetimMode ? yonetim : denetim;
+  const write = yonetimMode ? onYonetim : onDenetim;
+  const defaultRole = yonetimMode ? "Yönetim Kurulu Üyesi" : "Denetim Kurulu Üyesi";
+
+  return (
+    <section className="grid gap-4">
+      <div className="admin-card flex flex-wrap gap-2 rounded-3xl p-2" role="tablist" aria-label="Kurullar">
+        {(
+          [
+            ["yonetim", "Yönetim Kurulu"],
+            ["denetim", "Denetim Kurulu"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={kind === id}
+            onClick={() => onKind(id)}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
+              kind === id ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <ListHead
+        title={yonetimMode ? "Yönetim Kurulu" : "Denetim Kurulu"}
+        hint="Ad soyad, görev, telefon ve fotoğraf adresi. Fotoğraf boşsa sitede ismin baş harfleri görünür. Kayıt, site içeriğinin içine yazılır."
+        action={
+          <AddButton
+            onClick={() =>
+              write([{ initials: "YY", name: "", role: defaultRole, email: "", phone: "", photo: "" }, ...list])
+            }
+          >
+            Üye ekle
+          </AddButton>
+        }
+      />
+      {list.length === 0 ? (
+        <article className="admin-card rounded-2xl p-8">
+          <p className="text-sm font-semibold">Bu kurulda üye yok.</p>
+          <p className="mt-2 text-sm leading-7 text-accent">Üye ekle ile ilk kartı aç.</p>
+        </article>
+      ) : null}
+      {list.map((item, index) => (
+        <EditorCard
+          key={`${kind}-${index}`}
+          index={index}
+          title={item.name || "Yeni üye"}
+          columns="grid gap-3 sm:grid-cols-2"
+          onRemove={() => write(list.filter((_, i) => i !== index))}
+        >
+          <Field
+            label="Ad Soyad"
+            value={item.name}
+            onChange={(value) => write(patchMember(list, index, { name: value }))}
+          />
+          <Field
+            label="Görev"
+            value={item.role}
+            onChange={(value) => write(patchMember(list, index, { role: value }))}
+            placeholder="Başkan, Sayman, Asıl Üye"
+          />
+          <Field
+            label="Telefon Numarası"
+            value={item.phone || ""}
+            onChange={(value) => write(patchMember(list, index, { phone: value }))}
+          />
+          <Field
+            label="Fotoğraf URL"
+            value={item.photo || ""}
+            onChange={(value) => write(patchMember(list, index, { photo: value }))}
+            placeholder="https://... veya /hafiza/portre.jpg"
+          />
+          <PhotoField
+            label="Fotoğraf dosyası (boşsa harfler görünür)"
+            shape="round"
+            value={item.photo || ""}
+            onChange={(value) => write(patchMember(list, index, { photo: value }))}
+            onFile={async (file) => {
+              const uploaded = await onUpload(file);
+              if (!uploaded) return;
+              write(patchMember(list, index, { photo: uploaded }));
+            }}
+          />
+        </EditorCard>
+      ))}
+    </section>
   );
 }
 
@@ -722,6 +847,7 @@ export default function AdminShell({
   const router = useRouter();
   const theme = useAnkaderTheme();
   const [tab, setTab] = useState<TabId>("ozet");
+  const [kurulKind, setKurulKind] = useState<"yonetim" | "denetim">("yonetim");
   const [data, setData] = useState<SiteData>({
     ...initialData,
     members: initialData.members ?? [],
@@ -959,7 +1085,7 @@ export default function AdminShell({
     kabul: applications.filter((item) => item.status === "kabul").length,
     red: applications.filter((item) => item.status === "red").length,
     tumu: applications.length,
-    kurul: data.board.length,
+    kurul: data.yonetim_kurulu.length + data.denetim_kurulu.length,
     uyeler: members.length,
     duyuru: data.posts.length,
     faaliyet: data.hafiza.length,
@@ -1384,70 +1510,15 @@ export default function AdminShell({
           )}
 
           {tab === "kurul" && (
-            <section className="grid gap-4">
-              <ListHead
-                title="Yönetim kurulu"
-                hint="İsim, görev, e-posta, telefon ve fotoğraf. Boş iletişim ve boş fotoğraf sitede görünmez; fotoğraf yoksa harfler durur."
-                action={
-                  <AddButton onClick={() => setData({ ...data, board: [{ initials: "YY", name: "Yeni Üye", role: "Yönetim Kurulu Üyesi", email: "", phone: "", photo: "" }, ...data.board] })}>
-                    Üye ekle
-                  </AddButton>
-                }
-              />
-              {data.board.map((item, index) => (
-                <EditorCard
-                  key={index}
-                  index={index}
-                  title={item.name || "Üye"}
-                  columns="grid gap-3 sm:grid-cols-2"
-                  onRemove={() => setData({ ...data, board: data.board.filter((_, i) => i !== index) })}
-                >
-                  <Field label="Ad Soyad" value={item.name} onChange={(value) => {
-                    const board = [...data.board];
-                    const initials = value.split(" ").filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase() || item.initials;
-                    board[index] = { ...item, name: value, initials };
-                    setData({ ...data, board });
-                  }} />
-                  <Field label="Görev" value={item.role} onChange={(value) => {
-                    const board = [...data.board];
-                    board[index] = { ...item, role: value };
-                    setData({ ...data, board });
-                  }} />
-                  <Field label="Kısaltma" value={item.initials} onChange={(value) => {
-                    const board = [...data.board];
-                    board[index] = { ...item, initials: value };
-                    setData({ ...data, board });
-                  }} />
-                  <Field label="E-posta" value={item.email || ""} onChange={(value) => {
-                    const board = [...data.board];
-                    board[index] = { ...item, email: value };
-                    setData({ ...data, board });
-                  }} />
-                  <Field label="Telefon" value={item.phone || ""} onChange={(value) => {
-                    const board = [...data.board];
-                    board[index] = { ...item, phone: value };
-                    setData({ ...data, board });
-                  }} />
-                  <PhotoField
-                    label="Fotoğraf (boşsa harfler görünür)"
-                    shape="round"
-                    value={item.photo || ""}
-                    onChange={(value) => {
-                      const board = [...data.board];
-                      board[index] = { ...item, photo: value };
-                      setData({ ...data, board });
-                    }}
-                    onFile={async (file) => {
-                      const uploaded = await uploadAndNotify(file);
-                      if (!uploaded) return;
-                      const board = [...data.board];
-                      board[index] = { ...item, photo: uploaded };
-                      setData({ ...data, board });
-                    }}
-                  />
-                </EditorCard>
-              ))}
-            </section>
+            <CouncilPanel
+              kind={kurulKind}
+              onKind={setKurulKind}
+              yonetim={data.yonetim_kurulu}
+              denetim={data.denetim_kurulu}
+              onYonetim={(yonetim_kurulu) => setData({ ...data, yonetim_kurulu, board: yonetim_kurulu })}
+              onDenetim={(denetim_kurulu) => setData({ ...data, denetim_kurulu })}
+              onUpload={uploadAndNotify}
+            />
           )}
 
           {tab === "uyeler" && (

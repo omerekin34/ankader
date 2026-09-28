@@ -61,6 +61,8 @@ export const defaultSite: SiteData = {
   },
   activities: [],
   board: [],
+  yonetim_kurulu: [],
+  denetim_kurulu: [],
   members: [],
   posts: [],
   hafiza: hafizaItems.map((item) => ({
@@ -178,6 +180,44 @@ function fillObject<T extends object>(base: T, extra: Partial<T> | undefined): T
   return out;
 }
 
+export function councilInitials(name: string) {
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toLocaleUpperCase("tr-TR");
+  return letters || "YY";
+}
+
+function councilField(raw: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = raw[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return "";
+}
+
+function normalizeCouncilMember(raw: Partial<SiteData["board"][number]> | null | undefined): SiteData["board"][number] {
+  const record = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const name = councilField(record, ["name", "ad_soyad"]);
+  return {
+    name,
+    role: councilField(record, ["role", "gorev"]),
+    phone: councilField(record, ["phone", "telefon"]),
+    photo: councilField(record, ["photo", "fotograf"]),
+    email: councilField(record, ["email", "eposta"]),
+    initials: councilField(record, ["initials"]) || councilInitials(name),
+  };
+}
+
+function councilList(value: unknown, fallback: SiteData["board"]) {
+  const source = Array.isArray(value) ? value : fallback;
+  return source.map((item) => normalizeCouncilMember(item));
+}
+
 export function applyDefaults(raw: Partial<SiteData>): SiteData {
   const hero = fillObject(defaultSite.hero, raw.hero);
   if (!hero.slides?.length) hero.slides = [...defaultHeroSlides];
@@ -199,6 +239,9 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
   if (!contact.mapsUrl) contact.mapsUrl = defaultSite.contact.mapsUrl;
 
   const corporate = fillObject(defaultSite.corporate, raw.corporate);
+  const legacyBoard = Array.isArray(raw.board) ? raw.board : [];
+  const yonetim_kurulu = councilList(raw.yonetim_kurulu, legacyBoard);
+  const denetim_kurulu = councilList(raw.denetim_kurulu, []);
 
   return {
     hero,
@@ -207,7 +250,9 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
     stats: Array.isArray(raw.stats) ? raw.stats : [],
     corporate,
     activities: Array.isArray(raw.activities) ? raw.activities : [],
-    board: Array.isArray(raw.board) ? raw.board : [],
+    board: yonetim_kurulu,
+    yonetim_kurulu,
+    denetim_kurulu,
     members: Array.isArray(raw.members) ? raw.members : [],
     posts: Array.isArray(raw.posts) ? raw.posts : [],
     hafiza: Array.isArray(raw.hafiza) && raw.hafiza.length ? raw.hafiza : defaultSite.hafiza.map((item) => ({ ...item, tags: [...item.tags] })),

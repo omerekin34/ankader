@@ -36,7 +36,7 @@ const SOCIAL = {
 export const kurumsalLinks = [
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/tuzuk", label: "Tüzük" },
-  { href: "/yonetim", label: "Yönetim" },
+  { href: "/yonetim", label: "Kurullar" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
@@ -50,7 +50,7 @@ export const footerLinks = [
   { href: "/uyeler/ayricaliklar", label: "Üye Ayrıcalıkları" },
   { href: "/uyeler/blog", label: "Üyelerden Blog Yazıları" },
   { href: "/faaliyetler", label: "Faaliyetler" },
-  { href: "/yonetim", label: "Yönetim" },
+  { href: "/yonetim", label: "Kurullar" },
   { href: "/duyurular", label: "Duyurular" },
   { href: "/iletisim", label: "İletişim" },
   { href: "/tuzuk", label: "Tüzük" },

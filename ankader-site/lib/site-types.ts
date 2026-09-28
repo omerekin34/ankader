@@ -119,6 +119,8 @@ export type SiteData = {
   };
   activities: SiteActivity[];
   board: SiteBoardMember[];
+  yonetim_kurulu: SiteBoardMember[];
+  denetim_kurulu: SiteBoardMember[];
   members: SiteMember[];
   posts: SitePost[];
   hafiza: SiteHafiza[];

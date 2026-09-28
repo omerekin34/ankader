@@ -101,7 +101,7 @@ export default async function KurumsalPage() {
               {site.home.boardTitle}
             </h2>
             <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {site.board.map((person) => (
+              {site.yonetim_kurulu.map((person) => (
                 <article
                   key={person.name}
                   className={`rounded-2xl border border-secondary/10 bg-white p-6 text-center ${cardHover}`}

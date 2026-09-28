@@ -20,7 +20,7 @@ const valueIcons: LucideIcon[] = [Heart, Users, Compass, Shield, BookOpen, Targe
 
 export default async function HakkimizdaPage() {
   const site = await readSite();
-  const team = site.board;
+  const team = site.yonetim_kurulu;
   return (
     <div className="bg-background text-secondary">
       <Navbar contact={site.contact} ticker={site.identity.ticker} />

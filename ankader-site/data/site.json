@@ -106,28 +106,44 @@
     }
   ],
   "board": [
-    {
-      "initials": "EB",
-      "name": "Emre Boylu",
-      "role": "Yönetim Kurulu Başkanı",
-      "phone": "+90 531 945 02 36",
-      "photo": ""
-    },
-    {
-      "initials": "HK",
-      "name": "Hüseyin Kartal",
-      "role": "Genel Sekreter"
-    },
-    {
-      "initials": "S",
-      "name": "Selimhan",
-      "role": "Sayman"
-    },
-    {
-      "initials": "A",
-      "name": "Acar",
-      "role": "Yönetim Kurulu Üyesi"
-    }
+    { "initials": "EB", "name": "Emre Boylu", "role": "Başkan", "phone": "", "email": "", "photo": "" },
+    { "initials": "HK", "name": "Hüseyin Karal", "role": "Başkan Yardımcısı", "phone": "", "email": "", "photo": "" },
+    { "initials": "ÜA", "name": "Ümit Acar", "role": "Sayman", "phone": "", "email": "", "photo": "" },
+    { "initials": "YS", "name": "Yavuz Selimhan Özdemir", "role": "Genel Sekreter", "phone": "", "email": "", "photo": "" },
+    { "initials": "YB", "name": "Yusuf Bera Danışık", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "ST", "name": "Süleyman Talha Erat", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "MK", "name": "Muhammet Kerim Kara", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "ÖY", "name": "Ömer Yürekli", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "YY", "name": "Yusuf Yağız", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "TY", "name": "Talha Yusuf Ayvacı", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AG", "name": "Ahmet Güngör", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "EE", "name": "Emir Eray Özay", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AF", "name": "Ahmet Fatih Kaya", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AE", "name": "Ahmet Enes Alp", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" }
+  ],
+  "yonetim_kurulu": [
+    { "initials": "EB", "name": "Emre Boylu", "role": "Başkan", "phone": "", "email": "", "photo": "" },
+    { "initials": "HK", "name": "Hüseyin Karal", "role": "Başkan Yardımcısı", "phone": "", "email": "", "photo": "" },
+    { "initials": "ÜA", "name": "Ümit Acar", "role": "Sayman", "phone": "", "email": "", "photo": "" },
+    { "initials": "YS", "name": "Yavuz Selimhan Özdemir", "role": "Genel Sekreter", "phone": "", "email": "", "photo": "" },
+    { "initials": "YB", "name": "Yusuf Bera Danışık", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "ST", "name": "Süleyman Talha Erat", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "MK", "name": "Muhammet Kerim Kara", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "ÖY", "name": "Ömer Yürekli", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "YY", "name": "Yusuf Yağız", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "TY", "name": "Talha Yusuf Ayvacı", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AG", "name": "Ahmet Güngör", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "EE", "name": "Emir Eray Özay", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AF", "name": "Ahmet Fatih Kaya", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "AE", "name": "Ahmet Enes Alp", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" }
+  ],
+  "denetim_kurulu": [
+    { "initials": "EY", "name": "Ebamüslim Yaşaroğlu", "role": "Başkan", "phone": "", "email": "", "photo": "" },
+    { "initials": "EG", "name": "Engin Gedikoğlu", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "ŞÖ", "name": "Şengül Özdağ", "role": "Asıl Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "FA", "name": "Ferhat Aksoy", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "FK", "name": "Ferhat Kabataş", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
+    { "initials": "EK", "name": "Engin Karakoyun", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" }
   ],
   "members": [],
   "posts": [

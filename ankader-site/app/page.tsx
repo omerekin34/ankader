@@ -239,7 +239,7 @@ export default async function Home() {
         <Path home={site.home} />
         <Corporate data={site.corporate} quote={site.home.quote} />
         <Activities home={site.home} hafiza={site.hafiza} />
-        <Board board={site.board} home={site.home} />
+        <Board board={site.yonetim_kurulu} home={site.home} />
         <Announcements posts={site.posts} home={site.home} />
         <JoinBand eyebrow={site.home.joinEyebrow} title={site.home.joinTitle} />
       </main>
