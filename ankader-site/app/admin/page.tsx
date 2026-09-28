@@ -23,9 +23,12 @@ export default async function AdminPage() {
   try {
     members = await readUyeler();
   } catch (error) {
-    membersError = error instanceof Error && error.message === "MISSING_ENV"
-      ? "Üye listesi için sunucu anahtarı eksik."
-      : "Üyeler Supabase'den alınamadı.";
+    const message = error instanceof Error ? error.message : "";
+    membersError = message === "MISSING_ENV"
+      ? "Üye listesi için Supabase bağlantısı eksik."
+      : /row-level security|42501|permission denied/i.test(message)
+        ? "Üyeler için yetkili oturum gerekli. Panelden tekrar gir."
+        : "Üyeler Supabase'den alınamadı.";
   }
   try {
     blogs = await readBlogs();

@@ -8,7 +8,7 @@ import { useState } from "react";
 export default function AdminLoginPage() {
   const router = useRouter();
   const theme = useAnkaderTheme();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,11 +20,11 @@ export default function AdminLoginPage() {
     const response = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     setLoading(false);
     if (!response.ok) {
-      setError("Kullanıcı adı veya şifre hatalı.");
+      setError("E-posta veya şifre hatalı.");
       return;
     }
     router.push("/admin");
@@ -44,12 +44,13 @@ export default function AdminLoginPage() {
         <p className="mt-2 text-center text-sm text-accent">Dernek sitesini buradan yönetirsiniz.</p>
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <label className="block text-sm font-medium text-secondary">
-            Kullanıcı adı
+            E-posta
             <input
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
-              autoComplete="username"
+              autoComplete="email"
             />
           </label>
           <label className="block text-sm font-medium text-secondary">

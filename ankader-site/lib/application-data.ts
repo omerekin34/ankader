@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { createSupabaseServer } from "@/lib/supabase-session";
 import {
   applicantStages,
   type ApplicantStage,
@@ -89,13 +89,20 @@ function mapRow(row: BasvuruRecord): MembershipApplication | null {
 export function applicationErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   if (message === "MISSING_ENV") {
-    return "Başvurular alınamadı. .env.local içine SUPABASE_SERVICE_ROLE_KEY ekleyip sunucuyu yeniden başlat.";
+    return "Başvurular alınamadı. Supabase bağlantısı eksik.";
+  }
+  if (/row-level security|42501|permission denied/i.test(message)) {
+    return "Bu kayıtlar için yetkili oturum gerekli. Panelden tekrar gir.";
   }
   return "Başvurular Supabase'den alınamadı. Bağlantıyı ve tabloyu kontrol et.";
 }
 
+async function memberDb() {
+  return createSupabaseServer();
+}
+
 export async function readApplications(): Promise<MembershipApplication[]> {
-  const { data, error } = await getSupabaseAdmin().from("basvurular").select("*");
+  const { data, error } = await (await memberDb()).from("basvurular").select("*");
   if (error) throw new Error(error.message);
   const items = ((data ?? []) as BasvuruRecord[])
     .map(mapRow)
@@ -109,7 +116,7 @@ export async function readApplications(): Promise<MembershipApplication[]> {
 }
 
 export async function updateApplicationStatus(id: string, status: ApplicationStatus) {
-  const { error } = await getSupabaseAdmin()
+  const { error } = await (await memberDb())
     .from("basvurular")
     .update({ durum: statusToDurum[status] })
     .eq("id", id);
@@ -117,7 +124,7 @@ export async function updateApplicationStatus(id: string, status: ApplicationSta
 }
 
 export async function deleteApplication(id: string) {
-  const { error } = await getSupabaseAdmin().from("basvurular").delete().eq("id", id);
+  const { error } = await (await memberDb()).from("basvurular").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
 
@@ -146,7 +153,7 @@ function memberFromApplication(row: BasvuruRecord): UyeRow {
 }
 
 export async function acceptApplication(id: string) {
-  const admin = getSupabaseAdmin();
+  const admin = await memberDb();
   const { data, error } = await admin.from("basvurular").select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("NOT_FOUND");
@@ -170,7 +177,7 @@ export async function acceptApplication(id: string) {
 }
 
 export async function readUyeler(): Promise<MembershipApplication[]> {
-  const { data, error } = await getSupabaseAdmin().from("uyeler").select("*");
+  const { data, error } = await (await memberDb()).from("uyeler").select("*");
   if (error) throw new Error(error.message);
   const items: MembershipApplication[] = [];
   ((data ?? []) as BasvuruRecord[]).forEach((row, index) => {
@@ -192,13 +199,13 @@ export async function updateUye(id: string, member: MembershipApplication) {
     alan: member.department.trim(),
     sehir: member.city.trim(),
   };
-  const { data, error } = await getSupabaseAdmin().from("uyeler").update(row).eq("id", id).select("id");
+  const { data, error } = await (await memberDb()).from("uyeler").update(row).eq("id", id).select("id");
   if (error) throw new Error(error.message);
   if (!data?.length) throw new Error("NOT_FOUND");
 }
 
 export async function deleteUye(id: string) {
-  const { data, error } = await getSupabaseAdmin().from("uyeler").delete().eq("id", id).select("id");
+  const { data, error } = await (await memberDb()).from("uyeler").delete().eq("id", id).select("id");
   if (error) throw new Error(error.message);
   if (!data?.length) throw new Error("NOT_FOUND");
 }
@@ -206,6 +213,9 @@ export async function deleteUye(id: string) {
 export function acceptErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   if (message === "NOT_FOUND") return "Başvuru bulunamadı. Listeyi yenile.";
-  if (message === "MISSING_ENV") return "Üye kaydı için sunucu anahtarı eksik.";
+  if (message === "MISSING_ENV") return "Üye kaydı için Supabase bağlantısı eksik.";
+  if (/row-level security|42501|permission denied/i.test(message)) {
+    return "Üye kaydı için yetkili oturum gerekli. Panelden tekrar gir.";
+  }
   return "Üye kaydı tamamlanamadı. Başvuru listede duruyor.";
 }

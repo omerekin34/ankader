@@ -1,27 +1,25 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { updateSupabaseSession } from "@/lib/supabase-middleware";
+import { NextResponse, type NextRequest } from "next/server";
 
-const COOKIE = "ankader_admin";
-
-function token() {
-  return `ok.${process.env.ADMIN_SECRET || "ankader-dev-secret"}`;
-}
-
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { response, user } = await updateSupabaseSession(request);
   const { pathname } = request.nextUrl;
-  if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
-    return NextResponse.next();
-  }
+  const loggingIn = pathname === "/admin/login" || pathname.startsWith("/admin/login/");
 
-  if (request.cookies.get(COOKIE)?.value !== token()) {
+  if (pathname.startsWith("/admin") && !loggingIn && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => {
+      redirect.cookies.set(cookie);
+    });
+    return redirect;
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };
