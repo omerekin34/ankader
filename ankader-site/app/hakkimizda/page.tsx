@@ -138,7 +138,7 @@ export default async function HakkimizdaPage() {
               {team.map((person) => (
                 <article
                   key={person.name}
-                  className="card-pro rounded-2xl border border-secondary/10 bg-white p-6"
+                  className="group/card card-pro rounded-2xl border border-secondary/10 bg-white p-6"
                 >
                   <BoardAvatar
                     name={person.name}

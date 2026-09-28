@@ -70,6 +70,12 @@ export type SiteSchedule = {
   time: string;
 };
 
+export type SitePrivilege = {
+  icon: string;
+  title: string;
+  text: string;
+};
+
 export type SiteChairLetter = {
   eyebrow: string;
   greeting: string;
@@ -133,6 +139,13 @@ export type SiteData = {
   yonetim_kurulu: SiteBoardMember[];
   denetim_kurulu: SiteBoardMember[];
   baskanSozu: SiteChairLetter;
+  privileges: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    quote: string;
+    items: SitePrivilege[];
+  };
   members: SiteMember[];
   posts: SitePost[];
   hafiza: SiteHafiza[];

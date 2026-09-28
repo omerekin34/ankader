@@ -19,7 +19,7 @@ export default function CouncilGrid({ people }: { people: SiteBoardMember[] }) {
           <article
             key={`${person.name}-${person.role}-${index}`}
             data-reveal
-            className={`reveal rounded-[1.6rem] border bg-white p-6 shadow-[0_18px_50px_-32px_rgba(15,44,65,0.55)] sm:p-7 ${
+            className={`group/card reveal rounded-[1.6rem] border bg-white p-6 shadow-[0_18px_50px_-32px_rgba(15,44,65,0.55)] transition duration-300 hover:-translate-y-1 hover:border-primary/50 sm:p-7 ${
               chair ? "border-primary/40" : "border-secondary/10"
             }`}
           >

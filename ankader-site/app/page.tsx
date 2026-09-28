@@ -133,7 +133,7 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
             <article
               key={person.name}
               data-reveal
-              className="reveal card-pro rounded-2xl border border-secondary/10 bg-white p-6"
+              className="group/card reveal card-pro rounded-2xl border border-secondary/10 bg-white p-6"
               style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}
             >
               <BoardAvatar

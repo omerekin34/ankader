@@ -84,6 +84,55 @@ export const defaultSite: SiteData = {
       "Bu vesileyle ANKADER’in kuruluşundan bugüne emeği geçen tüm başkanlarımıza, yönetim kurulu üyelerimize, mezunlarımıza, mensuplarımıza, kıymetli hocalarımıza ve gönül veren tüm dostlarımıza teşekkür ediyorum.",
     ].join("\n\n"),
   },
+  privileges: {
+    eyebrow: "Üyeler",
+    title: "Üye Ayrıcalıkları",
+    text: "Üyelik; mezun ağına katılmak, birbirine destek olmak ve gelecek nesillere katkı sunmaktır.",
+    quote:
+      "ANKADER üyeliği, yalnızca bir üyelik değil; mezun olduğumuz okulla bağımızı sürdürmenin, birbirimize destek olmanın ve gelecek nesillere katkı sunmanın bir yoludur.",
+    items: [
+      {
+        icon: "🤝",
+        title: "Güçlü Bir Mezun Ağı",
+        text: "ANKADER çatısı altında farklı dönemlerden mezun ve mensuplarla tanışma, iletişim ve dayanışma imkânı.",
+      },
+      {
+        icon: "🎓",
+        title: "Kariyer ve Rehberlik",
+        text: "Öğrencilerimiz ve mezunlarımız arasında tecrübe paylaşımı, kariyer buluşmaları ve mesleki rehberlik imkânları.",
+      },
+      {
+        icon: "📚",
+        title: "Eğitim ve Gelişim",
+        text: "Seminer, söyleşi, eğitim, atölye ve özel programlardan haberdar olma ve katılım fırsatı.",
+      },
+      {
+        icon: "🏫",
+        title: "Okulla Bağını Sürdürme",
+        text: "Mezun olduğun okulla bağını koparmadan, okulun gelişimine ve öğrencilerimizin geleceğine katkı sunma imkânı.",
+      },
+      {
+        icon: "🎉",
+        title: "Mezun Buluşmaları",
+        text: "Mezuniyet dönemleri ve farklı kuşaklardan arkadaşlarla düzenlenen buluşmalara katılım.",
+      },
+      {
+        icon: "💼",
+        title: "İş ve İmkân Paylaşımı",
+        text: "Mezunlar arasında iş, staj, proje ve mesleki fırsatların paylaşılmasına katkı sağlayan dayanışma ağı.",
+      },
+      {
+        icon: "🌱",
+        title: "Sosyal Sorumluluk",
+        text: "Eğitim, gençlik ve sosyal sorumluluk çalışmalarında aktif rol alma ve gönüllü projelere katılma imkânı.",
+      },
+      {
+        icon: "📢",
+        title: "ANKADER’den Öncelikli Haberdar Olma",
+        text: "Dernek faaliyetleri, etkinlikler, buluşmalar ve duyurulardan doğrudan haberdar olma.",
+      },
+    ],
+  },
   members: [],
   posts: [],
   hafiza: hafizaItems.map((item) => ({
@@ -275,6 +324,16 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
     yonetim_kurulu,
     denetim_kurulu,
     baskanSozu: fillObject(defaultSite.baskanSozu, raw.baskanSozu),
+    privileges: {
+      ...fillObject(defaultSite.privileges, raw.privileges),
+      items: Array.isArray(raw.privileges?.items)
+        ? raw.privileges.items.map((item) => ({
+            icon: typeof item?.icon === "string" && item.icon.trim() ? item.icon.trim() : "✦",
+            title: typeof item?.title === "string" ? item.title : "",
+            text: typeof item?.text === "string" ? item.text : "",
+          }))
+        : defaultSite.privileges.items.map((item) => ({ ...item })),
+    },
     members: Array.isArray(raw.members) ? raw.members : [],
     posts: Array.isArray(raw.posts) ? raw.posts : [],
     hafiza: Array.isArray(raw.hafiza) && raw.hafiza.length ? raw.hafiza : defaultSite.hafiza.map((item) => ({ ...item, tags: [...item.tags] })),

@@ -104,7 +104,7 @@ export default async function KurumsalPage() {
               {site.yonetim_kurulu.map((person) => (
                 <article
                   key={person.name}
-                  className={`rounded-2xl border border-secondary/10 bg-white p-6 text-center ${cardHover}`}
+                  className={`group/card rounded-2xl border border-secondary/10 bg-white p-6 text-center ${cardHover}`}
                 >
                   <BoardAvatar
                     name={person.name}

@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LogOut,
   HeartHandshake,
+  Sparkles,
   ChevronDown,
   ClipboardList,
   PenLine,
@@ -46,6 +47,7 @@ const tabs = [
   { id: "tuzuk", label: "Tüzük", icon: BookOpen },
   { id: "basvuru", label: "Başvurular", icon: ClipboardList },
   { id: "blog", label: "Blog onayları", icon: PenLine },
+  { id: "ayricalik", label: "Üye Ayrıcalıkları", icon: Sparkles },
   { id: "uye", label: "Üye / Bağış", icon: HeartHandshake },
   { id: "iletisim", label: "İletişim", icon: MessageSquare },
 ] as const;
@@ -127,7 +129,7 @@ function matchesTime(createdAt: string, when: TimeFilter, from: string, to: stri
 
 type TabId = (typeof tabs)[number]["id"];
 
-type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "yonetim" | "denetim" | "uyeler" | "duyuru" | "faaliyet";
+type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "yonetim" | "denetim" | "uyeler" | "duyuru" | "faaliyet" | "ayricalik";
 
 function OverviewCard({
   label,
@@ -204,6 +206,7 @@ const overviewTitles: Record<OverviewKey, string> = {
   uyeler: "Sitedeki üyeler",
   duyuru: "Duyurular",
   faaliyet: "Faaliyetler",
+  ayricalik: "Üye ayrıcalıkları",
 };
 
 function OverviewDetail({
@@ -245,6 +248,7 @@ function OverviewDetail({
     else if (overview === "uyeler") onOpenTab("uyeler");
     else if (overview === "duyuru") onOpenTab("duyuru");
     else if (overview === "faaliyet") onOpenTab("faaliyet");
+    else if (overview === "ayricalik") onOpenTab("ayricalik");
     else onOpenApplications(overview === "tumu" ? "" : overview);
   }
 
@@ -257,7 +261,9 @@ function OverviewDetail({
         ? members.length
         : overview === "duyuru"
           ? data.posts.length
-          : data.hafiza.length;
+          : overview === "ayricalik"
+            ? data.privileges.items.length
+            : data.hafiza.length;
 
   return (
     <>
@@ -361,6 +367,23 @@ function OverviewDetail({
               ["Bölüm", member.department || "—"],
               ["Sınıf / yıl", member.year || "—"],
               ["Şehir", member.city || "—"],
+            ],
+          }))}
+        />
+      )}
+
+      {overview === "ayricalik" && (
+        <OverviewRows
+          empty="Ayrıcalık yok."
+          openId={overviewItem}
+          onToggle={toggle}
+          rows={data.privileges.items.map((item, index) => ({
+            id: `ayricalik-${index}`,
+            title: item.title || "Başlıksız",
+            meta: item.icon || "Simge yok",
+            facts: [
+              ["Simge", item.icon || "—"],
+              ["Metin", item.text || "—"],
             ],
           }))}
         />
@@ -1077,6 +1100,7 @@ export default function AdminShell({
     uyeler: members.length,
     duyuru: data.posts.length,
     faaliyet: data.hafiza.length,
+    ayricalik: data.privileges.items.length,
   };
 
   return (
@@ -1270,6 +1294,7 @@ export default function AdminShell({
                       ["uyeler", "Sitedeki üye", overviewCounts.uyeler, Users],
                       ["duyuru", "Duyuru", overviewCounts.duyuru, Bell],
                       ["faaliyet", "Faaliyet", overviewCounts.faaliyet, BookOpen],
+                      ["ayricalik", "Üye ayrıcalığı", overviewCounts.ayricalik, Sparkles],
                     ] as const
                   ).map(([key, label, value, Icon]) => (
                     <OverviewCard key={key} label={label} value={value} active={overview === key} Icon={Icon} onClick={() => pickOverview(key)} />
@@ -2249,6 +2274,111 @@ export default function AdminShell({
                   }} />
                 </EditorCard>
               ))}
+            </section>
+          )}
+
+          {tab === "ayricalik" && (
+            <section className="grid gap-4">
+              <article className="admin-card grid gap-4 rounded-3xl p-5">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">Üye ayrıcalıkları</p>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-accent">
+                    Üyeler menüsündeki sayfanın başlığı, kartları ve alttaki söz. Simge alanına emoji yaz. Kayıt, site içeriğine gider.
+                  </p>
+                </div>
+                <Field
+                  label="Üst yazı"
+                  value={data.privileges.eyebrow}
+                  onChange={(value) => setData({ ...data, privileges: { ...data.privileges, eyebrow: value } })}
+                />
+                <Field
+                  label="Başlık"
+                  value={data.privileges.title}
+                  onChange={(value) => setData({ ...data, privileges: { ...data.privileges, title: value } })}
+                />
+                <Field
+                  multiline
+                  label="Giriş"
+                  value={data.privileges.text}
+                  onChange={(value) => setData({ ...data, privileges: { ...data.privileges, text: value } })}
+                />
+                <Field
+                  multiline
+                  label="Alttaki söz"
+                  value={data.privileges.quote}
+                  onChange={(value) => setData({ ...data, privileges: { ...data.privileges, quote: value } })}
+                />
+              </article>
+              <ListHead
+                title="Ayrıcalık kartları"
+                hint="Her kartta simge, başlık ve kısa açıklama var."
+                action={
+                  <AddButton
+                    onClick={() =>
+                      setData({
+                        ...data,
+                        privileges: {
+                          ...data.privileges,
+                          items: [{ icon: "✦", title: "Yeni ayrıcalık", text: "" }, ...data.privileges.items],
+                        },
+                      })
+                    }
+                  >
+                    Kart ekle
+                  </AddButton>
+                }
+              />
+              {data.privileges.items.map((item, index) => (
+                <EditorCard
+                  key={`${item.title}-${index}`}
+                  index={index}
+                  title={item.title || "Ayrıcalık"}
+                  onRemove={() =>
+                    setData({
+                      ...data,
+                      privileges: {
+                        ...data.privileges,
+                        items: data.privileges.items.filter((_, i) => i !== index),
+                      },
+                    })
+                  }
+                >
+                  <div className="grid gap-3 sm:grid-cols-[5.5rem_1fr]">
+                    <Field
+                      label="Simge"
+                      value={item.icon}
+                      placeholder="🤝"
+                      onChange={(value) => {
+                        const items = [...data.privileges.items];
+                        items[index] = { ...item, icon: value };
+                        setData({ ...data, privileges: { ...data.privileges, items } });
+                      }}
+                    />
+                    <Field
+                      label="Başlık"
+                      value={item.title}
+                      onChange={(value) => {
+                        const items = [...data.privileges.items];
+                        items[index] = { ...item, title: value };
+                        setData({ ...data, privileges: { ...data.privileges, items } });
+                      }}
+                    />
+                  </div>
+                  <Field
+                    multiline
+                    label="Açıklama"
+                    value={item.text}
+                    onChange={(value) => {
+                      const items = [...data.privileges.items];
+                      items[index] = { ...item, text: value };
+                      setData({ ...data, privileges: { ...data.privileges, items } });
+                    }}
+                  />
+                </EditorCard>
+              ))}
+              <a href="/uyeler/ayricaliklar" className="text-sm font-semibold text-primary">
+                Sayfayı aç →
+              </a>
             </section>
           )}
 

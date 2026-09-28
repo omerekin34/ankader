@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const blurbs: Record<string, string> = {
-  "/uyeler/ayricaliklar": "Üyeliğin sağladığı imkanlar burada toplanır.",
+  "/uyeler/ayricaliklar": "Ağ, rehberlik, eğitim, buluşma ve dayanışma. Üyeliğin açtığı kapılar.",
   "/uyeler/blog": "Üyelerin yazıları burada yayınlanır.",
 };
 
