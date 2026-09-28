@@ -540,7 +540,7 @@ export function Footer({
               </li>
             ) : null}
             <li className="text-white/70">{contact.hours}</li>
-            <li className="text-white/70">Dernek Sicil No: {contact.registry}</li>
+            <li className="text-white/70">Kütük No: {contact.registry}</li>
           </ul>
         </div>
 

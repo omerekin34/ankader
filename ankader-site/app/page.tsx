@@ -129,7 +129,7 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
           </a>
         </div>
         <div className="mt-14 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {board.map((person, index) => (
+          {board.slice(0, 8).map((person, index) => (
             <article
               key={person.name}
               data-reveal

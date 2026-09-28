@@ -2236,7 +2236,7 @@ export default function AdminShell({
               <Field label="E-posta" value={data.contact.email} onChange={(value) => setData({ ...data, contact: { ...data.contact, email: value } })} />
               <Field label="Telefon" value={data.contact.phone} onChange={(value) => setData({ ...data, contact: { ...data.contact, phone: value } })} />
               <Field label="Çalışma saatleri" value={data.contact.hours} onChange={(value) => setData({ ...data, contact: { ...data.contact, hours: value } })} />
-              <Field label="Dernek sicil no" value={data.contact.registry} onChange={(value) => setData({ ...data, contact: { ...data.contact, registry: value } })} />
+              <Field label="Kütük no" value={data.contact.registry} onChange={(value) => setData({ ...data, contact: { ...data.contact, registry: value } })} />
               <Field label="Instagram" value={data.contact.instagram} onChange={(value) => setData({ ...data, contact: { ...data.contact, instagram: value } })} />
               <Field label="Twitter / X" value={data.contact.twitter} onChange={(value) => setData({ ...data, contact: { ...data.contact, twitter: value } })} />
               <Field label="LinkedIn" value={data.contact.linkedin} onChange={(value) => setData({ ...data, contact: { ...data.contact, linkedin: value } })} />
