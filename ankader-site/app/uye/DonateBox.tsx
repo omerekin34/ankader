@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Copy, Send } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 function isCustomLabel(label: string) {
   return label.toLocaleLowerCase("tr-TR").includes("isteğe");
@@ -53,6 +53,8 @@ export default function DonateBox({
   const [picked, setPicked] = useState(options[Math.min(1, options.length - 1)]);
   const [custom, setCustom] = useState("");
   const [copied, setCopied] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const receiptRef = useRef<HTMLElement>(null);
   const [name, setName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
@@ -85,6 +87,12 @@ export default function DonateBox({
     .join("\n");
 
   async function copyIban() {
+    setCopied(true);
+    setReceiptOpen(true);
+    window.setTimeout(() => setCopied(false), 1800);
+    window.setTimeout(() => {
+      receiptRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 60);
     const value = compactIban(iban);
     try {
       await navigator.clipboard.writeText(value);
@@ -96,8 +104,6 @@ export default function DonateBox({
       document.execCommand("copy");
       input.remove();
     }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
   }
 
   function notifyMail(event: React.FormEvent) {
@@ -181,6 +187,11 @@ export default function DonateBox({
               Banka uygulamasında açıklamaya adınızı yazın
               {amount ? ` ve ${amount} gönderin.` : " ve seçtiğiniz tutarı gönderin."}
             </p>
+            <p className="mt-2 text-sm font-medium text-primary">
+              {receiptOpen
+                ? "IBAN kopyalandı. Aşağıdan dekontu iletin."
+                : "IBAN’ı kopyalayınca dekont adımı açılır."}
+            </p>
           </>
         ) : (
           <p className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-white/75">
@@ -189,61 +200,65 @@ export default function DonateBox({
         )}
       </section>
 
-      <section>
-        <p className="text-xs tracking-[0.18em] text-white/50 uppercase">3 · Dekontu iletin</p>
-        <p className="mt-3 text-sm leading-7 text-white/70">{note}</p>
-        <form onSubmit={notifyMail} className="mt-4 space-y-3">
-          <input
-            required
-            minLength={2}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Ad soyad"
-            className={field}
-          />
-          <div className="grid gap-3 sm:grid-cols-2">
+      {receiptOpen ? (
+        <section ref={receiptRef}>
+          <p className="text-xs tracking-[0.18em] text-white/50 uppercase">3 · Dekontu iletin</p>
+          <p className="mt-3 text-sm leading-7 text-white/70">{note}</p>
+          <form onSubmit={notifyMail} className="mt-4 space-y-3">
             <input
-              type="email"
-              value={senderEmail}
-              onChange={(event) => setSenderEmail(event.target.value)}
-              placeholder="E-posta"
+              required
+              minLength={2}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Ad soyad"
               className={field}
             />
-            <input
-              value={senderPhone}
-              onChange={(event) => setSenderPhone(event.target.value)}
-              placeholder="Telefon"
-              className={field}
-            />
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {wa ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                type="email"
+                value={senderEmail}
+                onChange={(event) => setSenderEmail(event.target.value)}
+                placeholder="E-posta"
+                className={field}
+              />
+              <input
+                value={senderPhone}
+                onChange={(event) => setSenderPhone(event.target.value)}
+                placeholder="Telefon"
+                className={field}
+              />
+            </div>
+            <div className="space-y-3">
+              {wa ? (
+                <div>
+                  <button
+                    type="button"
+                    disabled={!accountReady || name.trim().length < 2}
+                    onClick={notifyWhatsApp}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-[#1ebe5d] disabled:opacity-50"
+                  >
+                    WhatsApp’tan gönder
+                  </button>
+                  <p className="mt-3 text-center text-sm font-bold leading-6 text-amber-300">
+                    Lütfen açılan WhatsApp ekranında dekont fotoğrafını eklemeyi unutmayın.
+                  </p>
+                </div>
+              ) : null}
               <button
-                type="button"
-                disabled={!accountReady || name.trim().length < 2}
-                onClick={notifyWhatsApp}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-[#1ebe5d] disabled:opacity-50"
+                type="submit"
+                disabled={!accountReady}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white transition duration-500 hover:border-primary disabled:opacity-50"
               >
-                WhatsApp’tan gönder
+                <Send className="size-4" aria-hidden />
+                E-posta taslağı aç
               </button>
-            ) : null}
-            <button
-              type="submit"
-              disabled={!accountReady}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white transition duration-500 hover:border-primary disabled:opacity-50"
-            >
-              <Send className="size-4" aria-hidden />
-              E-posta taslağı aç
-            </button>
-          </div>
-        </form>
-        {opened === "whatsapp" && (
-          <p className="mt-3 text-sm text-primary">WhatsApp açıldı. Dekont fotoğrafını mesaja ekleyip gönderin.</p>
-        )}
-        {opened === "mail" && (
-          <p className="mt-3 text-sm text-primary">E-posta taslağı açıldı. Dekontu ekleyip göndermeniz yeterli.</p>
-        )}
-      </section>
+            </div>
+          </form>
+          {opened === "mail" ? (
+            <p className="mt-3 text-sm text-primary">E-posta taslağı açıldı. Dekontu ekleyip göndermeniz yeterli.</p>
+          ) : null}
+        </section>
+      ) : null}
     </div>
   );
 }
