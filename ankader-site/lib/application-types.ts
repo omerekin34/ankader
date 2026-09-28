@@ -5,6 +5,10 @@ export type ApplicationStatus = (typeof applicationStatuses)[number];
 export const applicantStages = ["Lise öğrencisi", "Üniversite öğrencisi", "Mezun"] as const;
 export type ApplicantStage = (typeof applicantStages)[number];
 
+export function isVolunteerIntent(intent: string) {
+  return intent.toLocaleLowerCase("tr-TR").includes("gönüllü");
+}
+
 export type MembershipApplication = {
   id: string;
   createdAt: string;

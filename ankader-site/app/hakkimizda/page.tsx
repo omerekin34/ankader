@@ -3,6 +3,7 @@ import BoardContact from "@/components/BoardContact";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import StatsStrip from "@/components/StatsStrip";
+import { readCommunityCounts } from "@/lib/application-data";
 import { readSite } from "@/lib/site-data";
 import { BookOpen, Compass, Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
@@ -20,6 +21,7 @@ const valueIcons: LucideIcon[] = [Heart, Users, Compass, Shield, BookOpen, Targe
 
 export default async function HakkimizdaPage() {
   const site = await readSite();
+  const community = await readCommunityCounts().catch(() => null);
   const team = site.yonetim_kurulu;
   return (
     <div className="bg-background text-secondary">
@@ -66,7 +68,12 @@ export default async function HakkimizdaPage() {
           </div>
         </section>
 
-        <StatsStrip items={site.stats} faaliyetSayisi={site.hafiza.length} />
+        <StatsStrip
+          items={site.stats}
+          faaliyetSayisi={site.hafiza.length}
+          uyeSayisi={community?.members}
+          gonulluSayisi={community?.volunteers}
+        />
 
         <section className="px-4 py-16 sm:px-8 sm:py-24">
           <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
