@@ -128,22 +128,22 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
             <ArrowRight className="size-4 transition duration-300 group-hover:translate-x-0.5" />
           </a>
         </div>
-        <div className="mt-14 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mt-14 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {board.slice(0, 8).map((person, index) => (
             <article
               key={person.name}
               data-reveal
-              className="group/card reveal card-pro rounded-2xl border border-secondary/10 bg-white p-6"
+              className="group/card reveal card-pro min-w-0 rounded-2xl border border-secondary/10 bg-white p-4 sm:p-6"
               style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}
             >
               <BoardAvatar
                 name={person.name}
                 initials={person.initials}
                 image={person.photo}
-                className="size-14 bg-secondary text-sm font-semibold text-white"
+                className="size-12 bg-secondary text-sm font-semibold text-white sm:size-14"
               />
-              <h3 className="mt-5 text-base font-semibold font-sans">{person.name}</h3>
-              <p className="mt-1 text-sm text-accent">{person.role}</p>
+              <h3 className="mt-4 text-sm leading-snug font-semibold font-sans break-words sm:mt-5 sm:text-base">{person.name}</h3>
+              <p className="mt-1 text-xs leading-snug text-accent sm:text-sm">{person.role}</p>
               <BoardContact email={person.email} phone={person.phone} />
             </article>
           ))}
