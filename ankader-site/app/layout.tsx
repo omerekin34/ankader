@@ -21,13 +21,17 @@ const script = Great_Vibes({
   subsets: ["latin", "latin-ext"],
 });
 
-export const metadata: Metadata = {
-  title: "ANKADER — Küllerinden Doğuyor",
-  description:
-    "ANKADER, dayanışmayla büyüyen gençlerin sesini yükselten bir sivil toplum kuruluşudur.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await readSite();
+  const headline = [site.hero.title, site.hero.titleEnd].filter(Boolean).join(" ").trim();
+  return {
+    title: headline ? `ANKADER — ${headline}` : "ANKADER",
+    description: site.hero.subtitle,
+  };
+}
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const site = await readSite();

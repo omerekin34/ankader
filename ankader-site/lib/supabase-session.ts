@@ -3,6 +3,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+const noStoreFetch: typeof fetch = (input, init) => fetch(input, { ...init, cache: "no-store" });
+
 function supabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     ? supabaseProjectUrl(process.env.NEXT_PUBLIC_SUPABASE_URL)
@@ -17,6 +19,7 @@ export async function createSupabaseRoute() {
   const cookieStore = await cookies();
   const pending: { name: string; value: string; options?: CookieOptions }[] = [];
   const supabase = createServerClient(url, key, {
+    global: { fetch: noStoreFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -47,6 +50,7 @@ export async function createSupabaseServer() {
   const { url, key } = supabaseEnv();
   const cookieStore = await cookies();
   return createServerClient(url, key, {
+    global: { fetch: noStoreFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();

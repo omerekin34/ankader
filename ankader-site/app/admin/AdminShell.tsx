@@ -770,7 +770,8 @@ export default function AdminShell({
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        toast("err", "Kaydedilemedi", "Değişiklik siteye geçmedi. Oturumun açık mı, bir kez daha dene.");
+        const json = (await response.json().catch(() => null)) as { error?: string } | null;
+        toast("err", "Kaydedilemedi", json?.error || "Değişiklik siteye geçmedi. Oturumun açık mı, bir kez daha dene.");
         return;
       }
       toast("ok", "Siteye yansıdı", "Kaydettiğin değişiklik sitede hazır. Açık sekmeyi yenilemen yeterli.");
