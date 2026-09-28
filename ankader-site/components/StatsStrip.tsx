@@ -9,17 +9,7 @@ function statLabel(label: string) {
   return label.trim().toLocaleLowerCase("tr-TR");
 }
 
-export default function StatsStrip({
-  items,
-  faaliyetSayisi = 0,
-  uyeSayisi,
-  gonulluSayisi,
-}: {
-  items: SiteData["stats"];
-  faaliyetSayisi?: number;
-  uyeSayisi?: number | null;
-  gonulluSayisi?: number | null;
-}) {
+export default function StatsStrip({ items, faaliyetSayisi = 0 }: { items: SiteData["stats"]; faaliyetSayisi?: number }) {
   const faaliyetYili = new Date().getFullYear() - 2021 + 1;
 
   return (
@@ -29,15 +19,11 @@ export default function StatsStrip({
           const Icon = icons[index] ?? Users;
           const label = statLabel(item.label);
           const value =
-            label === "üye sayısı" && uyeSayisi != null
-              ? String(uyeSayisi)
-              : label === "gönüllü sayısı" && gonulluSayisi != null
-                ? String(gonulluSayisi)
-                : label === "faaliyet yılı"
-                  ? String(faaliyetYili)
-                  : label === "tamamlanan proje"
-                    ? String(faaliyetSayisi)
-                    : item.value;
+            label === "faaliyet yılı"
+              ? String(faaliyetYili)
+              : label === "tamamlanan proje"
+                ? String(faaliyetSayisi)
+                : item.value;
           return (
             <article
               key={item.label}

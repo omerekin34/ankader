@@ -28,7 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import BlogApprovals from "@/components/BlogApprovals";
-import { applicantStages, isVolunteerIntent, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
+import { applicantStages, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
 import type { BlogPost } from "@/lib/blog-types";
 import { councilInitials } from "@/lib/site-defaults";
 import type { SiteBoardMember, SiteData } from "@/lib/site-types";
@@ -1481,7 +1481,7 @@ export default function AdminShell({
                       }} />
                       {["üye sayısı", "gönüllü sayısı"].includes(item.label.trim().toLocaleLowerCase("tr-TR")) ? (
                         <span className="mt-2 block text-xs leading-5 text-accent">
-                          Sitede bu yazdığın sayı görünür. Üye veya gönüllü eklemek bu sayıyı değiştirmez.
+                          Sitedeki sayaç bu yazdığın sayıyı gösterir. Kaydet deyince anasayfaya o rakam düşer.
                         </span>
                       ) : null}
                     </div>

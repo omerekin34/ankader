@@ -1,8 +1,6 @@
-import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { createSupabaseServer } from "@/lib/supabase-session";
 import {
   applicantStages,
-  isVolunteerIntent,
   type ApplicantStage,
   type ApplicationStatus,
   type MembershipApplication,
@@ -38,18 +36,7 @@ type BasvuruRecord = {
   basvuru_amaci?: string;
   destek_alani?: string;
   mesaj?: string;
-  notlar?: string;
 };
-
-export function communityCounts(people: { intent?: string }[]) {
-  let members = 0;
-  let volunteers = 0;
-  for (const person of people) {
-    if (isVolunteerIntent(person.intent ?? "")) volunteers += 1;
-    else members += 1;
-  }
-  return { members, volunteers };
-}
 
 function asStatus(value: unknown): ApplicationStatus {
   const key = String(value ?? "")
@@ -93,7 +80,7 @@ function mapRow(row: BasvuruRecord): MembershipApplication | null {
     department: row.alan ?? "",
     year: row.sinif ?? "",
     city: row.sehir ?? "",
-    intent: row.basvuru_amaci || row.notlar || "",
+    intent: row.basvuru_amaci ?? "",
     support: row.destek_alani ?? "",
     note: row.mesaj ?? "",
   };
@@ -150,7 +137,6 @@ type UyeRow = {
   sinif: string;
   alan: string;
   sehir: string;
-  notlar: string;
 };
 
 function memberFromApplication(row: BasvuruRecord): UyeRow {
@@ -163,14 +149,7 @@ function memberFromApplication(row: BasvuruRecord): UyeRow {
     sinif: row.sinif ?? "",
     alan: row.alan ?? "",
     sehir: row.sehir ?? "",
-    notlar: row.basvuru_amaci ?? "",
   };
-}
-
-export async function readCommunityCounts() {
-  const { data, error } = await getSupabaseAdmin().from("uyeler").select("notlar");
-  if (error) throw new Error(error.message);
-  return communityCounts((data ?? []).map((row) => ({ intent: String(row.notlar ?? "") })));
 }
 
 export async function acceptApplication(id: string) {
@@ -219,7 +198,6 @@ export async function updateUye(id: string, member: MembershipApplication) {
     sinif: member.year.trim(),
     alan: member.department.trim(),
     sehir: member.city.trim(),
-    notlar: member.intent.trim(),
   };
   const { data, error } = await (await memberDb()).from("uyeler").update(row).eq("id", id).select("id");
   if (error) throw new Error(error.message);

@@ -7,7 +7,6 @@ import { Footer, Navbar } from "@/components/SiteChrome";
 import StatsStrip from "@/components/StatsStrip";
 import type { CSSProperties } from "react";
 import { getPostHref, getPostTag } from "@/lib/posts";
-import { readCommunityCounts } from "@/lib/application-data";
 import { readSite } from "@/lib/site-data";
 import type { SiteData } from "@/lib/site-types";
 import {
@@ -231,18 +230,12 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
 
 export default async function Home() {
   const site = await readSite();
-  const community = await readCommunityCounts().catch(() => null);
   return (
     <div className="bg-background text-secondary">
       <Navbar contact={site.contact} ticker={site.identity.ticker} />
       <main>
         <HeroSlider hero={site.hero} />
-        <StatsStrip
-          items={site.stats}
-          faaliyetSayisi={site.hafiza.length}
-          uyeSayisi={community?.members}
-          gonulluSayisi={community?.volunteers}
-        />
+        <StatsStrip items={site.stats} faaliyetSayisi={site.hafiza.length} />
         <Path home={site.home} />
         <Corporate data={site.corporate} quote={site.home.quote} />
         <Activities home={site.home} hafiza={site.hafiza} />
