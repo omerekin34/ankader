@@ -5,13 +5,13 @@ import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Yönetim Kurulu — ANKADER",
-  description: "ANKADER yönetim kurulu.",
+  title: "Denetim Kurulu — ANKADER",
+  description: "ANKADER denetim kurulu.",
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function YonetimPage() {
+export default async function DenetimPage() {
   const site = await readSite();
 
   return (
@@ -20,13 +20,13 @@ export default async function YonetimPage() {
       <main>
         <PageHero
           eyebrow="Kurumsal"
-          title="Yönetim Kurulu"
-          text="Derneği birlikte yönetenler. İsimler, görevler ve fotoğraflar panelden güncellenir."
+          title="Denetim Kurulu"
+          text="Hesabı ve işleyişi denetleyenler. İsimler, görevler ve fotoğraflar panelden güncellenir."
         />
 
         <section className="relative z-10 -mt-20 px-5 pb-24 sm:-mt-24 sm:px-8">
           <div className="mx-auto max-w-6xl">
-            <CouncilGrid people={site.yonetim_kurulu} />
+            <CouncilGrid people={site.denetim_kurulu} />
           </div>
         </section>
       </main>

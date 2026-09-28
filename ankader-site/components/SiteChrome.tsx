@@ -36,7 +36,8 @@ const SOCIAL = {
 export const kurumsalLinks = [
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/tuzuk", label: "Tüzük" },
-  { href: "/yonetim", label: "Kurullar" },
+  { href: "/yonetim", label: "Yönetim Kurulu" },
+  { href: "/denetim", label: "Denetim Kurulu" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
@@ -50,7 +51,8 @@ export const footerLinks = [
   { href: "/uyeler/ayricaliklar", label: "Üye Ayrıcalıkları" },
   { href: "/uyeler/blog", label: "Üyelerden Blog Yazıları" },
   { href: "/faaliyetler", label: "Faaliyetler" },
-  { href: "/yonetim", label: "Kurullar" },
+  { href: "/yonetim", label: "Yönetim Kurulu" },
+  { href: "/denetim", label: "Denetim Kurulu" },
   { href: "/duyurular", label: "Duyurular" },
   { href: "/iletisim", label: "İletişim" },
   { href: "/tuzuk", label: "Tüzük" },
@@ -170,7 +172,7 @@ export function Navbar({
               Kurumsal
               <ChevronDown className="nav-chevron size-3.5" />
             </button>
-            <div className="nav-drop absolute left-1/2 top-full z-50 w-52 pt-3">
+            <div className="nav-drop absolute left-1/2 top-full z-50 w-60 pt-3">
               <div
                 role="menu"
                 className="overflow-hidden rounded-xl border border-white/10 bg-secondary py-1.5 shadow-[0_24px_48px_-18px_rgba(0,0,0,0.75)]"

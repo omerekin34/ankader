@@ -38,7 +38,8 @@ const tabs = [
   { id: "gorunum", label: "Şerit ve alt bilgi", icon: Home },
   { id: "istatistik", label: "İstatistikler", icon: BarChart3 },
   { id: "faaliyet", label: "Faaliyetler", icon: BookOpen },
-  { id: "kurul", label: "Kurullar", icon: Users },
+  { id: "yonetim", label: "Yönetim Kurulu", icon: Users },
+  { id: "denetim", label: "Denetim Kurulu", icon: Users },
   { id: "uyeler", label: "Üyelerimiz", icon: Users },
   { id: "duyuru", label: "Duyurular", icon: Bell },
   { id: "hakkimizda", label: "Hakkımızda", icon: MessageSquare },
@@ -126,7 +127,7 @@ function matchesTime(createdAt: string, when: TimeFilter, from: string, to: stri
 
 type TabId = (typeof tabs)[number]["id"];
 
-type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "kurul" | "uyeler" | "duyuru" | "faaliyet";
+type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "yonetim" | "denetim" | "uyeler" | "duyuru" | "faaliyet";
 
 function OverviewCard({
   label,
@@ -198,7 +199,8 @@ const overviewTitles: Record<OverviewKey, string> = {
   inceleniyor: "İncelenen başvurular",
   kabul: "Kabul edilen başvurular",
   red: "Reddedilen başvurular",
-  kurul: "Kurullar",
+  yonetim: "Yönetim Kurulu",
+  denetim: "Denetim Kurulu",
   uyeler: "Sitedeki üyeler",
   duyuru: "Duyurular",
   faaliyet: "Faaliyetler",
@@ -238,7 +240,8 @@ function OverviewDetail({
   }
 
   function jump() {
-    if (overview === "kurul") onOpenTab("kurul");
+    if (overview === "yonetim") onOpenTab("yonetim");
+    else if (overview === "denetim") onOpenTab("denetim");
     else if (overview === "uyeler") onOpenTab("uyeler");
     else if (overview === "duyuru") onOpenTab("duyuru");
     else if (overview === "faaliyet") onOpenTab("faaliyet");
@@ -246,8 +249,10 @@ function OverviewDetail({
   }
 
   const siteCount =
-    overview === "kurul"
-      ? data.yonetim_kurulu.length + data.denetim_kurulu.length
+    overview === "yonetim"
+      ? data.yonetim_kurulu.length
+      : overview === "denetim"
+        ? data.denetim_kurulu.length
       : overview === "uyeler"
         ? members.length
         : overview === "duyuru"
@@ -316,17 +321,16 @@ function OverviewDetail({
         </ul>
       )}
 
-      {overview === "kurul" && (
+      {(overview === "yonetim" || overview === "denetim") && (
         <OverviewRows
-          empty="Kurulda kimse yok."
+          empty="Bu kurulda kimse yok."
           openId={overviewItem}
           onToggle={toggle}
-          rows={[...data.yonetim_kurulu, ...data.denetim_kurulu].map((member, index) => ({
-            id: `kurul-${index}`,
+          rows={(overview === "yonetim" ? data.yonetim_kurulu : data.denetim_kurulu).map((member, index) => ({
+            id: `${overview}-${index}`,
             title: member.name || "İsimsiz",
-            meta: `${index < data.yonetim_kurulu.length ? "Yönetim Kurulu" : "Denetim Kurulu"} · ${member.role || "Görev yazılmamış"}`,
+            meta: member.role || "Görev yazılmamış",
             facts: [
-              ["Kurul", index < data.yonetim_kurulu.length ? "Yönetim Kurulu" : "Denetim Kurulu"],
               ["Görev", member.role || "—"],
               ["Telefon", member.phone || "—"],
               ["Fotoğraf", member.photo ? "Var" : "Yok"],
@@ -555,57 +559,27 @@ function patchMember(list: SiteBoardMember[], index: number, patch: Partial<Site
 }
 
 function CouncilPanel({
-  kind,
-  onKind,
-  yonetim,
-  denetim,
-  onYonetim,
-  onDenetim,
+  title,
+  list,
+  defaultRole,
+  onChange,
   onUpload,
 }: {
-  kind: "yonetim" | "denetim";
-  onKind: (kind: "yonetim" | "denetim") => void;
-  yonetim: SiteBoardMember[];
-  denetim: SiteBoardMember[];
-  onYonetim: (list: SiteBoardMember[]) => void;
-  onDenetim: (list: SiteBoardMember[]) => void;
+  title: string;
+  list: SiteBoardMember[];
+  defaultRole: string;
+  onChange: (list: SiteBoardMember[]) => void;
   onUpload: (file: File) => Promise<string | null>;
 }) {
-  const yonetimMode = kind === "yonetim";
-  const list = yonetimMode ? yonetim : denetim;
-  const write = yonetimMode ? onYonetim : onDenetim;
-  const defaultRole = yonetimMode ? "Yönetim Kurulu Üyesi" : "Denetim Kurulu Üyesi";
-
   return (
     <section className="grid gap-4">
-      <div className="admin-card flex flex-wrap gap-2 rounded-3xl p-2" role="tablist" aria-label="Kurullar">
-        {(
-          [
-            ["yonetim", "Yönetim Kurulu"],
-            ["denetim", "Denetim Kurulu"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={kind === id}
-            onClick={() => onKind(id)}
-            className={`rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
-              kind === id ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
       <ListHead
-        title={yonetimMode ? "Yönetim Kurulu" : "Denetim Kurulu"}
+        title={title}
         hint="Ad soyad, görev, telefon ve fotoğraf adresi. Fotoğraf boşsa sitede ismin baş harfleri görünür. Kayıt, site içeriğinin içine yazılır."
         action={
           <AddButton
             onClick={() =>
-              write([{ initials: "YY", name: "", role: defaultRole, email: "", phone: "", photo: "" }, ...list])
+              onChange([{ initials: "YY", name: "", role: defaultRole, email: "", phone: "", photo: "" }, ...list])
             }
           >
             Üye ekle
@@ -620,43 +594,43 @@ function CouncilPanel({
       ) : null}
       {list.map((item, index) => (
         <EditorCard
-          key={`${kind}-${index}`}
+          key={`${title}-${index}`}
           index={index}
           title={item.name || "Yeni üye"}
           columns="grid gap-3 sm:grid-cols-2"
-          onRemove={() => write(list.filter((_, i) => i !== index))}
+          onRemove={() => onChange(list.filter((_, i) => i !== index))}
         >
           <Field
             label="Ad Soyad"
             value={item.name}
-            onChange={(value) => write(patchMember(list, index, { name: value }))}
+            onChange={(value) => onChange(patchMember(list, index, { name: value }))}
           />
           <Field
             label="Görev"
             value={item.role}
-            onChange={(value) => write(patchMember(list, index, { role: value }))}
+            onChange={(value) => onChange(patchMember(list, index, { role: value }))}
             placeholder="Başkan, Sayman, Asıl Üye"
           />
           <Field
             label="Telefon Numarası"
             value={item.phone || ""}
-            onChange={(value) => write(patchMember(list, index, { phone: value }))}
+            onChange={(value) => onChange(patchMember(list, index, { phone: value }))}
           />
           <Field
             label="Fotoğraf URL"
             value={item.photo || ""}
-            onChange={(value) => write(patchMember(list, index, { photo: value }))}
+            onChange={(value) => onChange(patchMember(list, index, { photo: value }))}
             placeholder="https://... veya /hafiza/portre.jpg"
           />
           <PhotoField
             label="Fotoğraf dosyası (boşsa harfler görünür)"
             shape="round"
             value={item.photo || ""}
-            onChange={(value) => write(patchMember(list, index, { photo: value }))}
+            onChange={(value) => onChange(patchMember(list, index, { photo: value }))}
             onFile={async (file) => {
               const uploaded = await onUpload(file);
               if (!uploaded) return;
-              write(patchMember(list, index, { photo: uploaded }));
+              onChange(patchMember(list, index, { photo: uploaded }));
             }}
           />
         </EditorCard>
@@ -822,7 +796,13 @@ async function uploadImage(file: File) {
   const body = new FormData();
   body.append("file", file);
   const response = await fetch("/api/upload", { method: "POST", body });
-  const json = (await response.json()) as { src?: string; error?: string };
+  const text = await response.text();
+  let json: { src?: string; error?: string } = {};
+  try {
+    json = text ? (JSON.parse(text) as { src?: string; error?: string }) : {};
+  } catch {
+    throw new Error("Sunucu yanıt vermedi. Fotoğraf 4 MB altında olsun.");
+  }
   if (!response.ok || !json.src) throw new Error(json.error || "Yüklenemedi.");
   return json.src;
 }
@@ -847,7 +827,6 @@ export default function AdminShell({
   const router = useRouter();
   const theme = useAnkaderTheme();
   const [tab, setTab] = useState<TabId>("ozet");
-  const [kurulKind, setKurulKind] = useState<"yonetim" | "denetim">("yonetim");
   const [data, setData] = useState<SiteData>({
     ...initialData,
     members: initialData.members ?? [],
@@ -1085,7 +1064,8 @@ export default function AdminShell({
     kabul: applications.filter((item) => item.status === "kabul").length,
     red: applications.filter((item) => item.status === "red").length,
     tumu: applications.length,
-    kurul: data.yonetim_kurulu.length + data.denetim_kurulu.length,
+    yonetim: data.yonetim_kurulu.length,
+    denetim: data.denetim_kurulu.length,
     uyeler: members.length,
     duyuru: data.posts.length,
     faaliyet: data.hafiza.length,
@@ -1202,7 +1182,8 @@ export default function AdminShell({
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {(
                     [
-                      ["kurul", "Kurul üyesi", overviewCounts.kurul, Users],
+                      ["yonetim", "Yönetim kurulu", overviewCounts.yonetim, Users],
+                      ["denetim", "Denetim kurulu", overviewCounts.denetim, Users],
                       ["uyeler", "Sitedeki üye", overviewCounts.uyeler, Users],
                       ["duyuru", "Duyuru", overviewCounts.duyuru, Bell],
                       ["faaliyet", "Faaliyet", overviewCounts.faaliyet, BookOpen],
@@ -1509,14 +1490,22 @@ export default function AdminShell({
             </section>
           )}
 
-          {tab === "kurul" && (
+          {tab === "yonetim" && (
             <CouncilPanel
-              kind={kurulKind}
-              onKind={setKurulKind}
-              yonetim={data.yonetim_kurulu}
-              denetim={data.denetim_kurulu}
-              onYonetim={(yonetim_kurulu) => setData({ ...data, yonetim_kurulu, board: yonetim_kurulu })}
-              onDenetim={(denetim_kurulu) => setData({ ...data, denetim_kurulu })}
+              title="Yönetim Kurulu"
+              list={data.yonetim_kurulu}
+              defaultRole="Yönetim Kurulu Üyesi"
+              onChange={(yonetim_kurulu) => setData({ ...data, yonetim_kurulu, board: yonetim_kurulu })}
+              onUpload={uploadAndNotify}
+            />
+          )}
+
+          {tab === "denetim" && (
+            <CouncilPanel
+              title="Denetim Kurulu"
+              list={data.denetim_kurulu}
+              defaultRole="Denetim Kurulu Üyesi"
+              onChange={(denetim_kurulu) => setData({ ...data, denetim_kurulu })}
               onUpload={uploadAndNotify}
             />
           )}
