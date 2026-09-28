@@ -1,3 +1,4 @@
+import ChairLetter from "@/components/ChairLetter";
 import CouncilGrid from "@/components/CouncilGrid";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
@@ -26,6 +27,10 @@ export default async function YonetimPage() {
 
         <section className="relative z-10 -mt-20 px-5 pb-24 sm:-mt-24 sm:px-8">
           <div className="mx-auto max-w-6xl">
+            <ChairLetter
+              message={site.baskanSozu}
+              portrait={site.yonetim_kurulu.find((person) => person.name.trim() === site.baskanSozu.name.trim())}
+            />
             <CouncilGrid people={site.yonetim_kurulu} />
           </div>
         </section>

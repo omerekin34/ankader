@@ -33,13 +33,19 @@ const SOCIAL = {
     "M12.04 2c-5.5 0-9.96 4.45-9.96 9.94 0 1.75.46 3.46 1.33 4.97L2 22l5.24-1.37A10 10 0 0 0 12.04 22c5.5 0 9.96-4.46 9.96-9.96C22 6.45 17.54 2 12.04 2zm0 18.18c-1.57 0-3.1-.42-4.44-1.2l-.32-.19-3.11.81.83-3.03-.2-.33a8.18 8.18 0 0 1-1.26-4.34c0-4.52 3.68-8.2 8.2-8.2 4.52 0 8.2 3.68 8.2 8.2 0 4.51-3.68 8.18-8.2 8.18zm4.5-6.13c-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.8-.77.96-.14.16-.29.18-.53.06-.24-.12-1.02-.38-1.95-1.2-.72-.64-1.21-1.43-1.35-1.67-.14-.24-.02-.37.11-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.43.06-.65.3-.22.24-.86.84-.86 2.05s.88 2.38 1 2.54c.12.16 1.73 2.64 4.2 3.7.59.25 1.04.4 1.4.52.59.19 1.12.16 1.54.1.47-.07 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z",
 };
 
-export const kurumsalLinks = [
-  { href: "/hakkimizda", label: "Hakkımızda" },
-  { href: "/tuzuk", label: "Tüzük" },
+export const councilLinks = [
   { href: "/yonetim", label: "Yönetim Kurulu" },
   { href: "/denetim", label: "Denetim Kurulu" },
-  { href: "/iletisim", label: "İletişim" },
 ];
+
+const kurumsalBefore = [
+  { href: "/hakkimizda", label: "Hakkımızda" },
+  { href: "/tuzuk", label: "Tüzük" },
+];
+
+const kurumsalAfter = [{ href: "/iletisim", label: "İletişim" }];
+
+export const kurumsalLinks = [...kurumsalBefore, ...councilLinks, ...kurumsalAfter];
 
 export const navLinks = [
   { href: "/faaliyetler", label: "Faaliyetler" },
@@ -51,8 +57,6 @@ export const footerLinks = [
   { href: "/uyeler/ayricaliklar", label: "Üye Ayrıcalıkları" },
   { href: "/uyeler/blog", label: "Üyelerden Blog Yazıları" },
   { href: "/faaliyetler", label: "Faaliyetler" },
-  { href: "/yonetim", label: "Yönetim Kurulu" },
-  { href: "/denetim", label: "Denetim Kurulu" },
   { href: "/duyurular", label: "Duyurular" },
   { href: "/iletisim", label: "İletişim" },
   { href: "/tuzuk", label: "Tüzük" },
@@ -67,12 +71,14 @@ export function Navbar({
 }) {
   const [open, setOpen] = useState(false);
   const [kurumsalOpen, setKurumsalOpen] = useState(false);
+  const [councilsOpen, setCouncilsOpen] = useState(false);
   const [uyeOpen, setUyeOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const home = pathname === "/";
   const overlay = home && !scrolled;
-  const kurumsalActive = kurumsalLinks.some((link) => link.href === pathname);
+  const councilsActive = councilLinks.some((link) => link.href === pathname);
+  const kurumsalActive = councilsActive || kurumsalLinks.some((link) => link.href === pathname);
   const uyeActive = pathname === "/uyeler" || uyeLinks.some((link) => pathname === link.href);
 
   useEffect(() => {
@@ -86,6 +92,7 @@ export function Navbar({
     setOpen(false);
     setKurumsalOpen(false);
     setUyeOpen(false);
+    setCouncilsOpen(councilLinks.some((link) => link.href === pathname));
   }, [pathname]);
 
   useEffect(() => {
@@ -177,7 +184,42 @@ export function Navbar({
                 role="menu"
                 className="overflow-hidden rounded-xl border border-white/10 bg-secondary py-1.5 shadow-[0_24px_48px_-18px_rgba(0,0,0,0.75)]"
               >
-                {kurumsalLinks.map((link) => (
+                {kurumsalBefore.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    role="menuitem"
+                    className={`nav-drop-item ${pathname === link.href ? "is-active" : ""}`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <button
+                  type="button"
+                  aria-expanded={councilsOpen}
+                  onClick={() => setCouncilsOpen((value) => !value)}
+                  className={`nav-drop-item flex w-full items-center justify-between gap-3 text-left ${
+                    councilsActive || councilsOpen ? "is-active" : ""
+                  }`}
+                >
+                  Kurullar
+                  <ChevronDown className={`size-3.5 shrink-0 transition ${councilsOpen ? "rotate-180" : ""}`} aria-hidden />
+                </button>
+                {councilsOpen ? (
+                  <div className="nav-council" role="group" aria-label="Kurullar">
+                    {councilLinks.map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        role="menuitem"
+                        className={`nav-drop-item ${pathname === link.href ? "is-active" : ""}`}
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+                {kurumsalAfter.map((link) => (
                   <a
                     key={link.href}
                     href={link.href}
@@ -309,7 +351,46 @@ export function Navbar({
               </button>
               {kurumsalOpen ? (
                 <div className="mb-1 ml-3 border-l border-white/10 pl-2">
-                  {kurumsalLinks.map((link) => (
+                  {kurumsalBefore.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`block rounded-xl px-3 py-2.5 text-[15px] ${
+                        pathname === link.href ? "bg-white/10 text-primary" : "text-white/80"
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                  <button
+                    type="button"
+                    aria-expanded={councilsOpen}
+                    onClick={() => setCouncilsOpen((value) => !value)}
+                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-[15px] ${
+                      councilsActive ? "text-primary" : "text-white/90"
+                    }`}
+                  >
+                    Kurullar
+                    <ChevronDown className={`size-4 transition ${councilsOpen ? "rotate-180" : ""}`} aria-hidden />
+                  </button>
+                  {councilsOpen ? (
+                    <div className="mb-1 ml-3 border-l border-primary/50 pl-2">
+                      {councilLinks.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setOpen(false)}
+                          className={`block rounded-xl px-3 py-2.5 text-[15px] ${
+                            pathname === link.href ? "bg-white/10 text-primary" : "text-white/80"
+                          }`}
+                        >
+                          {link.label}
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
+                  {kurumsalAfter.map((link) => (
                     <a
                       key={link.href}
                       href={link.href}
@@ -468,7 +549,26 @@ export function Footer({
             Hızlı linkler
           </h2>
           <ul className="mt-5 space-y-2.5">
-            {footerLinks.map((link) => (
+            {footerLinks.slice(0, 4).map((link) => (
+              <li key={link.href}>
+                <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <p className="pt-1 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">Kurullar</p>
+              <ul className="mt-2 space-y-1.5 border-l border-primary/40 pl-3">
+                {councilLinks.map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+            {footerLinks.slice(4).map((link) => (
               <li key={link.href}>
                 <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
                   {link.label}

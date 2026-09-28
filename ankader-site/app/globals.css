@@ -292,6 +292,29 @@ h2,
   height: 1.1rem;
 }
 
+button.nav-drop-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.nav-council {
+  margin: 0 0.55rem 0.45rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.7rem;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.nav-council .nav-drop-item {
+  padding-top: 0.58rem;
+  padding-bottom: 0.58rem;
+  padding-left: 1.35rem;
+  font-size: 0.8125rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .slide-zoom {
     animation: none;

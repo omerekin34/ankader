@@ -461,12 +461,14 @@ function Field({
   onChange,
   multiline,
   placeholder,
+  rows = 4,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   multiline?: boolean;
   placeholder?: string;
+  rows?: number;
 }) {
   const cls =
     "admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none";
@@ -474,7 +476,7 @@ function Field({
     <label className="block text-sm font-medium text-secondary">
       {label}
       {multiline ? (
-        <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} placeholder={placeholder} className={cls} />
+        <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={rows} placeholder={placeholder} className={cls} />
       ) : (
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={cls} />
       )}
@@ -827,6 +829,12 @@ export default function AdminShell({
   const router = useRouter();
   const theme = useAnkaderTheme();
   const [tab, setTab] = useState<TabId>("ozet");
+  const [councilsOpen, setCouncilsOpen] = useState(false);
+  const councilsOn = tab === "yonetim" || tab === "denetim";
+
+  useEffect(() => {
+    if (councilsOn) setCouncilsOpen(true);
+  }, [councilsOn]);
   const [data, setData] = useState<SiteData>({
     ...initialData,
     members: initialData.members ?? [],
@@ -1082,19 +1090,58 @@ export default function AdminShell({
             <p className="px-3 text-[11px] font-semibold tracking-[0.2em] text-primary uppercase">Yönetim</p>
             <h1 className="px-3 text-lg font-extrabold">Panel</h1>
             <nav className="mt-6 space-y-1">
-              {tabs.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setTab(item.id)}
-                  className={`flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition ${
-                    tab === item.id ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"
-                  }`}
-                >
-                  <item.icon className="size-4" aria-hidden />
-                  {item.label}
-                </button>
-              ))}
+              {tabs.map((item) => {
+                if (item.id === "denetim") return null;
+                if (item.id === "yonetim") {
+                  return (
+                    <div key="kurullar">
+                      <button
+                        type="button"
+                        aria-expanded={councilsOpen}
+                        onClick={() => setCouncilsOpen((value) => !value)}
+                        className={`flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition ${
+                          councilsOn ? "text-primary" : "text-secondary hover:bg-primary/10"
+                        }`}
+                      >
+                        <Users className="size-4" aria-hidden />
+                        Kurullar
+                        <ChevronDown className={`ml-auto size-4 transition ${councilsOpen ? "rotate-180" : ""}`} aria-hidden />
+                      </button>
+                      {councilsOpen ? (
+                        <div className="mt-1 ml-4 space-y-1 border-l border-primary/40 pl-2">
+                          {tabs
+                            .filter((entry) => entry.id === "yonetim" || entry.id === "denetim")
+                            .map((entry) => (
+                              <button
+                                key={entry.id}
+                                type="button"
+                                onClick={() => setTab(entry.id)}
+                                className={`flex w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                                  tab === entry.id ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"
+                                }`}
+                              >
+                                {entry.label}
+                              </button>
+                            ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                }
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setTab(item.id)}
+                    className={`flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition ${
+                      tab === item.id ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"
+                    }`}
+                  >
+                    <item.icon className="size-4" aria-hidden />
+                    {item.label}
+                  </button>
+                );
+              })}
             </nav>
             <div className="mt-6 space-y-2 border-t border-secondary/10 pt-4">
               <div className="flex items-center justify-between px-3 py-1">
@@ -1120,18 +1167,54 @@ export default function AdminShell({
           <div className="admin-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl px-4 py-3">
             <div className="flex items-center gap-3">
               <div className="flex gap-2 overflow-x-auto lg:hidden">
-                {tabs.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setTab(item.id)}
-                    className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold ${
-                      tab === item.id ? "bg-primary text-white" : "bg-background text-secondary"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+                {tabs.map((item) => {
+                  if (item.id === "denetim") return null;
+                  if (item.id === "yonetim") {
+                    return (
+                      <div key="kurullar" className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          aria-expanded={councilsOpen}
+                          onClick={() => setCouncilsOpen((value) => !value)}
+                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold ${
+                            councilsOn ? "bg-primary text-white" : "bg-background text-secondary"
+                          }`}
+                        >
+                          Kurullar
+                          <ChevronDown className={`size-3.5 transition ${councilsOpen ? "rotate-180" : ""}`} aria-hidden />
+                        </button>
+                        {councilsOpen
+                          ? tabs
+                              .filter((entry) => entry.id === "yonetim" || entry.id === "denetim")
+                              .map((entry) => (
+                                <button
+                                  key={entry.id}
+                                  type="button"
+                                  onClick={() => setTab(entry.id)}
+                                  className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold ${
+                                    tab === entry.id ? "bg-primary text-white" : "bg-background text-secondary"
+                                  }`}
+                                >
+                                  {entry.label}
+                                </button>
+                              ))
+                          : null}
+                      </div>
+                    );
+                  }
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setTab(item.id)}
+                      className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold ${
+                        tab === item.id ? "bg-primary text-white" : "bg-background text-secondary"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
               <div className="lg:hidden">
                 <ThemeToggle surface="panel" />
@@ -1491,13 +1574,71 @@ export default function AdminShell({
           )}
 
           {tab === "yonetim" && (
-            <CouncilPanel
-              title="Yönetim Kurulu"
-              list={data.yonetim_kurulu}
-              defaultRole="Yönetim Kurulu Üyesi"
-              onChange={(yonetim_kurulu) => setData({ ...data, yonetim_kurulu, board: yonetim_kurulu })}
-              onUpload={uploadAndNotify}
-            />
+            <section className="grid gap-4">
+              <article className="admin-card grid gap-4 rounded-3xl p-5">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">Başkan'dan söz</p>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-accent">
+                    Yönetim Kurulu sayfasında, üye kartlarının üstünde mektup olarak durur. Vurgu cümlesi metnin içinde kendi paragrafı olsun; sayfada ayrı bir şerit olur.
+                  </p>
+                </div>
+                <Field
+                  label="Üst yazı"
+                  value={data.baskanSozu.eyebrow}
+                  onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, eyebrow: value } })}
+                />
+                <Field
+                  multiline
+                  label="Hitap"
+                  value={data.baskanSozu.greeting}
+                  onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, greeting: value } })}
+                />
+                <Field
+                  multiline
+                  rows={16}
+                  label="Söz"
+                  value={data.baskanSozu.body}
+                  onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, body: value } })}
+                  placeholder="Paragrafların arasına bir boş satır bırak."
+                />
+                <Field
+                  multiline
+                  label="Vurgu cümlesi"
+                  value={data.baskanSozu.highlight}
+                  onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, highlight: value } })}
+                />
+                <Field
+                  multiline
+                  label="Kapanış cümlesi"
+                  value={data.baskanSozu.closing}
+                  onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, closing: value } })}
+                />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field
+                    label="Veda"
+                    value={data.baskanSozu.farewell}
+                    onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, farewell: value } })}
+                  />
+                  <Field
+                    label="İmza"
+                    value={data.baskanSozu.name}
+                    onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, name: value } })}
+                  />
+                  <Field
+                    label="Unvan"
+                    value={data.baskanSozu.role}
+                    onChange={(value) => setData({ ...data, baskanSozu: { ...data.baskanSozu, role: value } })}
+                  />
+                </div>
+              </article>
+              <CouncilPanel
+                title="Yönetim Kurulu"
+                list={data.yonetim_kurulu}
+                defaultRole="Yönetim Kurulu Üyesi"
+                onChange={(yonetim_kurulu) => setData({ ...data, yonetim_kurulu, board: yonetim_kurulu })}
+                onUpload={uploadAndNotify}
+              />
+            </section>
           )}
 
           {tab === "denetim" && (
