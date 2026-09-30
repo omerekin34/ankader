@@ -21,7 +21,7 @@ export default async function DenetimPage() {
         <PageHero
           eyebrow="Kurumsal"
           title="Denetim Kurulu"
-          text="Hesabı ve işleyişi denetleyenler. İsimler, görevler ve fotoğraflar panelden güncellenir."
+          text="Hesabı ve işleyişi denetleyenler."
         />
 
         <section className="relative z-10 -mt-20 px-5 pb-24 sm:-mt-24 sm:px-8">

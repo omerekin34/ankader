@@ -22,7 +22,7 @@ export default async function YonetimPage() {
         <PageHero
           eyebrow="Kurumsal"
           title="Yönetim Kurulu"
-          text="Derneği birlikte yönetenler. İsimler, görevler ve fotoğraflar panelden güncellenir."
+          text="Derneği birlikte yönetenler."
         />
 
         <section className="relative z-10 -mt-20 px-5 pb-24 sm:-mt-24 sm:px-8">
