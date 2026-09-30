@@ -6,20 +6,15 @@ function telHref(phone: string) {
   return digits ? `tel:${digits}` : "";
 }
 
-function ChipText({ label }: { label: string }) {
-  const parts = label.split(/\s+/).filter(Boolean);
-  if (parts.length < 3) return label;
-  const splitAt = Math.ceil(parts.length / 2);
-  const head = parts.slice(0, splitAt).join("\u00A0");
-  const tail = parts.slice(splitAt).join("\u00A0");
-  return (
-    <>
-      {head}
-      {" "}
-      <wbr />
-      {tail}
-    </>
-  );
+function formatPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  let local = digits;
+  if (local.startsWith("90") && local.length === 12) local = local.slice(2);
+  else if (local.startsWith("0") && local.length === 11) local = local.slice(1);
+  if (local.length === 10) {
+    return `+90 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8)}`;
+  }
+  return phone.trim();
 }
 
 function ContactBox({ href, label, icon }: { href: string; label: string; icon: ReactNode }) {
@@ -27,13 +22,14 @@ function ContactBox({ href, label, icon }: { href: string; label: string; icon: 
     <a
       href={href}
       aria-label={label}
-      className="group/chip grid w-full min-w-0 max-w-full grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-2xl border border-primary/35 bg-secondary text-white shadow-[0_14px_30px_-18px_rgba(20,195,208,0.85)] transition-[grid-template-columns,transform,border-color] duration-300 hover:border-primary sm:inline-grid sm:w-auto sm:grid-cols-[2.25rem_0fr] sm:items-center sm:hover:-translate-y-0.5 sm:group-hover/card:grid-cols-[2.25rem_minmax(0,1fr)] sm:group-focus-within/card:grid-cols-[2.25rem_minmax(0,1fr)] sm:group-hover/chip:grid-cols-[2.25rem_minmax(0,1fr)] sm:group-focus-visible/chip:grid-cols-[2.25rem_minmax(0,1fr)] [@media(hover:none)]:w-full [@media(hover:none)]:grid-cols-[2rem_minmax(0,1fr)] sm:[@media(hover:none)]:grid-cols-[2.25rem_minmax(0,1fr)]"
+      title={label}
+      className="inline-flex w-max max-w-full items-stretch overflow-hidden rounded-full border border-primary/35 bg-secondary text-white shadow-[0_10px_24px_-16px_rgba(20,195,208,0.9)] transition-[transform,border-color] duration-300 hover:-translate-y-0.5 hover:border-primary"
     >
-      <span className="grid min-h-8 place-items-center bg-primary text-secondary sm:min-h-9">{icon}</span>
-      <span className="min-w-0">
-        <span className="block px-1.5 py-2 text-[11px] leading-snug font-medium tracking-tight sm:px-3 sm:py-2.5 sm:text-sm sm:leading-none sm:tracking-normal sm:whitespace-nowrap">
-          <ChipText label={label} />
-        </span>
+      <span className="grid w-8 shrink-0 place-items-center bg-primary text-secondary @max-[11rem]:w-7">
+        {icon}
+      </span>
+      <span className="flex min-w-0 items-center px-2.5 py-2 text-[13px] leading-none font-medium tracking-wide @max-[11rem]:px-2 @max-[11rem]:text-[11px] @max-[11rem]:tracking-tight">
+        <span className="truncate">{label}</span>
       </span>
     </a>
   );
@@ -54,8 +50,8 @@ export default function BoardContact({
   if (!mail && !tel) return null;
 
   return (
-    <div className={`mt-4 flex flex-col gap-2 ${align === "center" ? "items-center" : "items-start"}`}>
-      {tel ? <ContactBox href={telHref(tel)} label={tel} icon={<Phone className="size-3.5" aria-hidden />} /> : null}
+    <div className={`@container mt-4 flex w-full min-w-0 flex-col gap-2 ${align === "center" ? "items-center" : "items-start"}`}>
+      {tel ? <ContactBox href={telHref(tel)} label={formatPhone(tel)} icon={<Phone className="size-3.5" aria-hidden />} /> : null}
       {mail ? <ContactBox href={`mailto:${mail}`} label={mail} icon={<Mail className="size-3.5" aria-hidden />} /> : null}
     </div>
   );

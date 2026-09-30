@@ -2238,8 +2238,6 @@ export default function AdminShell({
               <Field label="Çalışma saatleri" value={data.contact.hours} onChange={(value) => setData({ ...data, contact: { ...data.contact, hours: value } })} />
               <Field label="Kütük no" value={data.contact.registry} onChange={(value) => setData({ ...data, contact: { ...data.contact, registry: value } })} />
               <Field label="Instagram" value={data.contact.instagram} onChange={(value) => setData({ ...data, contact: { ...data.contact, instagram: value } })} />
-              <Field label="Twitter / X" value={data.contact.twitter} onChange={(value) => setData({ ...data, contact: { ...data.contact, twitter: value } })} />
-              <Field label="LinkedIn" value={data.contact.linkedin} onChange={(value) => setData({ ...data, contact: { ...data.contact, linkedin: value } })} />
               <Field
                 label="WhatsApp topluluk daveti (chat.whatsapp.com/...)"
                 value={data.contact.whatsappCommunity ?? ""}

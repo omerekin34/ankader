@@ -16,8 +16,8 @@ const fallbackContact: SiteData["contact"] = {
   phone: "+90 531 945 02 36",
   hours: "Açık · Kapanış saati 17:00",
   instagram: "https://www.instagram.com/ankaderresmi/",
-  twitter: "https://x.com",
-  linkedin: "https://linkedin.com",
+  twitter: "",
+  linkedin: "",
   whatsappCommunity: "",
   registry: "06.123.456",
 };
@@ -25,10 +25,7 @@ const fallbackContact: SiteData["contact"] = {
 const SOCIAL = {
   instagram:
     "M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 4.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm6.2-.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1zM12 9.2A2.8 2.8 0 1 1 9.2 12 2.8 2.8 0 0 1 12 9.2z",
-  twitter:
-    "M19.6 4.5h-2.3l-3.5 4.4-2.8-4.4H5.4l5.2 7.7L5.2 19.5h2.3l3.9-4.9 3.1 4.9h5.7l-5.6-8.4 5-6.6z",
-  linkedin:
-    "M6.5 9.5H4V20h2.5zM5.2 4a1.6 1.6 0 1 0 1.6 1.6A1.6 1.6 0 0 0 5.2 4zM20 20h-2.5v-5.6c0-1.8-.8-2.4-1.8-2.4s-2 .9-2 2.5V20H11V9.5h2.4v1.4a3.3 3.3 0 0 1 2.8-1.5c2.2 0 3.8 1.4 3.8 4.4z",
+  mail: "M4 4h16a2 2 0 0 1 2 2v.4l-10 6.25L2 6.4V6a2 2 0 0 1 2-2zm18 5.15V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.15l9.37 5.86a1.2 1.2 0 0 0 1.26 0z",
   whatsapp:
     "M12.04 2c-5.5 0-9.96 4.45-9.96 9.94 0 1.75.46 3.46 1.33 4.97L2 22l5.24-1.37A10 10 0 0 0 12.04 22c5.5 0 9.96-4.46 9.96-9.96C22 6.45 17.54 2 12.04 2zm0 18.18c-1.57 0-3.1-.42-4.44-1.2l-.32-.19-3.11.81.83-3.03-.2-.33a8.18 8.18 0 0 1-1.26-4.34c0-4.52 3.68-8.2 8.2-8.2 4.52 0 8.2 3.68 8.2 8.2 0 4.51-3.68 8.18-8.2 8.18zm4.5-6.13c-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.8-.77.96-.14.16-.29.18-.53.06-.24-.12-1.02-.38-1.95-1.2-.72-.64-1.21-1.43-1.35-1.67-.14-.24-.02-.37.11-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.43.06-.65.3-.22.24-.86.84-.86 2.05s.88 2.38 1 2.54c.12.16 1.73 2.64 4.2 3.7.59.25 1.04.4 1.4.52.59.19 1.12.16 1.54.1.47-.07 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z",
 };
@@ -104,8 +101,7 @@ export function Navbar({
 
   const socials = [
     { label: "Instagram", href: contact.instagram, path: SOCIAL.instagram },
-    { label: "Twitter", href: contact.twitter, path: SOCIAL.twitter },
-    { label: "LinkedIn", href: contact.linkedin, path: SOCIAL.linkedin },
+    { label: "E-posta", href: `mailto:${contact.email}`, path: SOCIAL.mail },
     {
       label: "WhatsApp topluluğu",
       href: contact.whatsappCommunity || "https://wa.me/905319450236",
@@ -122,20 +118,22 @@ export function Navbar({
       <div className={`border-b border-white/5 transition-colors duration-300 ${glassTop}`}>
         <div className="mx-auto flex max-w-7xl items-center gap-5 px-5 py-2 sm:px-8">
           <div className="flex shrink-0 items-center gap-3.5">
-            {socials.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={item.label}
-                className="text-white/75 transition hover:text-primary"
-              >
-                <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden>
-                  <path d={item.path} />
-                </svg>
-              </a>
-            ))}
+            {socials.map((item) => {
+              const external = item.href.startsWith("http");
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                  aria-label={item.label}
+                  className="text-white/75 transition hover:text-primary"
+                >
+                  <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden>
+                    <path d={item.path} />
+                  </svg>
+                </a>
+              );
+            })}
           </div>
           <div className="min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
             <p className="slogan-marquee flex w-max items-center gap-8 text-[11px] font-medium tracking-[0.2em] text-white/80 uppercase sm:text-xs">
@@ -470,11 +468,11 @@ export function Navbar({
 }
 
 function SocialIcon({ label, path, href }: { label: string; path: string; href: string }) {
+  const external = href.startsWith("http");
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noreferrer"
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
       className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-white transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-secondary"
     >
@@ -589,14 +587,9 @@ export function Footer({
               path={SOCIAL.instagram}
             />
             <SocialIcon
-              label="Twitter"
-              href={contact.twitter}
-              path={SOCIAL.twitter}
-            />
-            <SocialIcon
-              label="LinkedIn"
-              href={contact.linkedin}
-              path={SOCIAL.linkedin}
+              label="E-posta"
+              href={`mailto:${contact.email}`}
+              path={SOCIAL.mail}
             />
             <SocialIcon
               label="WhatsApp topluluğu"

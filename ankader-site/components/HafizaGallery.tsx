@@ -23,6 +23,25 @@ export default function HafizaGallery({
     return [...set];
   }, [source]);
   const [tag, setTag] = useState(initialTag && tags.includes(initialTag) ? initialTag : "Tümü");
+  const [filtersOpen, setFiltersOpen] = useState(Boolean(initialTag && tags.includes(initialTag)));
+
+  function pickTag(next: string) {
+    setTag(next);
+    setFiltersOpen(true);
+  }
+
+  const counts = useMemo(() => {
+    const result: Record<string, number> = { Tümü: source.length };
+    for (const item of source) {
+      for (const itemTag of item.tags) result[itemTag] = (result[itemTag] ?? 0) + 1;
+    }
+    return result;
+  }, [source]);
+
+  const filters = useMemo(
+    () => ["Tümü", ...tags.filter((item) => (counts[item] ?? 0) > 0)],
+    [counts, tags],
+  );
 
   const items = useMemo(() => {
     if (preview) return source.slice(0, 6);
@@ -33,27 +52,42 @@ export default function HafizaGallery({
   return (
     <div>
       {!preview && (
-        <FilterPanel active={tag !== "Tümü"} defaultOpen={Boolean(initialTag && tags.includes(initialTag))}>
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Faaliyet etiketleri">
-            {["Tümü", ...tags].map((item) => {
-              const active = tag === item;
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setTag(item)}
-                  className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
-                    active
-                      ? "border-primary bg-primary text-white"
-                      : "border-secondary/10 bg-white text-secondary hover:border-primary/40"
-                  }`}
-                >
-                  {item}
-                </button>
-              );
-            })}
+        <FilterPanel
+          active={tag !== "Tümü"}
+          summary={tag !== "Tümü" ? tag : undefined}
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+        >
+          <div className="rounded-2xl border border-secondary/10 bg-[#f6f4ee] p-2.5 sm:p-3 dark:border-white/10 dark:bg-[#0c1822]">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5" role="tablist" aria-label="Faaliyet etiketleri">
+              {filters.map((item) => {
+                const active = tag === item;
+                const count = counts[item] ?? 0;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => pickTag(item)}
+                    className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
+                      active
+                        ? "border-primary bg-primary text-white shadow-[0_12px_24px_-14px_rgba(20,195,208,0.95)]"
+                        : "border-secondary/10 bg-[#ffffff] text-secondary hover:border-primary/45 dark:border-white/10 dark:bg-[#173044] dark:text-[#e8eef3] dark:hover:border-primary/50"
+                    }`}
+                  >
+                    <span className="min-w-0 truncate">{item}</span>
+                    <span
+                      className={`inline-flex min-w-6 shrink-0 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                        active ? "bg-white/20 text-white" : "bg-secondary/[0.06] text-accent dark:bg-white/10"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </FilterPanel>
       )}
@@ -83,7 +117,7 @@ export default function HafizaGallery({
                         window.location.href = `/faaliyetler?tag=${encodeURIComponent(itemTag)}`;
                         return;
                       }
-                      setTag(itemTag);
+                      pickTag(itemTag);
                     }}
                     className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-primary uppercase"
                   >
