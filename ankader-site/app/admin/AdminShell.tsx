@@ -41,6 +41,7 @@ const tabs = [
   { id: "faaliyet", label: "Faaliyetler", icon: BookOpen },
   { id: "yonetim", label: "Yönetim Kurulu", icon: Users },
   { id: "denetim", label: "Denetim Kurulu", icon: Users },
+  { id: "baskanlar", label: "Dernek Başkanlarımız", icon: Users },
   { id: "uyeler", label: "Üyelerimiz", icon: Users },
   { id: "duyuru", label: "Duyurular", icon: Bell },
   { id: "hakkimizda", label: "Hakkımızda", icon: MessageSquare },
@@ -129,7 +130,7 @@ function matchesTime(createdAt: string, when: TimeFilter, from: string, to: stri
 
 type TabId = (typeof tabs)[number]["id"];
 
-type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "yonetim" | "denetim" | "uyeler" | "duyuru" | "faaliyet" | "ayricalik";
+type OverviewKey = "yeni" | "inceleniyor" | "kabul" | "red" | "tumu" | "yonetim" | "denetim" | "baskanlar" | "uyeler" | "duyuru" | "faaliyet" | "ayricalik";
 
 function OverviewCard({
   label,
@@ -203,6 +204,7 @@ const overviewTitles: Record<OverviewKey, string> = {
   red: "Reddedilen başvurular",
   yonetim: "Yönetim Kurulu",
   denetim: "Denetim Kurulu",
+  baskanlar: "Dernek Başkanlarımız",
   uyeler: "Sitedeki üyeler",
   duyuru: "Duyurular",
   faaliyet: "Faaliyetler",
@@ -245,6 +247,7 @@ function OverviewDetail({
   function jump() {
     if (overview === "yonetim") onOpenTab("yonetim");
     else if (overview === "denetim") onOpenTab("denetim");
+    else if (overview === "baskanlar") onOpenTab("baskanlar");
     else if (overview === "uyeler") onOpenTab("uyeler");
     else if (overview === "duyuru") onOpenTab("duyuru");
     else if (overview === "faaliyet") onOpenTab("faaliyet");
@@ -257,6 +260,8 @@ function OverviewDetail({
       ? data.yonetim_kurulu.length
       : overview === "denetim"
         ? data.denetim_kurulu.length
+        : overview === "baskanlar"
+          ? data.dernekBaskanlari.people.length
       : overview === "uyeler"
         ? members.length
         : overview === "duyuru"
@@ -327,12 +332,17 @@ function OverviewDetail({
         </ul>
       )}
 
-      {(overview === "yonetim" || overview === "denetim") && (
+      {(overview === "yonetim" || overview === "denetim" || overview === "baskanlar") && (
         <OverviewRows
-          empty="Bu kurulda kimse yok."
+          empty={overview === "baskanlar" ? "Henüz başkan yok." : "Bu kurulda kimse yok."}
           openId={overviewItem}
           onToggle={toggle}
-          rows={(overview === "yonetim" ? data.yonetim_kurulu : data.denetim_kurulu).map((member, index) => ({
+          rows={(overview === "yonetim"
+            ? data.yonetim_kurulu
+            : overview === "denetim"
+              ? data.denetim_kurulu
+              : data.dernekBaskanlari.people
+          ).map((member, index) => ({
             id: `${overview}-${index}`,
             title: member.name || "İsimsiz",
             meta: member.role || "Görev yazılmamış",
@@ -589,32 +599,44 @@ function CouncilPanel({
   defaultRole,
   onChange,
   onUpload,
+  hint = "Ad soyad, görev, telefon ve fotoğraf adresi. Fotoğraf boşsa sitede ismin baş harfleri görünür. Kayıt, site içeriğinin içine yazılır.",
+  addLabel = "Üye ekle",
+  emptyTitle = "Bu kurulda üye yok.",
+  emptyText = "Üye ekle ile ilk kartı aç.",
+  roleLabel = "Görev",
+  rolePlaceholder = "Başkan, Sayman, Asıl Üye",
 }: {
   title: string;
   list: SiteBoardMember[];
   defaultRole: string;
   onChange: (list: SiteBoardMember[]) => void;
   onUpload: (file: File) => Promise<string | null>;
+  hint?: string;
+  addLabel?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  roleLabel?: string;
+  rolePlaceholder?: string;
 }) {
   return (
     <section className="grid gap-4">
       <ListHead
         title={title}
-        hint="Ad soyad, görev, telefon ve fotoğraf adresi. Fotoğraf boşsa sitede ismin baş harfleri görünür. Kayıt, site içeriğinin içine yazılır."
+        hint={hint}
         action={
           <AddButton
             onClick={() =>
               onChange([{ initials: "YY", name: "", role: defaultRole, email: "", phone: "", photo: "" }, ...list])
             }
           >
-            Üye ekle
+            {addLabel}
           </AddButton>
         }
       />
       {list.length === 0 ? (
         <article className="admin-card rounded-2xl p-8">
-          <p className="text-sm font-semibold">Bu kurulda üye yok.</p>
-          <p className="mt-2 text-sm leading-7 text-accent">Üye ekle ile ilk kartı aç.</p>
+          <p className="text-sm font-semibold">{emptyTitle}</p>
+          <p className="mt-2 text-sm leading-7 text-accent">{emptyText}</p>
         </article>
       ) : null}
       {list.map((item, index) => (
@@ -631,10 +653,10 @@ function CouncilPanel({
             onChange={(value) => onChange(patchMember(list, index, { name: value }))}
           />
           <Field
-            label="Görev"
+            label={roleLabel}
             value={item.role}
             onChange={(value) => onChange(patchMember(list, index, { role: value }))}
-            placeholder="Başkan, Sayman, Asıl Üye"
+            placeholder={rolePlaceholder}
           />
           <Field
             label="Telefon Numarası"
@@ -1097,6 +1119,7 @@ export default function AdminShell({
     tumu: applications.length,
     yonetim: data.yonetim_kurulu.length,
     denetim: data.denetim_kurulu.length,
+    baskanlar: data.dernekBaskanlari.people.length,
     uyeler: members.length,
     duyuru: data.posts.length,
     faaliyet: data.hafiza.length,
@@ -1291,6 +1314,7 @@ export default function AdminShell({
                     [
                       ["yonetim", "Yönetim kurulu", overviewCounts.yonetim, Users],
                       ["denetim", "Denetim kurulu", overviewCounts.denetim, Users],
+                      ["baskanlar", "Dernek başkanı", overviewCounts.baskanlar, Users],
                       ["uyeler", "Sitedeki üye", overviewCounts.uyeler, Users],
                       ["duyuru", "Duyuru", overviewCounts.duyuru, Bell],
                       ["faaliyet", "Faaliyet", overviewCounts.faaliyet, BookOpen],
@@ -1674,6 +1698,54 @@ export default function AdminShell({
               onChange={(denetim_kurulu) => setData({ ...data, denetim_kurulu })}
               onUpload={uploadAndNotify}
             />
+          )}
+
+          {tab === "baskanlar" && (
+            <section className="grid gap-4">
+              <article className="admin-card grid gap-4 rounded-3xl p-5">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">Sayfa</p>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-accent">
+                    Kurumsal menüsündeki Dernek Başkanlarımız sayfasının başlığı ve giriş yazısı. Kişiler aşağıdan eklenir; kaydettikten sonra sitede görünür.
+                  </p>
+                </div>
+                <Field
+                  label="Üst yazı"
+                  value={data.dernekBaskanlari.eyebrow}
+                  onChange={(value) =>
+                    setData({ ...data, dernekBaskanlari: { ...data.dernekBaskanlari, eyebrow: value } })
+                  }
+                />
+                <Field
+                  label="Başlık"
+                  value={data.dernekBaskanlari.title}
+                  onChange={(value) =>
+                    setData({ ...data, dernekBaskanlari: { ...data.dernekBaskanlari, title: value } })
+                  }
+                />
+                <Field
+                  multiline
+                  label="Giriş yazısı"
+                  value={data.dernekBaskanlari.text}
+                  onChange={(value) =>
+                    setData({ ...data, dernekBaskanlari: { ...data.dernekBaskanlari, text: value } })
+                  }
+                />
+              </article>
+              <CouncilPanel
+                title="Dernek başkanları"
+                list={data.dernekBaskanlari.people}
+                defaultRole="Başkan"
+                addLabel="Başkan ekle"
+                emptyTitle="Henüz başkan yok."
+                emptyText="Başkan ekle ile ilk kişiyi aç."
+                roleLabel="Dönem / unvan"
+                rolePlaceholder="2020–2022, Kurucu Başkan"
+                hint="Ad soyad, dönem veya unvan, telefon ve fotoğraf. Fotoğraf boşsa sitede ismin baş harfleri görünür."
+                onChange={(people) => setData({ ...data, dernekBaskanlari: { ...data.dernekBaskanlari, people } })}
+                onUpload={uploadAndNotify}
+              />
+            </section>
           )}
 
           {tab === "uyeler" && (

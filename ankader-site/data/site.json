@@ -145,6 +145,12 @@
     { "initials": "FK", "name": "Ferhat Kabataş", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" },
     { "initials": "EK", "name": "Engin Karakoyun", "role": "Yedek Üye", "phone": "", "email": "", "photo": "" }
   ],
+  "dernekBaskanlari": {
+    "eyebrow": "Kurumsal",
+    "title": "Dernek Başkanlarımız",
+    "text": "Derneğe başkanlık etmiş isimler.",
+    "people": []
+  },
   "members": [],
   "posts": [
     {

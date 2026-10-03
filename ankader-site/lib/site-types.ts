@@ -76,6 +76,13 @@ export type SitePrivilege = {
   text: string;
 };
 
+export type SitePresidents = {
+  eyebrow: string;
+  title: string;
+  text: string;
+  people: SiteBoardMember[];
+};
+
 export type SiteChairLetter = {
   eyebrow: string;
   greeting: string;
@@ -138,6 +145,7 @@ export type SiteData = {
   board: SiteBoardMember[];
   yonetim_kurulu: SiteBoardMember[];
   denetim_kurulu: SiteBoardMember[];
+  dernekBaskanlari: SitePresidents;
   baskanSozu: SiteChairLetter;
   privileges: {
     eyebrow: string;

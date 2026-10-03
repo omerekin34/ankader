@@ -63,6 +63,12 @@ export const defaultSite: SiteData = {
   board: [],
   yonetim_kurulu: [],
   denetim_kurulu: [],
+  dernekBaskanlari: {
+    eyebrow: "Kurumsal",
+    title: "Dernek Başkanlarımız",
+    text: "Derneğe başkanlık etmiş isimler.",
+    people: [],
+  },
   baskanSozu: {
     eyebrow: "Başkan'dan söz",
     greeting: "Kıymetli Mezunlarımız, Değerli Mensuplarımız ve Aziz Gönül Dostlarımız,",
@@ -312,6 +318,8 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
   const legacyBoard = Array.isArray(raw.board) ? raw.board : [];
   const yonetim_kurulu = councilList(raw.yonetim_kurulu, legacyBoard);
   const denetim_kurulu = councilList(raw.denetim_kurulu, []);
+  const presidents = fillObject(defaultSite.dernekBaskanlari, raw.dernekBaskanlari);
+  presidents.people = councilList(raw.dernekBaskanlari?.people, []);
 
   return {
     hero,
@@ -323,6 +331,7 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
     board: yonetim_kurulu,
     yonetim_kurulu,
     denetim_kurulu,
+    dernekBaskanlari: presidents,
     baskanSozu: fillObject(defaultSite.baskanSozu, raw.baskanSozu),
     privileges: {
       ...fillObject(defaultSite.privileges, raw.privileges),

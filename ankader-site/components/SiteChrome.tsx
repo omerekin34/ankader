@@ -40,9 +40,11 @@ const kurumsalBefore = [
   { href: "/tuzuk", label: "Tüzük" },
 ];
 
+export const baskanLink = { href: "/dernek-baskanlarimiz", label: "Dernek Başkanlarımız" };
+
 const kurumsalAfter = [{ href: "/iletisim", label: "İletişim" }];
 
-export const kurumsalLinks = [...kurumsalBefore, ...councilLinks, ...kurumsalAfter];
+export const kurumsalLinks = [...kurumsalBefore, ...councilLinks, baskanLink, ...kurumsalAfter];
 
 export const navLinks = [
   { href: "/faaliyetler", label: "Faaliyetler" },
@@ -177,7 +179,7 @@ export function Navbar({
               Kurumsal
               <ChevronDown className="nav-chevron size-3.5" />
             </button>
-            <div className="nav-drop absolute left-1/2 top-full z-50 w-60 pt-3">
+            <div className="nav-drop absolute left-1/2 top-full z-50 w-64 pt-3">
               <div
                 role="menu"
                 className="overflow-hidden rounded-xl border border-white/10 bg-secondary py-1.5 shadow-[0_24px_48px_-18px_rgba(0,0,0,0.75)]"
@@ -217,6 +219,13 @@ export function Navbar({
                     ))}
                   </div>
                 ) : null}
+                <a
+                  href={baskanLink.href}
+                  role="menuitem"
+                  className={`nav-drop-item ${pathname === baskanLink.href ? "is-active" : ""}`}
+                >
+                  {baskanLink.label}
+                </a>
                 {kurumsalAfter.map((link) => (
                   <a
                     key={link.href}
@@ -388,6 +397,15 @@ export function Navbar({
                       ))}
                     </div>
                   ) : null}
+                  <a
+                    href={baskanLink.href}
+                    onClick={() => setOpen(false)}
+                    className={`block rounded-xl px-3 py-2.5 text-[15px] ${
+                      pathname === baskanLink.href ? "bg-white/10 text-primary" : "text-white/80"
+                    }`}
+                  >
+                    {baskanLink.label}
+                  </a>
                   {kurumsalAfter.map((link) => (
                     <a
                       key={link.href}
@@ -565,6 +583,11 @@ export function Footer({
                   </li>
                 ))}
               </ul>
+            </li>
+            <li>
+              <a href={baskanLink.href} className="text-sm text-white/80 transition hover:text-primary">
+                {baskanLink.label}
+              </a>
             </li>
             {footerLinks.slice(4).map((link) => (
               <li key={link.href}>

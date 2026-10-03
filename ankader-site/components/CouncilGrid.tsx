@@ -6,9 +6,15 @@ function isChair(role: string) {
   return role.toLocaleLowerCase("tr-TR").includes("başkan");
 }
 
-export default function CouncilGrid({ people }: { people: SiteBoardMember[] }) {
+export default function CouncilGrid({
+  people,
+  empty = "Bu kurul henüz eklenmedi.",
+}: {
+  people: SiteBoardMember[];
+  empty?: string;
+}) {
   if (!people.length) {
-    return <p className="mt-8 text-sm text-accent">Bu kurul henüz eklenmedi.</p>;
+    return <p className="mt-8 text-sm text-accent">{empty}</p>;
   }
 
   return (
