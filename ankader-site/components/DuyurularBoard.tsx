@@ -2,10 +2,11 @@
 
 import CommunityJoin from "@/components/CommunityJoin";
 import { POST_TAGS } from "@/lib/site-types";
+import type { PostStatus } from "@/lib/posts";
 import FilterPanel from "@/components/FilterPanel";
-import { ArrowRight, Bell, Search } from "lucide-react";
+import { ArrowRight, Bell, Clock, Search } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 export type DuyuruCard = {
   day: string;
@@ -16,9 +17,86 @@ export type DuyuruCard = {
   slug: string;
   href: string;
   image?: string;
+  date?: string;
+  status: PostStatus;
+  isNew: boolean;
+  remaining: string | null;
+  time?: string;
 };
 
 const filters = ["Tümü", ...POST_TAGS] as const;
+
+export function StatusChip({ status }: { status: PostStatus }) {
+  if (status === "none") return null;
+  const cls =
+    status === "upcoming"
+      ? "bg-primary/15 text-primary"
+      : status === "today"
+        ? "bg-primary text-white"
+        : "bg-secondary/15 text-accent";
+  const text = status === "upcoming" ? "Yaklaşıyor" : status === "today" ? "Bugün" : "Sona erdi";
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${cls}`}>
+      {text}
+    </span>
+  );
+}
+
+function DuyuruRow({ post }: { post: DuyuruCard }) {
+  return (
+    <li>
+      <a
+        href={post.href}
+        className="group grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 rounded-2xl border border-secondary/10 bg-background/60 p-4 transition hover:-translate-y-0.5 hover:border-primary/40 sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:p-5"
+      >
+        <span
+          className={`flex flex-col items-center justify-center rounded-xl py-2 ${
+            post.status === "ended"
+              ? "bg-secondary/40 text-white/70"
+              : `bg-secondary text-white${post.status === "today" ? " ring-2 ring-primary" : ""}`
+          }`}
+        >
+          <span className="text-2xl font-extrabold leading-none tabular-nums">{post.day}</span>
+          <span className="mt-1 text-[11px] font-semibold tracking-[0.16em] uppercase">{post.month}</span>
+        </span>
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-center gap-2">
+            <StatusChip status={post.status} />
+            {post.isNew ? (
+              <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">
+                Yeni
+              </span>
+            ) : null}
+            <span className="text-[11px] font-semibold tracking-wide text-primary uppercase">{post.tag}</span>
+          </span>
+          <span className="mt-1.5 block font-sans text-base font-semibold leading-snug sm:text-lg">{post.title}</span>
+          <span className="mt-1 block line-clamp-1 text-sm leading-6 text-accent">{post.text}</span>
+          {post.remaining ? (
+            <span className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-accent">
+              <Clock className="size-3.5" aria-hidden />
+              {post.remaining}
+              {post.time ? ` · ${post.time}` : ""}
+            </span>
+          ) : null}
+        </span>
+        <span className="hidden items-center gap-3 sm:flex">
+          {post.image ? (
+            <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
+              <Image src={post.image} alt="" fill sizes="64px" unoptimized={post.image.startsWith("http")} className="object-cover" />
+            </span>
+          ) : null}
+          <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
+        </span>
+      </a>
+    </li>
+  );
+}
+
+function GroupHeading({ children }: { children: ReactNode }) {
+  return (
+    <p className="mt-8 text-[11px] font-semibold tracking-[0.2em] text-primary uppercase first:mt-0">{children}</p>
+  );
+}
 
 export default function DuyurularBoard({
   posts,
@@ -45,6 +123,10 @@ export default function DuyurularBoard({
       return [post.title, post.text, post.tag, post.day, post.month].join(" ").toLocaleLowerCase("tr-TR").includes(q);
     });
   }, [posts, tag, query]);
+
+  const upcoming = visible.filter((post) => post.status === "upcoming" || post.status === "today");
+  const rest = visible.filter((post) => post.status !== "upcoming" && post.status !== "today");
+  const grouped = upcoming.length > 0;
 
   return (
     <div>
@@ -104,40 +186,29 @@ export default function DuyurularBoard({
           <Bell className="mx-auto size-6 text-primary" />
           <p className="mt-4 text-sm leading-7 text-accent">Bu filtrede duyuru yok. Etiketi veya aramayı değiştir.</p>
         </div>
+      ) : grouped ? (
+        <>
+          <GroupHeading>Yaklaşan</GroupHeading>
+          <ul className="mt-4 grid gap-3">
+            {upcoming.map((post) => (
+              <DuyuruRow key={post.slug} post={post} />
+            ))}
+          </ul>
+          {rest.length > 0 ? (
+            <>
+              <GroupHeading>Geçmiş ve diğer</GroupHeading>
+              <ul className="mt-4 grid gap-3">
+                {rest.map((post) => (
+                  <DuyuruRow key={post.slug} post={post} />
+                ))}
+              </ul>
+            </>
+          ) : null}
+        </>
       ) : (
-        <ul className="mt-4 divide-y divide-secondary/10">
-          {visible.map((post, index) => (
-            <li key={post.slug}>
-              <a
-                href={post.href}
-                className="group grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-start gap-4 py-5 sm:items-center"
-              >
-                <span className="flex flex-col">
-                  <span className="text-2xl font-extrabold leading-none tabular-nums">{post.day}</span>
-                  <span className="mt-1 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">{post.month}</span>
-                </span>
-                <span className="min-w-0">
-                  <span className="inline-flex items-center gap-2">
-                    {index === 0 && tag === "Tümü" && !query.trim() ? (
-                      <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">
-                        Yeni
-                      </span>
-                    ) : null}
-                    <span className="text-[11px] font-semibold tracking-wide text-primary uppercase">{post.tag}</span>
-                  </span>
-                  <span className="mt-1.5 block font-sans text-base font-semibold leading-snug sm:text-lg">{post.title}</span>
-                  <span className="mt-1 block line-clamp-1 text-sm leading-6 text-accent">{post.text}</span>
-                </span>
-                <span className="flex items-center gap-3">
-                  {post.image ? (
-                    <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-secondary/10">
-                      <Image src={post.image} alt="" fill sizes="64px" unoptimized={post.image.startsWith("http")} className="object-cover" />
-                    </span>
-                  ) : null}
-                  <ArrowRight className="size-4 shrink-0 text-primary transition duration-300 group-hover:translate-x-0.5" />
-                </span>
-              </a>
-            </li>
+        <ul className="mt-4 grid gap-3">
+          {visible.map((post) => (
+            <DuyuruRow key={post.slug} post={post} />
           ))}
         </ul>
       )}

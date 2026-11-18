@@ -1,6 +1,7 @@
 import ContributeChoice from "@/app/uye/ContributeChoice";
 import JoinPageHero from "@/app/uye/JoinPageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -17,7 +18,7 @@ export default async function UyePage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <Suspense fallback={<p className="bg-secondary px-5 pt-36 text-sm text-white/70">Yükleniyor…</p>}>
           <JoinPageHero donate={site.donate} />

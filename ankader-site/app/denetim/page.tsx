@@ -1,6 +1,7 @@
 import CouncilGrid from "@/components/CouncilGrid";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
@@ -16,7 +17,7 @@ export default async function DenetimPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero
           eyebrow="Kurumsal"

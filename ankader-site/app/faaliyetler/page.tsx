@@ -1,6 +1,7 @@
 import HafizaGallery from "@/components/HafizaGallery";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
@@ -22,7 +23,7 @@ export default async function FaaliyetlerPage({
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero
           eyebrow="Faaliyetler"

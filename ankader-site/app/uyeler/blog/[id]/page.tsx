@@ -1,6 +1,8 @@
+import RichText from "@/components/RichText";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { readPublishedBlog } from "@/lib/blog-data";
 import { blogDateLabel } from "@/lib/blog-types";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
@@ -41,7 +43,7 @@ export default async function UyeBlogDetailPage({ params }: PageProps) {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <section className="relative bg-secondary text-white">
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -65,7 +67,7 @@ export default async function UyeBlogDetailPage({ params }: PageProps) {
           <article className="mx-auto max-w-3xl rounded-[1.8rem] bg-white px-6 py-10 shadow-[0_18px_50px_-28px_rgba(15,44,65,0.45)] sm:px-10 sm:py-12">
             <div className="space-y-5 text-base leading-8 text-accent">
               {paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
+                <p key={index}><RichText text={paragraph} /></p>
               ))}
             </div>
           </article>

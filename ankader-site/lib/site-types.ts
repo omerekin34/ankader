@@ -30,6 +30,8 @@ export type SitePost = {
   tag?: string;
   slug?: string;
   image?: string;
+  date?: string;
+  createdAt?: string;
 };
 
 export type SiteMember = {
@@ -156,6 +158,13 @@ export type SiteData = {
   };
   members: SiteMember[];
   posts: SitePost[];
+  countdown: {
+    enabled: boolean;
+    mode: "auto" | "manual";
+    postSlug: string;
+    label: string;
+    showEnded: boolean;
+  };
   hafiza: SiteHafiza[];
   about: {
     heroEyebrow: string;

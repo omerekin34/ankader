@@ -3,6 +3,7 @@ import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import { blogErrorMessage, readPublishedBlogs } from "@/lib/blog-data";
 import type { PublicBlogPost } from "@/lib/blog-types";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
@@ -26,7 +27,7 @@ export default async function UyeBlogPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero
           eyebrow="Üyeler"

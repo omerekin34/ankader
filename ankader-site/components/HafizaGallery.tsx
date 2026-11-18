@@ -1,6 +1,7 @@
 "use client";
 
 import FilterPanel from "@/components/FilterPanel";
+import TagFilterBar from "@/components/TagFilterBar";
 import { hafizaTags } from "@/lib/hafiza";
 import type { SiteHafiza } from "@/lib/site-types";
 import Image from "next/image";
@@ -52,44 +53,39 @@ export default function HafizaGallery({
   return (
     <div>
       {!preview && (
-        <FilterPanel
-          active={tag !== "Tümü"}
-          summary={tag !== "Tümü" ? tag : undefined}
-          open={filtersOpen}
-          onOpenChange={setFiltersOpen}
-        >
-          <div className="rounded-2xl border border-secondary/10 bg-[#f6f4ee] p-2.5 sm:p-3 dark:border-white/10 dark:bg-[#0c1822]">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5" role="tablist" aria-label="Faaliyet etiketleri">
-              {filters.map((item) => {
-                const active = tag === item;
-                const count = counts[item] ?? 0;
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => pickTag(item)}
-                    className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
-                      active
-                        ? "border-primary bg-primary text-white shadow-[0_12px_24px_-14px_rgba(20,195,208,0.95)]"
-                        : "border-secondary/10 bg-[#ffffff] text-secondary hover:border-primary/45 dark:border-white/10 dark:bg-[#173044] dark:text-[#e8eef3] dark:hover:border-primary/50"
-                    }`}
-                  >
-                    <span className="min-w-0 truncate">{item}</span>
-                    <span
-                      className={`inline-flex min-w-6 shrink-0 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                        active ? "bg-white/20 text-white" : "bg-secondary/[0.06] text-accent dark:bg-white/10"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+        <div className="relative sm:hidden">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold tracking-[0.22em] text-accent uppercase">Filtrele</p>
+            {tag !== "Tümü" && (
+              <button
+                type="button"
+                onClick={() => pickTag("Tümü")}
+                className="text-xs font-semibold text-primary"
+              >
+                Temizle
+              </button>
+            )}
           </div>
-        </FilterPanel>
+          <div className="relative mt-3">
+            <TagFilterBar filters={filters} counts={counts} value={tag} onChange={pickTag} />
+            <div className="pointer-events-none absolute -right-5 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-[#0b1620]" aria-hidden />
+          </div>
+        </div>
+      )}
+
+      {!preview && (
+        <div className="hidden sm:block">
+          <FilterPanel
+            active={tag !== "Tümü"}
+            summary={tag !== "Tümü" ? tag : undefined}
+            open={filtersOpen}
+            onOpenChange={setFiltersOpen}
+          >
+            <div className="rounded-2xl border border-secondary/10 bg-[#f6f4ee] p-3 dark:border-white/10 dark:bg-[#0c1822]">
+              <TagFilterBar filters={filters} counts={counts} value={tag} onChange={pickTag} />
+            </div>
+          </FilterPanel>
+        </div>
       )}
 
       <div className={`${preview ? "" : "mt-8"} grid gap-6 sm:grid-cols-2 lg:grid-cols-3`}>

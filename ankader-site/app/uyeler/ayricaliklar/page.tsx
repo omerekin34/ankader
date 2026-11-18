@@ -1,5 +1,6 @@
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
@@ -16,7 +17,7 @@ export default async function UyeAyricaliklariPage() {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero eyebrow={page.eyebrow || "Üyeler"} title={page.title || "Üye Ayrıcalıkları"} text={page.text} />
         <section className="relative z-10 -mt-20 px-5 pb-24 sm:-mt-24 sm:px-8">

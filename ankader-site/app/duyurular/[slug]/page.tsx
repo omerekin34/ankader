@@ -1,7 +1,19 @@
 import CommunityJoin from "@/components/CommunityJoin";
+import RichText from "@/components/RichText";
 import JoinBand from "@/components/JoinBand";
 import { Footer, Navbar } from "@/components/SiteChrome";
-import { findPostBySlug, getPostHref, getPostTag, postParagraphs, postsWithSlugs } from "@/lib/posts";
+import {
+  countdownFor,
+  findPostBySlug,
+  getPostHref,
+  getPostStatus,
+  getPostTag,
+  postDateParts,
+  postParagraphs,
+  postsWithSlugs,
+  statusLabel,
+  timeUntilLabel,
+} from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
@@ -32,6 +44,10 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
   if (!post) notFound();
 
   const tag = getPostTag(post);
+  const parts = postDateParts(post);
+  const status = getPostStatus(post);
+  const statusText = statusLabel(status);
+  const remaining = timeUntilLabel(post);
   const paragraphs = postParagraphs(post);
   const related = postsWithSlugs(site.posts)
     .filter((item) => item.slug !== slug)
@@ -40,7 +56,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
 
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <section className="relative bg-secondary text-white">
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -56,12 +72,26 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
               <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
                 {tag}
               </span>
+              {statusText ? (
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.18em] uppercase ${
+                    status === "upcoming"
+                      ? "bg-primary/15 text-primary"
+                      : status === "today"
+                        ? "bg-primary text-white"
+                        : "bg-white/10 text-white/60"
+                  }`}
+                >
+                  {statusText}
+                </span>
+              ) : null}
               <span className="text-sm text-white/60">
-                {post.day} {post.month}
+                {parts.day} {parts.month}
               </span>
+              {remaining ? <span className="text-sm text-white/60">{remaining}</span> : null}
             </div>
             <h1 className="mt-5 text-3xl leading-[1.1] sm:text-5xl">{post.title}</h1>
-            <p className="mt-6 text-base leading-8 text-white/70">{post.text}</p>
+            <p className="mt-6 text-base leading-8 text-white/70"><RichText text={post.text} /></p>
           </div>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-background" />
         </section>
@@ -76,7 +106,7 @@ export default async function DuyuruDetayPage({ params }: PageProps) {
             <div className="px-6 py-8 sm:px-10 sm:py-12">
               <div className="space-y-5 text-base leading-8 text-accent">
                 {paragraphs.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
+                  <p key={index}><RichText text={paragraph} /></p>
                 ))}
               </div>
               <div className="mt-10 border-t border-secondary/10 pt-8">

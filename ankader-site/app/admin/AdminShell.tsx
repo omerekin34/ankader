@@ -31,6 +31,14 @@ import BlogApprovals from "@/components/BlogApprovals";
 import { applicantStages, type ApplicantStage, type ApplicationStatus, type MembershipApplication } from "@/lib/application-types";
 import type { BlogPost } from "@/lib/blog-types";
 import { councilInitials } from "@/lib/site-defaults";
+import {
+  getPostStatus,
+  pickCountdownPost,
+  postDateParts,
+  postsWithSlugs,
+  statusLabel as postStatusLabel,
+  timeUntilLabel,
+} from "@/lib/posts";
 import type { SiteBoardMember, SiteData } from "@/lib/site-types";
 
 const tabs = [
@@ -1867,14 +1875,14 @@ export default function AdminShell({
             <section className="grid gap-4">
               <ListHead
                 title="Duyurular"
-                hint="Listenin en üstündeki duyuru öne çıkar. Slug boşsa başlıktan üretilir."
+                hint="Tarih-saat girilen duyurular otomatik olarak Yaklaşıyor / Bugün / Sona erdi etiketi alır. En yakın duyuru üst bardaki geri sayımda görünür."
                 action={
                   <AddButton
                     onClick={() =>
                       setData({
                         ...data,
                         posts: [
-                          { day: "01", month: "Oca", title: "Yeni duyuru", text: "Kısa açıklama", body: "", tag: "Genel", slug: "", image: "" },
+                          { day: "01", month: "Oca", title: "Yeni duyuru", text: "Kısa açıklama", body: "", tag: "Genel", slug: "", image: "", date: "", createdAt: new Date().toISOString() },
                           ...data.posts,
                         ],
                       })
@@ -1884,6 +1892,68 @@ export default function AdminShell({
                   </AddButton>
                 }
               />
+              <article className="admin-card rounded-3xl p-5">
+                <p className="text-sm font-semibold text-secondary">Üst bar geri sayımı</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-secondary">
+                    <input
+                      type="checkbox"
+                      checked={data.countdown.enabled}
+                      onChange={(event) => setData({ ...data, countdown: { ...data.countdown, enabled: event.target.checked } })}
+                      className="size-4 accent-primary"
+                    />
+                    Geri sayımı göster
+                  </label>
+                  <label className="block text-sm font-medium text-secondary">
+                    Hangi duyuru
+                    <select
+                      value={data.countdown.mode}
+                      onChange={(event) => setData({ ...data, countdown: { ...data.countdown, mode: event.target.value as "auto" | "manual" } })}
+                      className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                    >
+                      <option value="auto">Otomatik (en yakın tarihli)</option>
+                      <option value="manual">Seçili duyuru</option>
+                    </select>
+                  </label>
+                  {data.countdown.mode === "manual" ? (
+                    <label className="block text-sm font-medium text-secondary">
+                      Duyuru
+                      <select
+                        value={data.countdown.postSlug}
+                        onChange={(event) => setData({ ...data, countdown: { ...data.countdown, postSlug: event.target.value } })}
+                        className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                      >
+                        <option value="">Seç…</option>
+                        {postsWithSlugs(data.posts).map(({ post, slug }) => (
+                          <option key={slug} value={slug}>
+                            {post.title || slug}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : null}
+                  <Field
+                    label="Etiket metni"
+                    value={data.countdown.label}
+                    onChange={(value) => setData({ ...data, countdown: { ...data.countdown, label: value } })}
+                  />
+                  <label className="flex items-center gap-2 text-sm font-medium text-secondary sm:col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={data.countdown.showEnded}
+                      onChange={(event) => setData({ ...data, countdown: { ...data.countdown, showEnded: event.target.checked } })}
+                      className="size-4 accent-primary"
+                    />
+                    Etkinlik başladıktan sonra 24 saat &quot;Başladı&quot; göster
+                  </label>
+                </div>
+                <p className="mt-3 text-xs text-accent">
+                  {(() => {
+                    const picked = pickCountdownPost(data);
+                    return picked ? `Şu an gösterilecek: ${picked.post.title}` : "Şu an gösterilecek duyuru yok";
+                  })()}
+                </p>
+              </article>
               {data.posts.map((item, index) => (
                 <EditorCard
                   key={index}
@@ -1892,12 +1962,44 @@ export default function AdminShell({
                   columns="grid gap-3 sm:grid-cols-2"
                   onRemove={() => setData({ ...data, posts: data.posts.filter((_, i) => i !== index) })}
                 >
-                  <Field label="Gün" value={item.day} onChange={(value) => {
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-secondary">
+                      Tarih ve saat
+                      <input
+                        type="datetime-local"
+                        value={item.date || ""}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          const posts = [...data.posts];
+                          const next = { ...item, date: value };
+                          if (value) {
+                            const parts = postDateParts(next);
+                            next.day = parts.day;
+                            next.month = parts.month;
+                          }
+                          posts[index] = next;
+                          setData({ ...data, posts });
+                        }}
+                        className="admin-field mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                      />
+                    </label>
+                    {(() => {
+                      const statusText = postStatusLabel(getPostStatus(item));
+                      const remaining = timeUntilLabel(item);
+                      if (!statusText && !remaining) return null;
+                      return (
+                        <p className="mt-1.5 text-xs text-accent">
+                          {[statusText, remaining !== "Sona erdi" ? remaining : null].filter(Boolean).join(" · ")}
+                        </p>
+                      );
+                    })()}
+                  </div>
+                  <Field label="Gün (otomatik)" value={item.day} onChange={(value) => {
                     const posts = [...data.posts];
                     posts[index] = { ...item, day: value };
                     setData({ ...data, posts });
                   }} />
-                  <Field label="Ay" value={item.month} onChange={(value) => {
+                  <Field label="Ay (otomatik)" value={item.month} onChange={(value) => {
                     const posts = [...data.posts];
                     posts[index] = { ...item, month: value };
                     setData({ ...data, posts });

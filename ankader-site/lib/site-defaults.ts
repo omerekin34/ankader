@@ -141,6 +141,13 @@ export const defaultSite: SiteData = {
   },
   members: [],
   posts: [],
+  countdown: {
+    enabled: true,
+    mode: "auto",
+    postSlug: "",
+    label: "Yaklaşan",
+    showEnded: true,
+  },
   hafiza: hafizaItems.map((item) => ({
     src: item.src,
     alt: item.alt,
@@ -345,6 +352,7 @@ export function applyDefaults(raw: Partial<SiteData>): SiteData {
     },
     members: Array.isArray(raw.members) ? raw.members : [],
     posts: Array.isArray(raw.posts) ? raw.posts : [],
+    countdown: fillObject(defaultSite.countdown, raw.countdown),
     hafiza: Array.isArray(raw.hafiza) && raw.hafiza.length ? raw.hafiza : defaultSite.hafiza.map((item) => ({ ...item, tags: [...item.tags] })),
     about,
     tuzuk,

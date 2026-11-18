@@ -23,9 +23,8 @@ const script = Great_Vibes({
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await readSite();
-  const headline = [site.hero.title, site.hero.titleEnd].filter(Boolean).join(" ").trim();
   return {
-    title: headline ? `ANKADER — ${headline}` : "ANKADER",
+    title: "ANKADER — Yeniden Küllerinden Doğuyor",
     description: site.hero.subtitle,
   };
 }

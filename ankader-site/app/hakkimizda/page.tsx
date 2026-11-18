@@ -3,6 +3,7 @@ import BoardContact from "@/components/BoardContact";
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import StatsStrip from "@/components/StatsStrip";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import { BookOpen, Compass, Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
@@ -23,7 +24,7 @@ export default async function HakkimizdaPage() {
   const team = site.yonetim_kurulu;
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero
           eyebrow={site.about.heroEyebrow}

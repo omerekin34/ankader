@@ -1,5 +1,6 @@
 import { PageHero } from "@/components/PageHero";
 import { Footer, Navbar } from "@/components/SiteChrome";
+import { countdownFor } from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { Metadata } from "next";
 
@@ -14,7 +15,7 @@ export default async function TuzukPage() {
   const site = await readSite();
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <PageHero eyebrow={site.tuzuk.eyebrow} title={site.tuzuk.title} text={site.tuzuk.text} />
         <section className="relative z-10 -mt-20 px-5 pb-12 sm:-mt-24 sm:px-8">

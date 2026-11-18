@@ -6,7 +6,16 @@ import JoinBand from "@/components/JoinBand";
 import { Footer, Navbar } from "@/components/SiteChrome";
 import StatsStrip from "@/components/StatsStrip";
 import type { CSSProperties } from "react";
-import { getPostHref, getPostTag } from "@/lib/posts";
+import {
+  countdownFor,
+  getPostHref,
+  getPostStatus,
+  getPostTag,
+  isPostNew,
+  postDateParts,
+  statusLabel,
+  timeUntilLabel,
+} from "@/lib/posts";
 import { readSite } from "@/lib/site-data";
 import type { SiteData } from "@/lib/site-types";
 import {
@@ -153,8 +162,18 @@ function Board({ board, home }: { board: SiteData["board"]; home: SiteData["home
   );
 }
 
+const statusChipClass: Record<string, string> = {
+  upcoming: "bg-primary/15 text-primary",
+  today: "bg-primary text-white",
+  ended: "bg-secondary/15 text-accent",
+};
+
 function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteData["home"] }) {
   const [featured, ...rest] = posts;
+  const featuredParts = featured ? postDateParts(featured) : { day: "", month: "" };
+  const featuredStatus = featured ? getPostStatus(featured) : "none";
+  const featuredStatusLabel = statusLabel(featuredStatus);
+  const featuredRemaining = featured ? timeUntilLabel(featured) : null;
   return (
     <section className="scroll-mt-28 px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
@@ -182,11 +201,24 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
                 </div>
               ) : null}
               <div className={`relative p-7 sm:p-10 ${featured.image ? "-mt-24" : ""}`}>
-                <span className="inline-flex rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
-                  {getPostTag(featured)} · {featured.day} {featured.month}
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
+                    {getPostTag(featured)} · {featuredParts.day} {featuredParts.month}
+                  </span>
+                  {featuredStatusLabel ? (
+                    <span className={`rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.18em] uppercase ${statusChipClass[featuredStatus]}`}>
+                      {featuredStatusLabel}
+                    </span>
+                  ) : null}
+                  {isPostNew(featured) ? (
+                    <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-white uppercase">
+                      Yeni
+                    </span>
+                  ) : null}
                 </span>
                 <h3 className="mt-5 max-w-3xl text-2xl leading-tight sm:text-4xl">{featured.title}</h3>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/70">{featured.text}</p>
+                {featuredRemaining ? <p className="mt-3 text-xs font-semibold text-primary">{featuredRemaining}</p> : null}
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
                   Duyuruyu oku
                   <ArrowRight className="size-4 transition duration-300 group-hover:translate-x-0.5" />
@@ -195,9 +227,13 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
             </a>
           )}
           <div className="grid gap-4 md:grid-cols-3">
-            {rest.map((post, index) => (
+            {rest.map((post, index) => {
+              const parts = postDateParts(post);
+              const status = getPostStatus(post);
+              const statusText = statusLabel(status);
+              return (
               <a
-                key={`${post.day}-${post.month}-${post.title}`}
+                key={`${parts.day}-${parts.month}-${post.title}`}
                 href={getPostHref(post, posts)}
                 data-reveal
                 className="reveal card-pro group flex flex-col overflow-hidden rounded-2xl border border-secondary/10 bg-white transition duration-300 hover:-translate-y-1 hover:border-primary/40"
@@ -210,17 +246,30 @@ function Announcements({ posts, home }: { posts: SiteData["posts"]; home: SiteDa
                 ) : null}
                 <span className="flex flex-col p-6">
                 <span className="flex size-14 flex-col items-center justify-center rounded-2xl bg-secondary text-white">
-                  <span className="text-lg font-extrabold leading-none">{post.day}</span>
+                  <span className="text-lg font-extrabold leading-none">{parts.day}</span>
                   <span className="mt-1 text-[10px] font-semibold tracking-wider text-primary uppercase">
-                    {post.month}
+                    {parts.month}
                   </span>
                 </span>
-                <span className="mt-5 text-[11px] font-semibold tracking-wide text-primary uppercase">{getPostTag(post)}</span>
+                <span className="mt-5 flex items-center gap-2">
+                  <span className="text-[11px] font-semibold tracking-wide text-primary uppercase">{getPostTag(post)}</span>
+                  {statusText ? (
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${statusChipClass[status]}`}>
+                      {statusText}
+                    </span>
+                  ) : null}
+                  {isPostNew(post) ? (
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">
+                      Yeni
+                    </span>
+                  ) : null}
+                </span>
                 <h3 className="mt-2 text-lg font-semibold leading-snug">{post.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-accent">{post.text}</p>
                 </span>
               </a>
-            ))}
+            );
+            })}
           </div>
         </div>
       </div>
@@ -232,7 +281,7 @@ export default async function Home() {
   const site = await readSite();
   return (
     <div className="bg-background text-secondary">
-      <Navbar contact={site.contact} ticker={site.identity.ticker} />
+      <Navbar contact={site.contact} ticker={site.identity.ticker} countdown={countdownFor(site)} />
       <main>
         <HeroSlider hero={site.hero} />
         <StatsStrip items={site.stats} faaliyetSayisi={site.hafiza.length} />

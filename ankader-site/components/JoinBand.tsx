@@ -1,3 +1,5 @@
+import { HeartHandshake, UserRound } from "lucide-react";
+
 export default function JoinBand({
   eyebrow = "Bu masada yerin var",
   title = "Öğrenciysen, gönüllüysen veya destek olmak istiyorsan kapı açık.",
@@ -18,14 +20,16 @@ export default function JoinBand({
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <a
             href="/uye?yol=uye"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-primary/90"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:bg-primary/90"
           >
+            <UserRound className="size-4" aria-hidden />
             Üye ol
           </a>
           <a
             href="/uye?yol=bagis"
-            className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:border-primary"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition duration-500 hover:border-primary"
           >
+            <HeartHandshake className="size-4" aria-hidden />
             Bağış yap
           </a>
         </div>

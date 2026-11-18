@@ -1,11 +1,12 @@
 "use client";
 
-import { BrandLockup, BrandStack } from "@/components/Brand";
+import { BrandLockup } from "@/components/Brand";
+import NavCountdown from "@/components/NavCountdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { defaultSite } from "@/lib/site-defaults";
 import type { SiteData } from "@/lib/site-types";
 import { uyeLinks } from "@/lib/nav";
-import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react";
+import { ArrowUp, ChevronDown, Clock, HeartHandshake, Mail, MapPin, Menu, Phone, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -64,9 +65,11 @@ export const footerLinks = [
 export function Navbar({
   contact = fallbackContact,
   ticker = defaultSite.identity.ticker,
+  countdown = null,
 }: {
   contact?: SiteData["contact"];
   ticker?: string;
+  countdown?: { label: string; title: string; href: string; date: string } | null;
 }) {
   const [open, setOpen] = useState(false);
   const [kurumsalOpen, setKurumsalOpen] = useState(false);
@@ -156,6 +159,9 @@ export function Navbar({
               </span>
             </p>
           </div>
+          {countdown ? (
+            <NavCountdown label={countdown.label} title={countdown.title} href={countdown.href} date={countdown.date} />
+          ) : null}
           <ThemeToggle />
         </div>
       </div>
@@ -284,14 +290,16 @@ export function Navbar({
         <div className="flex items-center gap-2">
           <a
             href="/uye?yol=uye"
-            className="hidden items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_24px_-10px_rgba(20,195,208,0.95)] transition hover:bg-primary/90 sm:inline-flex sm:text-sm"
+            className="hidden items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_24px_-10px_rgba(20,195,208,0.95)] transition hover:bg-primary/90 sm:inline-flex sm:text-sm"
           >
+            <UserRound className="size-3.5 sm:size-4" aria-hidden />
             Üye ol
           </a>
           <a
             href="/uye?yol=bagis"
-            className="hidden items-center justify-center whitespace-nowrap rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-primary sm:inline-flex sm:text-sm"
+            className="hidden items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-primary sm:inline-flex sm:text-sm"
           >
+            <HeartHandshake className="size-3.5 sm:size-4" aria-hidden />
             Bağış yap
           </a>
           <button
@@ -467,15 +475,17 @@ export function Navbar({
             <a
               href="/uye?yol=uye"
               onClick={() => setOpen(false)}
-              className="block rounded-full bg-primary px-3 py-3 text-center text-sm font-semibold text-white"
+              className="flex items-center justify-center gap-2 rounded-full bg-primary px-3 py-3 text-center text-sm font-semibold text-white"
             >
+              <UserRound className="size-4" aria-hidden />
               Üye ol
             </a>
             <a
               href="/uye?yol=bagis"
               onClick={() => setOpen(false)}
-              className="block rounded-full border border-white/25 px-3 py-3 text-center text-sm font-semibold text-white"
+              className="flex items-center justify-center gap-2 rounded-full border border-white/25 px-3 py-3 text-center text-sm font-semibold text-white"
             >
+              <HeartHandshake className="size-4" aria-hidden />
               Bağış yap
             </a>
           </div>
@@ -492,7 +502,7 @@ function SocialIcon({ label, path, href }: { label: string; path: string; href: 
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
-      className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-white transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-secondary"
+      className="inline-flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary/15 hover:text-primary"
     >
       <svg viewBox="0 0 24 24" className="size-4 fill-current" aria-hidden>
         <path d={path} />
@@ -508,102 +518,58 @@ export function Footer({
   contact?: SiteData["contact"];
   identity?: SiteData["identity"];
 }) {
+  const kesfetHrefs = ["/faaliyetler", "/duyurular", "/uyeler/ayricaliklar", "/uyeler/blog"];
+  const kesfetLinks = kesfetHrefs
+    .map((href) => footerLinks.find((link) => link.href === href))
+    .filter((link): link is (typeof footerLinks)[number] => Boolean(link));
+
+  const contactTiles = [
+    {
+      icon: MapPin,
+      label: "Adres",
+      value: contact.address,
+      href: contact.mapsUrl || "",
+      external: true,
+    },
+    {
+      icon: Mail,
+      label: "E-posta",
+      value: contact.email,
+      href: contact.email ? `mailto:${contact.email}` : "",
+      external: false,
+    },
+    {
+      icon: Phone,
+      label: "Telefon",
+      value: contact.phone,
+      href: contact.phone ? `tel:${contact.phone.replace(/\s+/g, "")}` : "",
+      external: false,
+    },
+    {
+      icon: Clock,
+      label: "Çalışma saati",
+      value: contact.hours,
+      href: "",
+      external: false,
+    },
+  ].filter((tile) => tile.value.trim());
+
   return (
-    <footer id="iletisim" className="scroll-mt-28 bg-secondary text-white">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
+    <footer id="iletisim" className="relative scroll-mt-28 overflow-hidden bg-secondary text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:48px_48px]"
+      />
+      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
+      <div aria-hidden className="relative h-px w-full bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+
+      <div className="relative mx-auto grid max-w-6xl gap-12 px-5 pt-16 pb-10 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr]">
         <div>
-          <a href="/" aria-label="ANKADER anasayfa" className="block">
-            <BrandStack className="w-40" onDark />
+          <a href="/" aria-label="ANKADER anasayfa" className="inline-flex">
+            <BrandLockup />
           </a>
-          <p className="mt-5 text-[11px] font-semibold leading-5 tracking-[0.16em] text-primary uppercase">
-            {identity.schoolName}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/80">{identity.footerTagline}</p>
-          <p className="mt-4 text-sm leading-relaxed text-white/70">{identity.footerMotto}</p>
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-            <a
-              href="/uye?yol=uye"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-            >
-              Üye ol
-            </a>
-            <a
-              href="/uye?yol=bagis"
-              className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-sm font-semibold hover:border-primary"
-            >
-              Bağış yap
-            </a>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-            İletişim
-          </h2>
-          <ul className="mt-5 space-y-3 text-sm text-white/80">
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              {contact.address}
-            </li>
-            <li className="flex items-center gap-2">
-              <Mail className="size-4 text-primary" aria-hidden />
-              {contact.email}
-            </li>
-            {contact.phone ? (
-              <li className="flex items-center gap-2">
-                <Phone className="size-4 text-primary" aria-hidden />
-                {contact.phone}
-              </li>
-            ) : null}
-            <li className="text-white/70">{contact.hours}</li>
-            <li className="text-white/70">Kütük No: {contact.registry}</li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-            Hızlı linkler
-          </h2>
-          <ul className="mt-5 space-y-2.5">
-            {footerLinks.slice(0, 4).map((link) => (
-              <li key={link.href}>
-                <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-            <li>
-              <p className="pt-1 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">Kurullar</p>
-              <ul className="mt-2 space-y-1.5 border-l border-primary/40 pl-3">
-                {councilLinks.map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </li>
-            <li>
-              <a href={baskanLink.href} className="text-sm text-white/80 transition hover:text-primary">
-                {baskanLink.label}
-              </a>
-            </li>
-            {footerLinks.slice(4).map((link) => (
-              <li key={link.href}>
-                <a href={link.href} className="text-sm text-white/80 transition hover:text-primary">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-            Sosyal medya
-          </h2>
-          <div className="mt-5 flex gap-3">
+          <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/70">{identity.footerTagline}</p>
+          <div className="mt-6 flex gap-3">
             <SocialIcon
               label="Instagram"
               href={contact.instagram}
@@ -620,16 +586,127 @@ export function Footer({
               path={SOCIAL.whatsapp}
             />
           </div>
-          <p className="mt-5 text-sm leading-relaxed text-white/70">
-            Üyelik ve bağış için bize yazın. Birlikte daha güçlüyüz.
-          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <a
+              href="/uye?yol=uye"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+            >
+              <UserRound className="size-4" aria-hidden />
+              Üye ol
+            </a>
+            <a
+              href="/uye?yol=bagis"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-primary"
+            >
+              <HeartHandshake className="size-4" aria-hidden />
+              Bağış yap
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">
+            Kurumsal
+          </h2>
+          <ul className="mt-5 space-y-2.5">
+            {kurumsalLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="inline-block text-sm text-white/70 transition hover:translate-x-0.5 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">
+            Keşfet
+          </h2>
+          <ul className="mt-5 space-y-2.5">
+            {kesfetLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="inline-block text-sm text-white/70 transition hover:translate-x-0.5 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">
+            Bize ulaşın
+          </h2>
+          <ul className="mt-5 space-y-4">
+            {contactTiles.map((tile) => {
+              const Icon = tile.icon;
+              const value = tile.href ? (
+                <a
+                  href={tile.href}
+                  {...(tile.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                  className="text-sm font-medium text-white transition hover:text-primary"
+                >
+                  {tile.value}
+                </a>
+              ) : (
+                <span className="text-sm font-medium text-white">{tile.value}</span>
+              );
+              return (
+                <li key={tile.label} className="flex items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-primary">
+                    <Icon className="size-4" aria-hidden />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[10px] font-semibold tracking-[0.2em] text-white/40 uppercase">
+                      {tile.label}
+                    </span>
+                    <span className="mt-0.5 block">{value}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-5 text-xs text-white/40">Kütük No: {contact.registry}</p>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-5 text-center text-xs text-white/50 sm:flex-row sm:justify-between sm:px-6 sm:text-left">
-          <p>© 2026 ANKADER</p>
-          <p>{identity.footerCredit}</p>
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-6">
+        <p
+          aria-hidden
+          className="text-center font-extrabold leading-none tracking-tight text-white/[0.04] select-none text-[clamp(4rem,16vw,12rem)]"
+        >
+          ANKADER
+        </p>
+        <p className="-mt-6 text-center text-[11px] font-semibold tracking-[0.18em] text-primary/80 uppercase">
+          {identity.schoolName}
+        </p>
+        <p className="mt-2 text-center text-sm text-white/60">{identity.footerMotto}</p>
+      </div>
+
+      <div className="relative mt-10 border-t border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-5 text-xs text-white/50 sm:flex-row sm:justify-between sm:px-6">
+          <div className="flex flex-col items-center gap-2 sm:items-start">
+            <p>© {new Date().getFullYear()} ANKADER. Tüm hakları saklıdır.</p>
+            <p className="flex items-center gap-2">
+              <span className="size-1.5 animate-pulse rounded-full bg-primary" aria-hidden />
+              {identity.footerCredit}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Yukarı çık"
+            className="inline-flex size-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-primary hover:text-primary"
+          >
+            <ArrowUp className="size-4" aria-hidden />
+          </button>
         </div>
       </div>
     </footer>
